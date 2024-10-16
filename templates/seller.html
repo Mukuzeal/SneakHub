@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Dashboard</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='sidenav.css') }}">
+
+</head>
+
+<body id="body-pd">
+    <!-- Top Nav (Hamburger & Profile) -->
+    <header class="header" id="header">
+        <div class="col-sm-11" style="height: 50px; margin-top: 15px;">
+            <i class='bx bx-menu' id="header-toggle"></i>
+        </div>
+        <div class="col-sm-1" style="height: 50px;">
+            <img src="images/logo.png" class="logo" alt="Logo">
+        </div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <div class="l-navbar" id="nav-bar">
+        <nav class="nav">
+            <div> 
+                <a href="#" class="nav_logo">
+                    <img src="images/profile.png" class="header_img" alt="Profile Image">
+                    <label id="uname">Username</label> <br>
+                    <label id="role">Seller's Location</label>
+                </a>
+                
+                <div class="nav_list"> 
+                    <a href="#" class="nav_link active"> 
+                        <i class='bx bxs-dashboard nav_icon'></i> 
+                        <span class="nav_name">Dashboard</span> 
+                    </a> 
+                    
+                    <a href="#" class="nav_link"> 
+                        <i class='bx bx-list-ul nav_icon'></i> 
+                        <span class="nav_name">Item List</span> 
+                    </a> 
+                    
+                    <a href="#" class="nav_link"> 
+                        <i class="bx bxs-message-alt-add nav_icon"></i>
+                        <span class="nav_name">Request</span>
+                    </a>
+                    
+                    <a href="#" class="nav_link">
+                        <i class='bx bxs-message-alt-check nav_icon'></i>
+                        <span class="nav_name">Updates Tab</span>
+                    </a>
+                    
+                    <a href="#" class="nav_link">
+                        <i class='bx bx-book-bookmark nav_icon'></i>
+                        <span class="nav_name">Tutorial</span>
+                    </a>
+                    
+                    <a href="#" class="nav_link">
+                         <i class='bx bxs-cog nav_icon'></i>
+                        <span class="nav_name">Account Setting</span>
+                    </a>
+                </div>
+            </div>
+            
+            <a href="#" class="nav_link">
+                <i class='bx bx-log-out nav_icon'></i>
+                <span class="nav_name">LOGOUT</span>
+            </a>
+        </nav>
+    </div>
+    
+    <!-- Main Dashboard Section -->
+    <div class="container">
+        <h1>Seller Dashboard 
+            <a href="#" class="icon_top"> 
+                <i class='bx bxs-cog bx-pull-right'></i>
+            </a>
+            <a href="#" class="icon_top"> 
+                <i class="bx bxs-bell bx-pull-right" id="notifbell"></i>
+            </a> 
+        </h1>
+
+        <!-- Cards for Dashboard Data -->
+        <div class="row row-cols-1 row-cols-sm-3 row-cols-md-3 row-cols-lg-8 row-cols-xl-12">
+
+            <!-- Card 1 -->
+            <div class="col mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">TOTAL DROPPED ITEMS</h5>
+                        <p class="card-text">
+                            <i class='bx bxl-dropbox' id="card_icon"></i> 165
+                        </p>
+                        <div class="card-footer">
+                            Add 
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="col mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">TOTAL COLLECTIONS</h5>
+                        <p class="card-text">
+                            <i class="bx bxs-wallet" id="card_icon"></i> 2,340
+                        </p>
+                        <div class="card-footer">
+                            Add 
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other cards... -->
+
+        </div>
+
+        <!-- Add Product Form -->
+        <div class="row">
+            <div class="col mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Add New Product</h5>
+                        
+                        <form id="addProductForm">
+                            <div class="mb-3">
+                                <label for="productName" class="form-label">Product Name</label>
+                                <input type="text" class="form-control" id="productName" placeholder="Enter product name" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="productPrice" class="form-label">Product Price</label>
+                                <input type="number" class="form-control" id="productPrice" placeholder="Enter product price" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="productDescription" class="form-label">Product Description</label>
+                                <textarea class="form-control" id="productDescription" rows="3" placeholder="Enter product description"></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Add Product</button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>  
+
+    <!-- JavaScript for Navbar Toggle -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function(event) {
+            const showNavbar = (toggleId, navId, bodyId, headerId) => {
+                const toggle = document.getElementById(toggleId),
+                      nav = document.getElementById(navId),
+                      bodypd = document.getElementById(bodyId),
+                      headerpd = document.getElementById(headerId);
+
+                if (toggle && nav && bodypd && headerpd) {
+                    toggle.addEventListener('click', () => {
+                        nav.classList.toggle('show');
+                        toggle.classList.toggle('bx-x');
+                        bodypd.classList.toggle('body-pd');
+                        headerpd.classList.toggle('body-pd');
+                    });
+                }
+            };
+
+            showNavbar('header-toggle', 'nav-bar', 'body-pd', 'header');
+
+            const linkColor = document.querySelectorAll('.nav_link');
+            function colorLink() {
+                if (linkColor) {
+                    linkColor.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            }
+            linkColor.forEach(l => l.addEventListener('click', colorLink));
+        });
+    </script>
+</body>
+</html>
