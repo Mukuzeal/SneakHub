@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Categories</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Manage Categories</h1>
+
+        <!-- Back to Admin Page Button -->
+        <form action="{{ url_for('go_to_admin') }}" method="post">
+            <button type="submit" class="back-btn">Back to Admin</button>
+        </form>
+
+        <!-- Add Category Form -->
+        <h2>Add Category</h2>
+        <form id="addCategoryForm" class="user-form">
+            <input type="text" name="category_name" placeholder="Category Name" required class="input-field" />
+            <textarea name="description" placeholder="Description" required class="input-field" draggable="false"></textarea>
+            <button type="submit" class="submit-btn">Add Category</button>
+        </form>
+
+        <!-- Categories Table -->
+        <h2>Categories List</h2>
+        <table id="categoriesTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Category Name</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="categoriesTableBody">
+                <!-- Categories will be populated here dynamically -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="{{ url_for('static', filename='categories.js') }}"></script>
+</body>
+</html>

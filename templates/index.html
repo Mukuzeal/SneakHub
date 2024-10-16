@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GoodBois Website</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <!-- Sign Up -->
+    <div class="container__form container--signup">
+        <form action="/submit_form" class="form" id="form1" method="POST">
+            <h2 class="form__title">Sign Up</h2>
+            <input type="text" id="name" name="name" placeholder="Full Name" class="input" required />
+            <input type="email" id="email" name="email" placeholder="Email" class="input" required />
+            <input type="password" id="password" name="password" placeholder="Password" class="input" required />
+            <button class="btn" type="submit">Sign Up</button>
+        </form>		
+    </div>
+
+    <!-- Sign In -->
+    <div class="container__form container--signin">
+        <form action="/login" class="form" id="form2" method="POST">
+            <h2 class="form__title">Sign In</h2>
+            <div id="notification" style="color: red; display: none;"></div>
+            <input type="email" id="email" name="email" placeholder="Email" class="input" required />
+            <input type="password" id="password" name="password" placeholder="Password" class="input" required />
+            <a href="/forgot_password" class="link">Forgot your password?</a>
+            <button class="btn" type="submit">Sign In</button>
+        </form>
+    </div>
+
+    <!-- Overlay -->
+    <div class="container__overlay">
+        <div class="overlay">
+            <div class="overlay__panel overlay--left">
+                <button class="btn" id="signIn">Sign In</button>
+            </div>
+            <div class="overlay__panel overlay--right">
+                <button class="btn" id="signUp">Sign Up</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Your Custom JavaScript -->
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

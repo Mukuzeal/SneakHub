@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Archived Users</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='archive.css') }}">
+</head>
+<body>
+    <h1>Archived Users</h1>
+
+    <!-- Go Back Button -->
+    <button id="goBackBtn" onclick="window.location.href='/admin';">Go Back</button>
+
+    
+    <!-- Archived User Table -->
+<h2>Archived User List</h2>
+<table id="archivedUserTable">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Password</th>
+            <th>User Type</th>
+            <th>Action</th> <!-- Column for Action buttons -->
+        </tr>
+    </thead>
+    <tbody id="archivedUserTableBody">
+        <!-- Archived users will be populated here dynamically -->
+        {% for user in archived_users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.password }}</td>
+            <td>{{ user.user_type }}</td>
+            <td>
+                <button class="restore-btn" data-id="{{ user.id }}">Restore</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+    <script src="{{ url_for('static', filename='archive.js') }}"></script>
+</body>
+</html>
