@@ -60,11 +60,7 @@
                         <i class='bx bxs-message-alt-check nav_icon'></i>
                         <span class="nav_name">Updates</span>
                     </a>
-                    
-                    <a href="#" class="nav_link" onclick="goToTutorial()"> 
-                        <i class='bx bx-book-bookmark nav_icon'></i>
-                        <span class="nav_name">Archives</span>
-                    </a>
+
                     
                     <a href="#" class="nav_link" onclick="goToAccountSettings()"> 
                         <i class='bx bxs-cog nav_icon'></i>
@@ -128,37 +124,6 @@
 
         </div>
 
-        <!-- Add Product Form -->
-        <div class="row">
-            <div class="col mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Add New Product</h5>
-                        
-                        <form id="addProductForm">
-                            <div class="mb-3">
-                                <label for="productName" class="form-label">Product Name</label>
-                                <input type="text" class="form-control" id="productName" placeholder="Enter product name" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="productPrice" class="form-label">Product Price</label>
-                                <input type="number" class="form-control" id="productPrice" placeholder="Enter product price" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="productDescription" class="form-label">Product Description</label>
-                                <textarea class="form-control" id="productDescription" rows="3" placeholder="Enter product description"></textarea>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary">Add Product</button>
-                        </form>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>  
 
     <!-- JavaScript for Navbar Toggle and Navigation -->
     <script src="{{ url_for('static', filename='seller/seller.js') }}"></script>

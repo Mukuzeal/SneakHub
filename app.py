@@ -56,9 +56,15 @@ def forgotpassword():
     else:
         return jsonify({'error': 'Email not found!'}), 404
 
+
+
 @app.route('/add-product')
 def add_product():
     return render_template('selleraddproduct.html')
+
+@app.route('/backToDash')
+def backToDash():
+    return render_template('seller.html')
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):

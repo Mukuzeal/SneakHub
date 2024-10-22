@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add New Product</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Optional: Link to a CSS file for styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='Seller/addproduct.css') }}">
 </head>
 <body>
     <div class="container">
@@ -13,6 +13,10 @@
             <div class="form-group">
                 <label for="productName">Product Name:</label>
                 <input type="text" id="productName" name="productName" required>
+            </div>
+            <div class="form-group">
+                <label for="productName">Brand Name:</label>
+                <input type="text" id="brandname" name="brandname" required>
             </div>
             <div class="form-group">
                 <label for="productDescription">Description:</label>
@@ -25,11 +29,11 @@
             <div class="form-group">
                 <label for="productCategory">Category:</label>
                 <select id="productCategory" name="productCategory" required>
-                    <option value="electronics">Electronics</option>
-                    <option value="fashion">Fashion</option>
-                    <option value="home">Home</option>
-                    <option value="toys">Toys</option>
-                    <option value="books">Books</option>
+                    <option value="electronics">Men's Shoes</option>
+                    <option value="fashion">Women's Shoes</option>
+                    <option value="home">Unisex/Neutral Shoes</option>
+                    <option value="toys">Luxury/Designer Shoes</option>
+                    <option value="books">Affordable/Budget-Friendly Shoes</option>
                 </select>
             </div>
             <div class="form-group">
@@ -38,7 +42,7 @@
             </div>
             <button type="submit">Add Product</button>
         </form>
-        <a href="product_list.html">Back to Product List</a> <!-- Link back to the product list page -->
+        <a href="/backToDash">Go Back</a> <!-- Link back to the product list page -->
     </div>
 </body>
 </html>
