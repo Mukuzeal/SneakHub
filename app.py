@@ -12,9 +12,6 @@ def get_db_connection():
         database="goodboisdb"
     )
 
-
-
-
 @app.route('/')  # Define the route for the root URL
 def home():
     return render_template('index.html')  # Ensure the template exists
@@ -80,7 +77,6 @@ def admin():
     name = request.args.get('name', '')
     return render_template('admin.html', name=name)
 
-
 @app.route('/users', methods=['GET'])
 def get_users():
     # Fetch users that are not admins from the database
@@ -124,7 +120,6 @@ def get_archived_users():
         })
 
     return jsonify(archived_user_list)
-
 
 # Add a new user (default to Buyer type)
 @app.route('/add_user', methods=['POST'])
@@ -237,8 +232,6 @@ def categories():
 def go_to_admin():
     return redirect(url_for('admin'))  # Redirect to the admin page
 
-
-
 # Get all categories
 @app.route('/api/categories', methods=['GET'])  # Changed to /api/categories for clarity
 def get_categories():
@@ -282,7 +275,6 @@ def add_category():
 
     return jsonify({'message': 'Category added successfully.'}), 201
 
-
 # Edit a category
 @app.route('/api/edit_category/<int:category_id>', methods=['PUT'])
 def edit_category(category_id):
@@ -310,7 +302,6 @@ def delete_category(category_id):
     conn.close()
 
     return jsonify({'message': 'Category deleted successfully.'}), 200
-
 
 @app.route('/forgot_password')
 def forgot_password():
