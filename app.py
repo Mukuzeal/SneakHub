@@ -3,9 +3,15 @@ from flask_mailman import Mail, EmailMessage
 import mysql.connector
 from itsdangerous import URLSafeTimedSerializer  # For token generation
 from datetime import datetime, timedelta
-
+import os
+from flask import Flask, session
+from werkzeug.utils import secure_filename
 app = Flask(__name__)
 mail = Mail()
+app.secret_key = os.urandom(24)
+
+UPLOAD_FOLDER = 'Uploads/pics'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Token Serializer
 serializer = URLSafeTimedSerializer("your_secret_key")  # Change to a random secret key
@@ -113,6 +119,8 @@ def submit_form():
 
     return jsonify({'message': 'Sign Up Successful'})
 
+from flask import session
+
 @app.route('/login', methods=['POST'])
 def login():
     try:
@@ -129,19 +137,27 @@ def login():
         conn.close()
 
         if user:
-            user_type = user[4]  # Assuming user_type is the 5th column in your table
+            user_id = user[0]  # Assuming user_id is the 1st column
+            user_type = user[4]  # Assuming user_type is the 5th column
             name = user[1]  # Assuming name is the 2nd column
 
+            # Store user info in session
+            session['user_id'] = user_id
+            session['user_type'] = user_type
+            session['name'] = name
+
+            # Redirect based on user_type
             if user_type == 'Buyer':
                 return jsonify({'redirect': 'success', 'name': name})
             elif user_type == 'Admin':
                 return jsonify({'redirect': 'admin', 'name': name})
-            elif user_type == 'Seller':  # Condition for Seller
+            elif user_type == 'Seller':
                 return jsonify({'redirect': 'seller', 'name': name})
         else:
             return jsonify({'error': 'Invalid Email or Password.'}), 401
     except Exception as e:
         return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+
 
 @app.route('/success')
 def success():
@@ -386,6 +402,60 @@ def delete_category(category_id):
 @app.route('/forgot_password')
 def forgot_password():
     return render_template('forgot_password.html')  # Ensure this file exists in your templates folder
+
+@app.route('/submit_product', methods=['POST'])
+def submit_product():
+    # Assuming the user is logged in and their user ID is stored in the session
+    user_id = session.get('user_id')  # Fetch the user_id from session
+    if not user_id:
+        return jsonify({'error': 'User not logged in.'}), 401
+    
+    # Fetch the seller_id from the database using the logged-in user's ID
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM users WHERE id = %s AND user_type = 'Seller'", (user_id,))
+    seller = cursor.fetchone()
+    
+    if not seller:
+        return jsonify({'error': 'Seller not found or user is not a seller.'}), 404
+    
+    seller_id = seller[0]  # Access the first element of the tuple for the seller_id
+
+    # Product details from the form
+    product_name = request.form['productName']
+    brand_name = request.form['brandname']
+    description = request.form['productDescription']
+    price = request.form['productPrice']
+    category = request.form['productCategory']
+    archive = "no"  # Default value for 'archive'
+    
+    # Handle image upload
+    if 'productImage' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    
+    file = request.files['productImage']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    if file:
+        # Save the file
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        image_url = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        
+        # Insert the product details into the database
+        sql = """INSERT INTO products (product_name, product_price, product_description, brand, product_category, seller_id, archive, created_at, updated_at)
+                 VALUES (%s, %s, %s, %s, %s, %s, %s, NOW(), NOW())"""
+        cursor.execute(sql, (product_name, price, description, brand_name, category, seller_id, archive))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({'message': 'Product added successfully.'}), 201
+
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
