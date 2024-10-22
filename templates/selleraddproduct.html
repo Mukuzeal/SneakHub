@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Product</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Optional: Link to a CSS file for styling -->
+</head>
+<body>
+    <div class="container">
+        <h1>Add New Product</h1>
+        <form action="submit_product.php" method="POST">
+            <div class="form-group">
+                <label for="productName">Product Name:</label>
+                <input type="text" id="productName" name="productName" required>
+            </div>
+            <div class="form-group">
+                <label for="productDescription">Description:</label>
+                <textarea id="productDescription" name="productDescription" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="productPrice">Price:</label>
+                <input type="number" id="productPrice" name="productPrice" required step="0.01">
+            </div>
+            <div class="form-group">
+                <label for="productCategory">Category:</label>
+                <select id="productCategory" name="productCategory" required>
+                    <option value="electronics">Electronics</option>
+                    <option value="fashion">Fashion</option>
+                    <option value="home">Home</option>
+                    <option value="toys">Toys</option>
+                    <option value="books">Books</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="productImage">Image URL:</label>
+                <input type="url" id="productImage" name="productImage" required>
+            </div>
+            <button type="submit">Add Product</button>
+        </form>
+        <a href="product_list.html">Back to Product List</a> <!-- Link back to the product list page -->
+    </div>
+</body>
+</html>

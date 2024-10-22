@@ -103,6 +103,8 @@ secondForm.addEventListener("submit", async (e) => {
                     window.location.href = `/success?name=${encodeURIComponent(data.name)}`;
                 } else if (data.redirect === 'admin') {
                     window.location.href = `/admin?name=${encodeURIComponent(data.name)}`;
+                } else if (data.redirect === 'seller') { // Ensure you handle the seller redirect
+                    window.location.href = `/seller?name=${encodeURIComponent(data.name)}`;
                 }
             });
         } else {

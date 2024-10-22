@@ -56,6 +56,9 @@ def forgotpassword():
     else:
         return jsonify({'error': 'Email not found!'}), 404
 
+@app.route('/add-product')
+def add_product():
+    return render_template('selleraddproduct.html')
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
@@ -104,7 +107,6 @@ def submit_form():
 
     return jsonify({'message': 'Sign Up Successful'})
 
-# Sign in form
 @app.route('/login', methods=['POST'])
 def login():
     try:
@@ -128,6 +130,8 @@ def login():
                 return jsonify({'redirect': 'success', 'name': name})
             elif user_type == 'Admin':
                 return jsonify({'redirect': 'admin', 'name': name})
+            elif user_type == 'Seller':  # Condition for Seller
+                return jsonify({'redirect': 'seller', 'name': name})
         else:
             return jsonify({'error': 'Invalid Email or Password.'}), 401
     except Exception as e:
@@ -137,6 +141,11 @@ def login():
 def success():
     name = request.args.get('name', '')
     return render_template('success.html', name=name)
+
+@app.route('/seller')
+def seller():
+    name = request.args.get('name', '')
+    return render_template('seller.html', name=name)
 
 @app.route('/admin')
 def admin():
