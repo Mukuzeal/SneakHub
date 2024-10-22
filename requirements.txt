@@ -1,0 +1,4 @@
+Flask
+mysql-connector-pytho==8.0.27
+flask-mailman
+itsdangerous
