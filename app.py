@@ -249,7 +249,6 @@ def restore_user(user_id):
 
     return jsonify({'message': 'User restored successfully.'}), 200
 
-
 @app.route('/users/<int:user_id>', methods=['GET'])
 def get_user(user_id):
     conn = get_db_connection()
@@ -381,7 +380,6 @@ def delete_category(category_id):
 @app.route('/forgot_password')
 def forgot_password():
     return render_template('forgot_password.html')  # Ensure this file exists in your templates folder
-
 
 if __name__ == "__main__":
     app.run(debug=True)
