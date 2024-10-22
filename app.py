@@ -1,7 +1,14 @@
 from flask import Flask, render_template, request, redirect, jsonify, url_for
+from flask_mailman import Mail, EmailMessage
 import mysql.connector
+from itsdangerous import URLSafeTimedSerializer  # For token generation
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
+mail = Mail()
+
+# Token Serializer
+serializer = URLSafeTimedSerializer("your_secret_key")  # Change to a random secret key
 
 # Database connection
 def get_db_connection():
@@ -11,6 +18,65 @@ def get_db_connection():
         password="",  # Your DB password
         database="goodboisdb"
     )
+
+def create_mail_app():
+    app.config["MAIL_SERVER"] = "smtp.gmail.com"
+    app.config["MAIL_PORT"] = 465
+    app.config["MAIL_USERNAME"] = "SneakHub.noreply@gmail.com"
+    app.config["MAIL_PASSWORD"] = "bifj ftki bkai moji"  # Use App Password
+    app.config["MAIL_USE_TLS"] = False
+    app.config["MAIL_USE_SSL"] = True
+    mail.init_app(app)
+
+create_mail_app()
+
+@app.route('/forgotpassword', methods=['POST'])
+def forgotpassword():
+    email = request.form['email']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if user:
+        token = serializer.dumps(email, salt="password-reset-salt")
+        reset_link = url_for('reset_password', token=token, _external=True)
+
+        msg = EmailMessage(
+            "Password Recovery",
+            f"Here is your password recovery link: {reset_link}",
+            "SneakHub.noreply@gmail.com",
+            [email]
+        )
+        msg.send()
+        # Redirect to index.html after sending email
+        return redirect(url_for('home'))  # Change to index.html route
+    else:
+        return jsonify({'error': 'Email not found!'}), 404
+
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        email = serializer.loads(token, salt="password-reset-salt", max_age=3600)  # Token valid for 1 hour
+    except Exception as e:
+        return jsonify({'error': 'The reset link is invalid or has expired.'}), 400
+
+    if request.method == 'POST':
+        new_password = request.form['password']
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET password = %s WHERE email = %s", (new_password, email))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        # Redirect to index.html after successful password change
+        return redirect(url_for('home'))  # Change to index.html route
+
+    return render_template('reset_password.html', token=token)  # Render the reset password form
+
 
 @app.route('/')  # Define the route for the root URL
 def home():
