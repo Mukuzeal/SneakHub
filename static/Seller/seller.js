@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                         confirmButtonText: 'OK'
                     }).then(() => {
                         // Redirect to another page after success
-                          // Change to the desired path
+                        addProductForm.reset();
                     });
                 } else if (data.error) {
                     // Display error notification

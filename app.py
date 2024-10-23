@@ -139,6 +139,11 @@ def login():
             user_type = user[4]  # Assuming user_type is the 5th column
             name = user[1]  # Assuming name is the 2nd column
             hashed_password = user[3].encode('utf-8')  # Assuming hashed password is the 4th column
+            archive_status = user[5]  # Assuming archive status is the 6th column
+
+            # Check if user is archived
+            if archive_status == 'yes':
+                return jsonify({'error': 'Your account is deleted. Please contact support.'}), 403
 
             # Check the password
             if bcrypt.checkpw(password, hashed_password):
@@ -160,6 +165,7 @@ def login():
             return jsonify({'error': 'Invalid Email or Password.'}), 401
     except Exception as e:
         return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+
 
 @app.route('/success')
 def success():
@@ -428,6 +434,7 @@ def submit_product():
         description = request.form['productDescription']
         price = request.form['productPrice']
         category = request.form['productCategory']
+        product_quantity = request.form['productQuantity']
         archive = "no"  # Default value for 'archive'
         
         # Handle image upload
@@ -439,9 +446,9 @@ def submit_product():
             return jsonify({'error': 'No selected file'}), 400
         
         # Insert product details without image filename
-        sql = """INSERT INTO products (product_name, product_price, product_description, brand, product_category, seller_id, archive, created_at, updated_at)
-                 VALUES (%s, %s, %s, %s, %s, %s, %s, NOW(), NOW())"""
-        cursor.execute(sql, (product_name, price, description, brand_name, category, seller_id, archive))
+        sql = """INSERT INTO products (product_name, product_price, product_description, product_quantity, brand, product_category, seller_id, archive, created_at, updated_at)
+                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())"""
+        cursor.execute(sql, (product_name, price, description, product_quantity, brand_name, category, seller_id, archive))
         
         product_id = cursor.lastrowid
         
@@ -480,6 +487,13 @@ def backToDash():
     if 'user_id' not in session or session.get('user_type') != 'Seller':
         return redirect(url_for('index'))  # Redirect to login if not authenticated
     return render_template('seller.html')
+
+@app.route('/itemList')
+def itemList():
+    if 'user_id' not in session or session.get('user_type') != 'Seller':
+        return redirect(url_for('index'))  # Redirect to login if not authenticated
+    return render_template('itemList.html')
+
 
 @app.route('/sellerlogout')
 def sellerlogout():

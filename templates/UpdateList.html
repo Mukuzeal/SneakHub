@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seller Dashboard</title>
+    <title>Add New Product</title>
 
     <!-- Bootstrap CSS CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css">
@@ -14,8 +14,11 @@
     <!-- jQuery and Bootstrap JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='seller/sidenav.css') }}">
+    <!-- Include the seller sidenav CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='Seller/sidenav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Seller/itemList.css') }}">
 </head>
 
 <body id="body-pd">
@@ -40,33 +43,33 @@
                 </a>
                 
                 <div class="nav_list"> 
-                    <a href="#" class="nav_link active" onclick="goToDashboard()"> 
+                    <a href="backToDash" class="nav_link" onclick="goToDashboard()"> 
                         <i class='bx bxs-dashboard nav_icon'></i> 
                         <span class="nav_name">Dashboard</span> 
                     </a> 
-                    
-                    <a href="/itemList" class="nav_link" onclick="goToItemList()"> 
+                
+                    <a href="#" class="nav_link" onclick="goToItemList()"> 
                         <i class='bx bx-list-ul nav_icon'></i> 
                         <span class="nav_name">Item List</span> 
                     </a> 
-                    
-                    <a href="/add-product" class="nav_link"> 
+                
+                    <!-- Mark the Add Item button as active -->
+                    <a href="/add-product" class="nav_link active"> 
                         <i class="bx bxs-message-alt-add nav_icon"></i>
                         <span class="nav_name">Add Item</span>
                     </a>                    
-                    
-                    
-                    <a href="#" class="nav_link" onclick="goToUpdates()"> 
+                
+                    <a href="/update" class="nav_link" onclick="goToUpdates()"> 
                         <i class='bx bxs-message-alt-check nav_icon'></i>
                         <span class="nav_name">Updates</span>
                     </a>
-
-                    
+                
                     <a href="#" class="nav_link" onclick="goToAccountSettings()"> 
                         <i class='bx bxs-cog nav_icon'></i>
                         <span class="nav_name">Account Setting</span>
                     </a>
                 </div>
+                
             </div>
             
             <a href="sellerlogout" class="nav_link" onclick="logout()"> 
@@ -75,58 +78,14 @@
             </a>
         </nav>
     </div>
-    
-    <!-- Main Dashboard Section -->
+
+    <!-- Main Section for Add Product Form -->
     <div class="container">
-        <h1>Seller Dashboard 
-            <a href="#" class="icon_top"> 
-                <i class='bx bxs-cog bx-pull-right'></i>
-            </a>
-            <a href="#" class="icon_top"> 
-                <i class="bx bxs-bell bx-pull-right" id="notifbell"></i>
-            </a> 
-        </h1>
-
-        <!-- Cards for Dashboard Data -->
-        <div class="row row-cols-1 row-cols-sm-3 row-cols-md-3 row-cols-lg-8 row-cols-xl-12">
-
-            <!-- Card 1 -->
-            <div class="col mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">TOTAL DROPPED ITEMS</h5>
-                        <p class="card-text">
-                            <i class='bx bxl-dropbox' id="card_icon"></i> 0
-                        </p>
-                        <div class="card-footer">
-                            Add 
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 2 -->
-            <div class="col mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">TOTAL COLLECTIONS</h5>
-                        <p class="card-text">
-                            <i class="bx bxs-wallet" id="card_icon"></i> 0  
-                        </p>
-                        <div class="card-footer">
-                            Add 
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Other cards... -->
-
-        </div>
-
+        <h1>Update</h1>
+        
+    </div>
 
     <!-- JavaScript for Navbar Toggle and Navigation -->
     <script src="{{ url_for('static', filename='seller/seller.js') }}"></script>
-    <script></script>
 </body>
 </html>

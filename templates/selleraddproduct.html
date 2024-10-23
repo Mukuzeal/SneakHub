@@ -48,7 +48,7 @@
                         <span class="nav_name">Dashboard</span> 
                     </a> 
                 
-                    <a href="#" class="nav_link" onclick="goToItemList()"> 
+                    <a href="/itemList" class="nav_link" onclick="goToItemList()"> 
                         <i class='bx bx-list-ul nav_icon'></i> 
                         <span class="nav_name">Item List</span> 
                     </a> 
@@ -94,6 +94,10 @@
             <div class="form-group">
                 <label for="productDescription">Description:</label>
                 <textarea id="productDescription" name="productDescription" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="productQuantity">Quantity:</label>
+                <input type="number" id="productQuantity" name="productQuantity" min="1" required>
             </div>
             <div class="form-group">
                 <label for="productPrice">Price:</label>
