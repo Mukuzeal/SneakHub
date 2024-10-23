@@ -22,10 +22,6 @@ function displayUsers(users) {
             <td><span class="editable" data-field="name">${user.name}</span></td>
             <td><span class="editable" data-field="email">${user.email}</span></td>
             <td>
-                <span class="editable password" data-field="password">********</span>
-                <input type="password" class="edit-input" data-field="password" value="${user.password}" style="display:none;">
-            </td>
-            <td>
                 <span class="editable" data-field="user_type">${user.user_type}</span>
                 <select class="edit-input" data-field="user_type" style="display:none;">
                     <option value="Buyer" ${user.user_type === 'Buyer' ? 'selected' : ''}>Buyer</option>
@@ -71,11 +67,6 @@ document.querySelector('#userTable').addEventListener('click', async (e) => {
                     const select = row.querySelector('.edit-input[data-field="user_type"]');
                     select.style.display = "block"; // Show the dropdown
                     cell.style.display = "none"; // Hide the text
-                } else if (field === "password") {
-                    const input = row.querySelector('.edit-input[data-field="password"]');
-                    input.style.display = "block"; // Show the password input
-                    cell.style.display = "none"; // Hide the password span
-                    input.focus(); // Optionally focus on the password input
                 } else {
                     cell.innerHTML = `<input type="text" class="edit-input" data-field="${field}" value="${value}">`;
                 }
@@ -85,43 +76,50 @@ document.querySelector('#userTable').addEventListener('click', async (e) => {
             // Save mode: Save changes and switch back to "Edit"
             const name = row.querySelector('.edit-input[data-field="name"]').value;
             const email = row.querySelector('.edit-input[data-field="email"]').value;
-            const password = row.querySelector('.edit-input[data-field="password"]').value; // Capture the new password
             const user_type = row.querySelector('.edit-input[data-field="user_type"]').value;
 
-            try {
-                const response = await fetch(`/edit_user/${userId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, password, user_type })
-                });
+            // Confirmation dialog
+            const result = await Swal.fire({
+                title: 'Confirm Update',
+                text: "Are you sure you want to update this user?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, update it!',
+                cancelButtonText: 'Cancel'
+            });
 
-                if (response.ok) {
-                    // Reflect saved values and switch back to "Edit" mode
-                    row.querySelectorAll('.editable').forEach(cell => {
-                        const field = cell.dataset.field;
-                        if (field === "user_type") {
-                            const select = row.querySelector('.edit-input[data-field="user_type"]');
-                            cell.textContent = select.value; // Set the selected value
-                            select.style.display = "none"; // Hide the dropdown
-                        } else if (field === "password") {
-                            const input = row.querySelector('.edit-input[data-field="password"]');
-                            cell.textContent = '********'; // Mask the password
-                            input.style.display = "none"; // Hide the password input
-                        } else {
-                            const input = row.querySelector(`.edit-input[data-field="${field}"]`);
-                            cell.textContent = input.value;
-                        }
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/edit_user/${userId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, email, user_type })
                     });
-                    e.target.textContent = 'Edit';
-                    alert('User updated successfully!');
-                    
-                    // Refresh the page to show the updated user list
-                    location.reload(); // Reload the current page
-                } else {
-                    alert('Error updating user.');
+
+                    if (response.ok) {
+                        // Reflect saved values and switch back to "Edit" mode
+                        row.querySelectorAll('.editable').forEach(cell => {
+                            const field = cell.dataset.field;
+                            if (field === "user_type") {
+                                const select = row.querySelector('.edit-input[data-field="user_type"]');
+                                cell.textContent = select.value; // Set the selected value
+                                select.style.display = "none"; // Hide the dropdown
+                            } else {
+                                const input = row.querySelector(`.edit-input[data-field="${field}"]`);
+                                cell.textContent = input.value;
+                            }
+                        });
+                        e.target.textContent = 'Edit';
+                        Swal.fire('Updated!', 'User updated successfully.', 'success');
+                        
+                        // Refresh the page to show the updated user list
+                        location.reload(); // Reload the current page
+                    } else {
+                        Swal.fire('Error!', 'Error updating user.', 'error');
+                    }
+                } catch (error) {
+                    Swal.fire('Error!', 'Error: ' + error.message, 'error');
                 }
-            } catch (error) {
-                alert('Error: ' + error.message);
             }
         }
     }
@@ -131,6 +129,7 @@ document.querySelector('#userTable').addEventListener('click', async (e) => {
         window.location.href = 'categories.html'; // Redirect to categories page
     });
 });
+
 
 // Handle Add User form submission
 document.getElementById('addUserForm').addEventListener('submit', async (e) => {
@@ -147,12 +146,12 @@ document.getElementById('addUserForm').addEventListener('submit', async (e) => {
         if (response.ok) {
             await loadUsers(); // Reload users
             e.target.reset(); // Clear the form
-            alert('User added successfully!'); // Success message
+            Swal.fire('Success', 'User added successfully!', 'success'); // Success message
         } else {
-            alert('Error adding user.'); // Display error message
+            Swal.fire('Error', 'Error adding user.', 'error'); // Display error message
         }
     } catch (error) {
-        alert('Error: ' + error.message); // Display network error
+        Swal.fire('Error', 'Error: ' + error.message, 'error'); // Display network error
     }
 });
 
@@ -161,17 +160,30 @@ document.querySelector('#userTable').addEventListener('click', async (e) => {
     if (e.target.classList.contains('delete-btn')) { // Ensure the class matches your button
         const userId = e.target.dataset.id;
 
-        // Send a PUT request to update the 'archieve' column to 'yes'
-        const response = await fetch(`/delete_user/${userId}`, { method: 'PUT' });
+        // Show confirmation before deleting
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: 'You will not be able to recover this user!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!'
+        });
 
-        if (response.ok) {
-            // Remove the deleted user's row from the table
-            const row = e.target.closest('tr'); // Get the closest row (tr) element
-            if (row) {
-                row.remove(); // Remove the row from the table
+        if (result.isConfirmed) {
+            // Send a PUT request to update the 'archive' column to 'yes'
+            const response = await fetch(`/delete_user/${userId}`, { method: 'PUT' });
+
+            if (response.ok) {
+                // Remove the deleted user's row from the table
+                const row = e.target.closest('tr'); // Get the closest row (tr) element
+                if (row) {
+                    row.remove(); // Remove the row from the table
+                    Swal.fire('Deleted!', 'User has been deleted.', 'success');
+                }
+            } else {
+                Swal.fire('Error', 'Error archiving user.', 'error');
             }
-        } else {
-            alert('Error archiving user.');
         }
     }
 });
@@ -181,9 +193,9 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
     window.location.href = '/logout'; // Redirect to the root route (loads index.html)
 });
 
-// Handle 
+// Handle Archive Button
 document.getElementById('archBtn').addEventListener('click', () => {
-window.location.href = '/archive'; // Redirect to the root route (loads index.html)
+    window.location.href = '/archive'; // Redirect to the archive page
 });
 
 // Load users when the admin page loads

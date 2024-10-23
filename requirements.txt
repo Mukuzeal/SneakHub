@@ -1,4 +1,6 @@
 Flask
-mysql-connector-pytho==8.0.27
+mysql-connector
 flask-mailman
+werkzeug
 itsdangerous
+bcrypt

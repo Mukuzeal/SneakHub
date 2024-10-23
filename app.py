@@ -1,14 +1,15 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for
+from flask import Flask, render_template, request, redirect, jsonify, url_for, session
 from flask_mailman import Mail, EmailMessage
-import mysql.connector
 from itsdangerous import URLSafeTimedSerializer  # For token generation
 from datetime import datetime, timedelta
+import mysql.connector
 import os
-from flask import Flask, session
-from werkzeug.utils import secure_filename
-from flask import jsonify, request, session
-from flask import session, redirect, url_for, render_template
 import uuid
+from werkzeug.utils import secure_filename
+import bcrypt
+
+
+
 app = Flask(__name__)
 mail = Mail()
 app.secret_key = os.urandom(24)
@@ -102,32 +103,32 @@ def index():
 def submit_form():
     name = request.form['name']
     email = request.form['email']
-    password = request.form['password']
+    password = request.form['password'].encode('utf-8')  # Encode the password
+    hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())  # Hash the password
     user_type = 'Buyer'  # Default user type
     archive = 'no'
 
     conn = get_db_connection()
     cursor = conn.cursor()
     sql = "INSERT INTO users (name, email, password, user_type, archieve) VALUES (%s, %s, %s, %s, %s)"
-    cursor.execute(sql, (name, email, password, user_type,archive))
+    cursor.execute(sql, (name, email, hashed_password, user_type, archive))
     conn.commit()
     cursor.close()
     conn.close()
 
     return jsonify({'message': 'Sign Up Successful'})
 
-from flask import session
 
 @app.route('/login', methods=['POST'])
 def login():
     try:
         email = request.form['email']
-        password = request.form['password']
+        password = request.form['password'].encode('utf-8')  # Encode the password
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        sql = "SELECT * FROM users WHERE email = %s AND password = %s"
-        cursor.execute(sql, (email, password))
+        sql = "SELECT * FROM users WHERE email = %s"
+        cursor.execute(sql, (email,))
         user = cursor.fetchone()
 
         cursor.close()
@@ -137,24 +138,28 @@ def login():
             user_id = user[0]  # Assuming user_id is the 1st column
             user_type = user[4]  # Assuming user_type is the 5th column
             name = user[1]  # Assuming name is the 2nd column
+            hashed_password = user[3].encode('utf-8')  # Assuming hashed password is the 4th column
 
-            # Store user info in session
-            session['user_id'] = user_id
-            session['user_type'] = user_type
-            session['name'] = name
+            # Check the password
+            if bcrypt.checkpw(password, hashed_password):
+                # Store user info in session
+                session['user_id'] = user_id
+                session['user_type'] = user_type
+                session['name'] = name
 
-            # Redirect based on user_type
-            if user_type == 'Buyer':
-                return jsonify({'redirect': 'success', 'name': name})
-            elif user_type == 'Admin':
-                return jsonify({'redirect': 'admin', 'name': name})
-            elif user_type == 'Seller':
-                return jsonify({'redirect': 'seller', 'name': name})
+                # Redirect based on user_type
+                if user_type == 'Buyer':
+                    return jsonify({'redirect': 'success', 'name': name})
+                elif user_type == 'Admin':
+                    return jsonify({'redirect': 'admin', 'name': name})
+                elif user_type == 'Seller':
+                    return jsonify({'redirect': 'seller', 'name': name})
+            else:
+                return jsonify({'error': 'Invalid Email or Password.'}), 401
         else:
             return jsonify({'error': 'Invalid Email or Password.'}), 401
     except Exception as e:
         return jsonify({'error': f'An error occurred: {str(e)}'}), 500
-
 
 @app.route('/success')
 def success():
@@ -274,7 +279,7 @@ def get_user(user_id):
     cursor = conn.cursor()
 
     # Fetch the user with the given user_id
-    cursor.execute("SELECT id, name, email, password, user_type FROM users WHERE id = %s", (user_id,))
+    cursor.execute("SELECT id, name, email, user_type FROM users WHERE id = %s", (user_id,))
     user = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -285,7 +290,7 @@ def get_user(user_id):
             'id': user[0],
             'name': user[1],
             'email': user[2],
-            'password': user[3],
+
             'user_type': user[4]
         }
         return jsonify(user_data)
@@ -298,7 +303,6 @@ def edit_user(user_id):
     data = request.get_json()  # Get the user data from the PUT request
     name = data.get('name')
     email = data.get('email')
-    password = data.get('password')
     user_type = data.get('user_type')  # Get user type from request
 
     conn = get_db_connection()
@@ -307,9 +311,9 @@ def edit_user(user_id):
     # Update user details in the database
     cursor.execute("""
         UPDATE users 
-        SET name = %s, email = %s, password = %s, user_type = %s 
+        SET name = %s, email = %s, user_type = %s 
         WHERE id = %s
-    """, (name, email, password, user_type, user_id))
+    """, (name, email, user_type, user_id))
     
     conn.commit()
     cursor.close()
@@ -480,9 +484,6 @@ def backToDash():
 @app.route('/sellerlogout')
 def sellerlogout():
     return render_template('index.html')
-
-
-
 
 
 if __name__ == "__main__":
