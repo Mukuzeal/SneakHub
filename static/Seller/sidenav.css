@@ -43,6 +43,12 @@ a {
     z-index: var(--z-fixed);
     transition: .5s;
 }
+/* Ensure the logo takes up the full height of the header */
+.logo {
+    height: 100%;  /* Set the height to 100% of the parent (which is 50px in this case) */
+    width: 100%;   /* Set the width equal to the height */
+    object-fit: contain;  /* Ensure the image fits within the 1x1 box without distortion */
+}
 
 #header-toggle {
     color: white;

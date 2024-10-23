@@ -6,6 +6,9 @@ from datetime import datetime, timedelta
 import os
 from flask import Flask, session
 from werkzeug.utils import secure_filename
+from flask import jsonify, request, session
+from flask import session, redirect, url_for, render_template
+import uuid
 app = Flask(__name__)
 mail = Mail()
 app.secret_key = os.urandom(24)
@@ -64,13 +67,7 @@ def forgotpassword():
 
 
 
-@app.route('/add-product')
-def add_product():
-    return render_template('selleraddproduct.html')
 
-@app.route('/backToDash')
-def backToDash():
-    return render_template('seller.html')
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
@@ -405,53 +402,84 @@ def forgot_password():
 
 @app.route('/submit_product', methods=['POST'])
 def submit_product():
-    # Assuming the user is logged in and their user ID is stored in the session
     user_id = session.get('user_id')  # Fetch the user_id from session
     if not user_id:
         return jsonify({'error': 'User not logged in.'}), 401
     
-    # Fetch the seller_id from the database using the logged-in user's ID
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM users WHERE id = %s AND user_type = 'Seller'", (user_id,))
-    seller = cursor.fetchone()
     
-    if not seller:
-        return jsonify({'error': 'Seller not found or user is not a seller.'}), 404
-    
-    seller_id = seller[0]  # Access the first element of the tuple for the seller_id
-
-    # Product details from the form
-    product_name = request.form['productName']
-    brand_name = request.form['brandname']
-    description = request.form['productDescription']
-    price = request.form['productPrice']
-    category = request.form['productCategory']
-    archive = "no"  # Default value for 'archive'
-    
-    # Handle image upload
-    if 'productImage' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-    
-    file = request.files['productImage']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-
-    if file:
-        # Save the file
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        image_url = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    try:
+        cursor.execute("SELECT id FROM users WHERE id = %s AND user_type = 'Seller'", (user_id,))
+        seller = cursor.fetchone()
         
-        # Insert the product details into the database
+        if not seller:
+            return jsonify({'error': 'Seller not found or user is not a seller.'}), 404
+        
+        seller_id = seller[0]
+        
+        # Product details from the form
+        product_name = request.form['productName']
+        brand_name = request.form['brandname']
+        description = request.form['productDescription']
+        price = request.form['productPrice']
+        category = request.form['productCategory']
+        archive = "no"  # Default value for 'archive'
+        
+        # Handle image upload
+        if 'productImage' not in request.files:
+            return jsonify({'error': 'No file part'}), 400
+        
+        file = request.files['productImage']
+        if file.filename == '':
+            return jsonify({'error': 'No selected file'}), 400
+        
+        # Insert product details without image filename
         sql = """INSERT INTO products (product_name, product_price, product_description, brand, product_category, seller_id, archive, created_at, updated_at)
                  VALUES (%s, %s, %s, %s, %s, %s, %s, NOW(), NOW())"""
         cursor.execute(sql, (product_name, price, description, brand_name, category, seller_id, archive))
+        
+        product_id = cursor.lastrowid
+        
+        # Save the image with a new filename
+        if file:
+            original_filename = secure_filename(file.filename)
+            file_ext = original_filename.rsplit('.', 1)[1].lower()
+            new_filename = f"{seller_id}-{product_id}.{file_ext}"
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], new_filename)
+            file.save(file_path)
+            
+            # Update the product with the image URL
+            update_sql = "UPDATE products SET product_image = %s WHERE id = %s"
+            cursor.execute(update_sql, (new_filename, product_id))
+        
         conn.commit()
+        return jsonify({'message': 'Product added successfully.', 'image_url': file_path}), 201
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+    finally:
         cursor.close()
         conn.close()
+    
 
-        return jsonify({'message': 'Product added successfully.'}), 201
+#side nav functions
+@app.route('/add-product')
+def add_product():
+    if 'user_id' not in session or session.get('user_type') != 'Seller':
+        return redirect(url_for('index'))  # Redirect to login if not authenticated
+    return render_template('selleraddproduct.html')
+
+@app.route('/backToDash')
+def backToDash():
+    if 'user_id' not in session or session.get('user_type') != 'Seller':
+        return redirect(url_for('index'))  # Redirect to login if not authenticated
+    return render_template('seller.html')
+
+@app.route('/sellerlogout')
+def sellerlogout():
+    return render_template('index.html')
 
 
 
