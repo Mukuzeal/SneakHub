@@ -58,47 +58,48 @@ document.addEventListener("DOMContentLoaded", function(event) {
     }
 
     // Handle form submission
-    const form = document.querySelector("form");
-    form.addEventListener("submit", function(e) {
-        e.preventDefault(); // Prevent default form submission
-        const formData = new FormData(form);
+    const form = document.querySelector("#addProductForm");
 
-        fetch("{{ url_for('submit_product') }}", {
-            method: "POST",
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message && data.image_url) {
-                // Show SweetAlert2 with a success message including the product info and image
-                Swal.fire({
-                    title: 'Product Added Successfully!',
-                    text: data.message,
-                    icon: 'success',
-                    imageUrl: data.image_url, // Show the uploaded product image
-                    imageWidth: 400,
-                    imageAlt: 'Product Image',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    // Redirect to the item list or another page after the notification
-                    window.location.href = '/item_list'; // Change to your desired redirection path
-                });
-            } else if (data.error) {
-                // Show SweetAlert2 error message if there's any error
+    if (form) {
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();  // Prevent the default form submission
+            const formData = new FormData(form);
+
+            // Send the form data via AJAX (fetch)
+            fetch("/submit_product", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message && data.image_url) {
+                    // Display success notification using SweetAlert2
+                    Swal.fire({
+                        title: 'Product Added Successfully!',
+                        text: data.message,
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        // Redirect to another page after success
+                          // Change to the desired path
+                    });
+                } else if (data.error) {
+                    // Display error notification
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: data.error
+                    });
+                }
+            })
+            .catch(error => {
+                // Handle any unexpected errors
                 Swal.fire({
                     icon: 'error',
                     title: 'Error!',
-                    text: data.error
+                    text: 'An unexpected error occurred. Please try again.'
                 });
-            }
-        })
-        .catch(error => {
-            // Handle any unexpected errors
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: 'An unexpected error occurred. Please try again.'
             });
         });
-    });
+    }
 });
