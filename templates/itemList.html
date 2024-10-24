@@ -33,51 +33,52 @@
     </header>
 
     <!-- Sidebar Navigation -->
-    <div class="l-navbar" id="nav-bar">
-        <nav class="nav">
-            <div> 
-                <a href="#" class="nav_logo">
-                    <img src="images/profile.png" class="header_img" alt="Profile Image">
-                    <label id="uname">Username</label> <br>
-                    <label id="role">Seller's Location</label>
+    <!-- Sidebar Navigation -->
+<div class="l-navbar" id="nav-bar">
+    <nav class="nav">
+        <div> 
+            <a href="#" class="nav_logo">
+                <img src="images/profile.png" class="header_img" alt="Profile Image">
+                <label id="uname">Username</label> <br>
+                <label id="role">Seller's Location</label>
+            </a>
+            
+            <div class="nav_list"> 
+                <a href="backToDash" class="nav_link" onclick="goToDashboard()"> 
+                    <i class='bx bxs-dashboard nav_icon'></i> 
+                    <span class="nav_name">Dashboard</span> 
+                </a> 
+            
+                <a href="#" class="nav_link active" onclick="goToItemList()"> 
+                    <i class='bx bx-list-ul nav_icon'></i> 
+                    <span class="nav_name">Item List</span> 
+                </a> 
+            
+                <a href="/add-product" class="nav_link">  
+                    <i class="bx bxs-message-alt-add nav_icon"></i>
+                    <span class="nav_name">Add Item</span>
+                </a>                    
+            
+                <a href="/updateList" class="nav_link" onclick="goToUpdates()"> 
+                    <i class='bx bxs-message-alt-check nav_icon'></i>
+                    <span class="nav_name">Updates</span>
                 </a>
-                
-                <div class="nav_list"> 
-                    <a href="backToDash" class="nav_link" onclick="goToDashboard()"> 
-                        <i class='bx bxs-dashboard nav_icon'></i> 
-                        <span class="nav_name">Dashboard</span> 
-                    </a> 
-                
-                    <a href="#" class="nav_link" onclick="goToItemList()"> 
-                        <i class='bx bx-list-ul nav_icon'></i> 
-                        <span class="nav_name">Item List</span> 
-                    </a> 
-                
-                    <!-- Mark the Add Item button as active -->
-                    <a href="/add-product" class="nav_link active"> 
-                        <i class="bx bxs-message-alt-add nav_icon"></i>
-                        <span class="nav_name">Add Item</span>
-                    </a>                    
-                
-                    <a href="#" class="nav_link" onclick="goToUpdates()"> 
-                        <i class='bx bxs-message-alt-check nav_icon'></i>
-                        <span class="nav_name">Updates</span>
-                    </a>
-                
-                    <a href="#" class="nav_link" onclick="goToAccountSettings()"> 
-                        <i class='bx bxs-cog nav_icon'></i>
-                        <span class="nav_name">Account Setting</span>
-                    </a>
-                </div>
-                
+            
+                <a href="/accSettings" class="nav_link" onclick="goToAccountSettings()"> 
+                    <i class='bx bxs-cog nav_icon'></i>
+                    <span class="nav_name">Account Setting</span>
+                </a>
             </div>
             
-            <a href="sellerlogout" class="nav_link" onclick="logout()"> 
-                <i class='bx bx-log-out nav_icon'></i>
-                <span class="nav_name">LOGOUT</span>
-            </a>
-        </nav>
-    </div>
+        </div>
+        
+        <a href="sellerlogout" class="nav_link" onclick="logout()"> 
+            <i class='bx bx-log-out nav_icon'></i>
+            <span class="nav_name">LOGOUT</span>
+        </a>
+    </nav>
+</div>
+
 
     <!-- Main Section for Add Product Form -->
     <div class="container">

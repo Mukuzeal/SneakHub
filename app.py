@@ -494,6 +494,18 @@ def itemList():
         return redirect(url_for('index'))  # Redirect to login if not authenticated
     return render_template('itemList.html')
 
+@app.route('/updateList')
+def updateList():
+    if 'user_id' not in session or session.get('user_type') != 'Seller':
+        return redirect(url_for('index'))  # Redirect to login if not authenticated
+    return render_template('UpdateList.html')
+
+@app.route('/accSettings')
+def accSettings():
+    if 'user_id' not in session or session.get('user_type') != 'Seller':
+        return redirect(url_for('index'))  # Redirect to login if not authenticated
+    return render_template('AccountSettings.html')
+
 
 @app.route('/sellerlogout')
 def sellerlogout():

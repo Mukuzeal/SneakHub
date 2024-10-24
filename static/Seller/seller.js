@@ -19,21 +19,48 @@ document.addEventListener("DOMContentLoaded", function(event) {
     showNavbar('header-toggle', 'nav-bar', 'body-pd', 'header');
 
     const linkColor = document.querySelectorAll('.nav_link');
-    function colorLink() {
-        if (linkColor) {
-            linkColor.forEach(l => l.classList.remove('active'));
-            this.classList.add('active');
+
+    // Automatically add the active class based on the current page URL
+    const currentPage = window.location.pathname; // Get current page path
+
+    linkColor.forEach(link => {
+        // Match the href attribute or manually check the URL for each link
+        if (currentPage.includes("itemList.html")) {
+            if (link.textContent.trim() === "Item List") {
+                link.classList.add('active');
+            }
+        } else if (currentPage.includes("add-product")) {
+            if (link.textContent.trim() === "Add Item") {
+                link.classList.add('active');
+            }
+        } else if (currentPage.includes("updateList.html")) {
+            if (link.textContent.trim() === "Updates") {
+                link.classList.add('active');
+            }
+        } else if (currentPage.includes("AccountSettings.html")) {
+            if (link.textContent.trim() === "Account Setting") {
+                link.classList.add('active');
+            }
+        } else if (currentPage.includes("seller.html")) {
+            if (link.textContent.trim() === "Dashboard") {
+                link.classList.add('active');
+            }
         }
-    }
-    linkColor.forEach(l => l.addEventListener('click', colorLink));
+    });
+
+    // Handle navigation link clicks
+    linkColor.forEach(l => l.addEventListener('click', function() {
+        linkColor.forEach(link => link.classList.remove('active'));
+        this.classList.add('active');
+    }));
 
     // JavaScript functions for navigation links
     function goToDashboard() {
-        window.location.href = 'dashboard.html'; // Update to the correct dashboard path
+        window.location.href = 'seller.html'; // Update to the correct dashboard path
     }
 
     function goToItemList() {
-        window.location.href = 'item_list.html'; // Update to the correct item list path
+        window.location.href = 'itemList.html'; // Update to the correct item list path
     }
 
     function goToselleraddproduct() {
@@ -41,15 +68,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
     }
 
     function goToUpdates() {
-        window.location.href = 'updates.html'; // Update to the correct updates path
-    }
-
-    function goToTutorial() {
-        window.location.href = 'tutorial.html'; // Update to the correct tutorial path
+        window.location.href = 'UpdateList.html'; // Update to the correct updates path
     }
 
     function goToAccountSettings() {
-        window.location.href = 'account_settings.html'; // Update to the correct account settings path
+        window.location.href = 'AccountSettings.html'; // Update to the correct account settings path
     }
 
     function logout() {
