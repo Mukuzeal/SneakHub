@@ -208,7 +208,7 @@ def get_users():
 def get_archived_users():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, name, email, password, user_type FROM users WHERE archieve = 'yes'")  # Fetch archived users
+    cursor.execute("SELECT id, name, email, user_type FROM users WHERE archieve = 'yes'")
     users = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -220,11 +220,12 @@ def get_archived_users():
             'id': user[0],
             'name': user[1],
             'email': user[2],
-            'password': user[3],  # Include password in the response
-            'user_type': user[4],
+            'user_type': user[3],  # Corrected the index to 3 for user_type
         })
 
-    return jsonify(archived_user_list)
+    return jsonify(archived_user_list)  # Return JSON response
+
+
 
 # Add a new user (default to Buyer type)
 @app.route('/add_user', methods=['POST'])
