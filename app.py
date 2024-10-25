@@ -518,6 +518,8 @@ def sellerlogout():
 def serve_pics(filename):
     return send_from_directory(os.path.join(app.root_path, 'static/Uploads/pics'), filename)
 
+
+
 @app.route('/item_list', methods=['GET'])
 def get_items():
     user_id = session.get('user_id')  # Get the user ID from the session
@@ -637,8 +639,7 @@ def archive_product(product_id):
         connection.close()
 
 
-import os
-from flask import request, jsonify
+
 
 @app.route('/update_image/<int:product_id>', methods=['POST'])
 def update_image(product_id):
@@ -676,8 +677,63 @@ def update_image(product_id):
 
 
 
+#ARCHIVE PRODUCTS
+@app.route('/item_listArchive', methods=['GET'])
+def get_itemsArchive():
+    user_id = session.get('user_id')  # Get the user ID from the session
+    if not user_id:
+        return jsonify({'error': 'User not logged in.'}), 401  # Return an error if not logged in
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # Modify the query to fetch only products uploaded by the current seller
+        cursor.execute("""
+            SELECT id, product_name, product_price, product_description, product_quantity, brand, product_category, product_image
+            FROM products
+            WHERE seller_id = %s AND archive != 'no'
+        """, (user_id,))
+        products = cursor.fetchall()
+        
+        if products:
+            product_list = [
+                {
+                    'id': product[0],
+                    'product_name': product[1],
+                    'product_price': product[2],
+                    'product_description': product[3],
+                    'product_quantity': product[4],
+                    'brand': product[5],    
+                    'product_category': product[6],
+                    'product_image': product[7],
+                }
+                for product in products
+            ]
+            return jsonify(product_list)  # Send JSON response
+        else:
+            return jsonify([])  # Return empty list if no products found
+            
+    finally:
+        cursor.close()
+        conn.close()
 
 
+
+@app.route('/restore_product/<int:product_id>', methods=['POST'])
+def restore_product(product_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    try:
+        # Update the archive column to "yes" for the specified product ID
+        cursor.execute("UPDATE products SET archive = 'no' WHERE id = %s", (product_id,))
+        connection.commit()
+        
+        return jsonify({'success': 'Product archived successfully.'}), 200
+    except mysql.connector.Error as err:
+        return jsonify({'error': str(err)}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 
 

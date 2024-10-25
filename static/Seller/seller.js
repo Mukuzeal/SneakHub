@@ -213,8 +213,7 @@ function fetchProductData() {
         .catch(error => console.error('Error fetching products:', error));
 }
 
-// Call the function to fetch product data when the page loads
-window.onload = fetchProductData;
+
 
 function changeImage(productId) {
     // Trigger file input for image change
@@ -340,9 +339,120 @@ async function deleteProduct(productId) {
 
 
 
+//ARCHIVE PRODUCTS
+async function fetchArchivedProducts() {
+    console.log('Fetching products...'); // Debugging log
+    try {
+        const response = await fetch('/item_listArchive'); // Fetch product data from the server
+        const products = await response.json(); // Parse the JSON response
+        console.log('Products fetched:', products); // Debugging log
+
+        const productTableBodyArchive = document.getElementById('productTableBodyArchive'); // Get the table body
+
+        // Clear any existing rows in the table body
+        productTableBodyArchive.innerHTML = '';
+
+        // Populate the table with products
+        products.forEach(product => {
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                <td>${product.id}</td>  <!-- Display product ID -->
+                <td>${product.product_name}</td>  <!-- Display product name -->
+                <td>${product.product_price}</td>  <!-- Display product price -->
+                <td>${product.product_description}</td>  <!-- Display product description -->
+                <td>${product.product_quantity}</td>  <!-- Display product quantity -->
+                <td>${product.brand}</td>  <!-- Display product brand -->
+                <td>${product.product_category}</td>  <!-- Display product category -->
+                <td>${product.product_image}</td>  <!-- Display the image filename as text -->
+
+                <td>
+                <div class="button-container">
+                    <button class="btn btn-custom" onclick="restoreProduct(${product.id})">Restore</button>
+                </div>
+                </td>
+            `;
+
+            productTableBodyArchive.appendChild(row); // Add the new row to the table
+        });
+    } catch (error) {
+        console.error('Error fetching products:', error); // Log any errors
+    }
+}
+
+// Fetch both active and archived products when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    fetchProducts();
+    fetchArchivedProducts();
+});
+
+
+// Assuming you have a function that fetches product data
+function fetchProductDataArchive() {
+    fetch('/item_listArchive') // Adjust to your API endpoint
+        .then(response => response.json())
+        .then(data => {
+            const productCardsContainerArchive = document.getElementById('productCardsContainerArchive');
+            productCardsContainerArchive.innerHTML = ''; // Clear previous data
+
+            data.forEach(product => {
+                // Create product card
+                const card = document.createElement('div');
+                card.className = 'col-md-3'; // Use bootstrap grid system
+                card.setAttribute('data-id', product.id);
+                
+                // Use the product image path (direct from database)
+                const imagePath = `Uploads/pics/${product.product_image}`;
+
+                card.innerHTML = `
+                    <div class="product-card">
+                        <img src="${imagePath}" class="product-image" alt="${product.product_name}"
+                            onerror="this.onerror=null; this.src='Uploads/pics/default.jpg';" id="product-image-${product.id}">
+                        <h5>${product.product_name}</h5>
+                        <p>Price: $${product.product_price}</p>
+                        <p>Description: ${product.product_description}</p>
+                        <p>Quantity: ${product.product_quantity}</p>
+                        <p>Brand: ${product.brand}</p>
+                        <p>Category: ${product.product_category}</p>
+                    </div>
+                `;
+
+                productCardsContainerArchive.appendChild(card);
+            });
+        })
+        .catch(error => console.error('Error fetching products:', error));
+}
+
+window.onload = function() {
+    fetchProductData();
+    fetchProductDataArchive();
+};
 
 
 
+async function restoreProduct(productId) {
+    try {
+        const response = await fetch(`/restore_product/${productId}`, { method: 'POST' });
+        
+        if (response.ok) {
+            console.log(`Product ${productId} restored successfully`);
+
+            // Remove the specific product card from the DOM
+            const productCardArchive = document.querySelector(`[data-id='${productId}']`);
+            if (productCardArchive) {
+                productCardArchive.remove();
+            }
+
+            // Also refresh the product table if needed
+            fetchArchivedProducts();
+        } else {
+            const errorData = await response.json();
+            console.error('Error restoring product:', errorData.error);
+        }
+    } catch (error) {
+        console.error('Error restoring product:', error);
+    }
+}
 
 
 
