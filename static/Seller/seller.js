@@ -195,13 +195,15 @@ function fetchProductData() {
                 card.innerHTML = `
                     <div class="product-card">
                         <img src="${imagePath}" class="product-image" alt="${product.product_name}"
-                             onerror="this.onerror=null; this.src='Uploads/pics/default.jpg';">
+                            onerror="this.onerror=null; this.src='Uploads/pics/default.jpg';" id="product-image-${product.id}">
                         <h5>${product.product_name}</h5>
                         <p>Price: $${product.product_price}</p>
                         <p>Description: ${product.product_description}</p>
                         <p>Quantity: ${product.product_quantity}</p>
                         <p>Brand: ${product.brand}</p>
                         <p>Category: ${product.product_category}</p>
+                        <button onclick="changeImage(${product.id})">Change Image</button>
+                        <input type="file" id="file-input-${product.id}" style="display: none;" accept="image/*" onchange="uploadImage(${product.id})">
                     </div>
                 `;
 
@@ -213,6 +215,39 @@ function fetchProductData() {
 
 // Call the function to fetch product data when the page loads
 window.onload = fetchProductData;
+
+function changeImage(productId) {
+    // Trigger file input for image change
+    document.getElementById(`file-input-${productId}`).click();
+}
+
+async function uploadImage(productId) {
+    const fileInput = document.getElementById(`file-input-${productId}`);
+    const file = fileInput.files[0];
+
+    if (!file) return; // Exit if no file is selected
+
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('product_id', productId);
+
+    try {
+        const response = await fetch(`/update_image/${productId}`, {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (response.ok) {
+            const newImagePath = URL.createObjectURL(file);
+            document.getElementById(`product-image-${productId}`).src = newImagePath; // Update the image preview
+        } else {
+            console.error('Failed to update image');
+        }
+    } catch (error) {
+        console.error('Error uploading image:', error);
+    }
+}
+
 
 
 

@@ -637,6 +637,41 @@ def archive_product(product_id):
         connection.close()
 
 
+import os
+from flask import request, jsonify
+
+@app.route('/update_image/<int:product_id>', methods=['POST'])
+def update_image(product_id):
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image provided'}), 400
+
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    # Get the current image name from the database
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT product_image FROM products WHERE id = %s", (product_id,))
+    product = cursor.fetchone()
+    
+    if not product:
+        return jsonify({'error': 'Product not found'}), 404
+    
+    current_image_name = product['product_image']
+    file_path = os.path.join('static/Uploads/pics', current_image_name)
+    
+    # Delete the existing image file if it exists
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+    # Save the new file with the existing name
+    file.save(file_path)
+    
+    cursor.close()
+    connection.close()
+    
+    return jsonify({'success': 'Image updated successfully'})
 
 
 
