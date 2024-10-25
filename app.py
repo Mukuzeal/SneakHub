@@ -531,7 +531,7 @@ def get_items():
         cursor.execute("""
             SELECT id, product_name, product_price, product_description, product_quantity, brand, product_category, product_image
             FROM products
-            WHERE seller_id = %s
+            WHERE seller_id = %s AND archive != 'yes'
         """, (user_id,))
         products = cursor.fetchall()
         
@@ -556,6 +556,86 @@ def get_items():
     finally:
         cursor.close()
         conn.close()
+
+
+@app.route('/get_product/<int:product_id>', methods=['GET'])
+def get_product(product_id):
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)  # Use dictionary=True for easier JSON conversion
+
+    try:
+        # Fetch the product by ID from the products table
+        cursor.execute("SELECT * FROM products WHERE id = %s AND archive != 'yes'", (product_id,))
+        product = cursor.fetchone()
+
+        if product:
+            return jsonify(product)  # Send product details as JSON
+        else:
+            return jsonify({'error': 'Product not found'}), 404
+    except mysql.connector.Error as err:
+        return jsonify({'error': str(err)})
+    finally:
+        cursor.close()
+        connection.close()
+
+
+
+@app.route('/update_product', methods=['POST'])
+def update_product():
+    product_id = request.form['product_id']
+    product_name = request.form['product_name']
+    product_price = request.form['product_price']
+    product_description = request.form['product_description']
+    product_quantity = request.form['product_quantity']
+    brand = request.form['brand']
+    product_category = request.form['product_category']
+    updated_at = datetime.now()  # Current timestamp
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Update the product in the database
+        cursor.execute(""" 
+            UPDATE products 
+            SET product_name = %s, 
+                product_price = %s, 
+                product_description = %s, 
+                product_quantity = %s, 
+                brand = %s, 
+                product_category = %s, 
+                updated_at = %s 
+            WHERE id = %s
+        """, (product_name, product_price, product_description, product_quantity,
+              brand, product_category, updated_at, product_id))
+
+        connection.commit()
+
+        return jsonify({'success': True, 'message': 'Product updated successfully'})
+
+    except mysql.connector.Error as err:
+        return jsonify({'error': str(err)})
+
+    finally:
+        cursor.close()
+        connection.close()
+
+@app.route('/archive_product/<int:product_id>', methods=['POST'])
+def archive_product(product_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    try:
+        # Update the archive column to "yes" for the specified product ID
+        cursor.execute("UPDATE products SET archive = 'yes' WHERE id = %s", (product_id,))
+        connection.commit()
+        
+        return jsonify({'success': 'Product archived successfully.'}), 200
+    except mysql.connector.Error as err:
+        return jsonify({'error': str(err)}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
 
 
 

@@ -152,6 +152,13 @@ async function fetchProducts() {
                 <td>${product.brand}</td>  <!-- Display product brand -->
                 <td>${product.product_category}</td>  <!-- Display product category -->
                 <td>${product.product_image}</td>  <!-- Display the image filename as text -->
+
+                <td>
+                <div class="button-container">
+                    <button class="btn btn-custom" onclick="editProduct(${product.id})">Edit</button>
+                    <button class="btn btn-custom" onclick="deleteProduct(${product.id})">Delete</button>
+                </div>
+                </td>
             `;
 
             productTableBody.appendChild(row); // Add the new row to the table
@@ -165,58 +172,7 @@ async function fetchProducts() {
 document.addEventListener('DOMContentLoaded', fetchProducts);
 
 
-//the ontainers for
-async function fetchProducts() {
-    try {
-        const response = await fetch('/item_list');
-        const products = await response.json();
-        
-        const productTableBody = document.getElementById('productTableBody');
-        const productCardsContainer = document.getElementById('productCardsContainer');
 
-        // Clear previous content
-        productTableBody.innerHTML = '';
-        productCardsContainer.innerHTML = '';
-
-        // Populate Table and Cards
-        products.forEach(product => {
-            // Table Row
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${product.id}</td>
-                <td>${product.product_name}</td>
-                <td>${product.product_price}</td>
-                <td>${product.product_description}</td>
-                <td>${product.product_quantity}</td>
-                <td>${product.brand}</td>
-                <td>${product.product_category}</td>
-                <td>${product.product_image}</td>
-            `;
-            productTableBody.appendChild(row);
-
-            // Product Card
-            const card = document.createElement('div');
-            card.classList.add('col-md-6', 'mb-4');
-            card.innerHTML = `
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">${product.product_name}</h5>
-                        <p class="card-text"><strong>Price:</strong> $${product.product_price}</p>
-                        <p class="card-text"><strong>Description:</strong> ${product.product_description}</p>
-                        <p class="card-text"><strong>Brand:</strong> ${product.brand}</p>
-                        <p class="card-text"><strong>Category:</strong> ${product.product_category}</p>
-                        <p class="card-text"><strong>Image:</strong> ${product.product_image}</p>
-                    </div>
-                </div>
-            `;
-            productCardsContainer.appendChild(card);
-        });
-    } catch (error) {
-        console.error('Error fetching products:', error);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', fetchProducts);
 
 
 // Assuming you have a function that fetches product data
@@ -230,7 +186,8 @@ function fetchProductData() {
             data.forEach(product => {
                 // Create product card
                 const card = document.createElement('div');
-                card.className = 'col-md-6'; // Use bootstrap grid system
+                card.className = 'col-md-3'; // Use bootstrap grid system
+                card.setAttribute('data-id', product.id);
                 
                 // Use the product image path (direct from database)
                 const imagePath = `Uploads/pics/${product.product_image}`;
@@ -256,6 +213,106 @@ function fetchProductData() {
 
 // Call the function to fetch product data when the page loads
 window.onload = fetchProductData;
+
+
+
+// Function to open the modal for editing
+function editProduct(productId) {
+    fetch(`/get_product/${productId}`)
+        .then(response => response.json())
+        .then(product => {
+            // Populate modal fields with product data
+            document.getElementById('productId').value = product.id; // Assuming this field exists
+            document.getElementById('productName').value = product.product_name;
+            document.getElementById('productPrice').value = product.product_price;
+            document.getElementById('productDescription').value = product.product_description;
+            document.getElementById('productQuantity').value = product.product_quantity;
+            document.getElementById('brand').value = product.brand;
+            document.getElementById('productCategory').value = product.product_category;
+            document.getElementById('editModal').style.display = 'flex'; // Show the modal
+        })
+        .catch(error => console.error('Error fetching product data:', error));
+}
+
+// Function to close the modal
+function closeModal() {
+    document.getElementById('editModal').style.display = 'none'; // Hide the modal
+}
+
+// Optional: Close modal when clicking outside the modal content
+window.onclick = function(event) {
+    const modal = document.getElementById('editModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+};
+
+async function saveProductChanges() {
+    const formData = new FormData(document.getElementById('editProductForm'));
+    
+    // Convert FormData to an object
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+        const response = await fetch('/update_product', {
+            method: 'POST',
+            body: new URLSearchParams(data) // Use URLSearchParams for form-like data
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Show confirmation message
+            alert(result.message); // You can replace this with a nicer notification UI
+
+            // Update the product table row with the new data
+            await fetchProducts();
+            
+            // Close the modal
+            closeModal();
+        } else {
+            alert(result.error); // Handle the error message
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while updating the product.');
+    }
+}
+
+async function deleteProduct(productId) {
+    try {
+        const response = await fetch(`/archive_product/${productId}`, { method: 'POST' });
+        
+        if (response.ok) {
+            console.log(`Product ${productId} archived successfully`);
+
+            // Remove the specific product card from the DOM
+            const productCard = document.querySelector(`[data-id='${productId}']`);
+            if (productCard) {
+                productCard.remove();
+            }
+
+            // Also refresh the product table if needed
+            fetchProducts();
+        } else {
+            const errorData = await response.json();
+            console.error('Error archiving product:', errorData.error);
+        }
+    } catch (error) {
+        console.error('Error archiving product:', error);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
     
