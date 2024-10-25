@@ -1,5 +1,6 @@
 /* Custom Styles for Archive Page */
 body {
+    cursor: url('/static/images/cursor.png'), auto;
     font-family: Arial, sans-serif; /* Font family for better readability */
     background-color: #f8f9fa; /* Light background for a clean look */
     color: #333; /* Darker text color for better contrast */
