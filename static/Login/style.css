@@ -25,6 +25,7 @@ body.swal2-shown .container {
 
 
 body {
+    cursor: url('/static/images/cursor.png'), auto;
     align-items: center;
     background-color: var(--white);
     background-attachment: fixed;
