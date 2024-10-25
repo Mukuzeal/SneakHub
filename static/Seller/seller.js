@@ -60,9 +60,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
     }
 
     function goToItemList() {
-        window.location.href = 'itemList.html'; // Update to the correct item list path
+        window.location.href = '/item_list'; // This should match your Flask route
     }
-
+    
     function goToselleraddproduct() {
         window.location.href = 'selleraddproduct.html'; // Redirects to the Add Product page
     }
@@ -126,3 +126,137 @@ document.addEventListener("DOMContentLoaded", function(event) {
         });
     }
 });
+
+async function fetchProducts() {
+    console.log('Fetching products...'); // Debugging log
+    try {
+        const response = await fetch('/item_list'); // Fetch product data from the server
+        const products = await response.json(); // Parse the JSON response
+        console.log('Products fetched:', products); // Debugging log
+
+        const productTableBody = document.getElementById('productTableBody'); // Get the table body
+
+        // Clear any existing rows in the table body
+        productTableBody.innerHTML = '';
+
+        // Populate the table with products
+        products.forEach(product => {
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                <td>${product.id}</td>  <!-- Display product ID -->
+                <td>${product.product_name}</td>  <!-- Display product name -->
+                <td>${product.product_price}</td>  <!-- Display product price -->
+                <td>${product.product_description}</td>  <!-- Display product description -->
+                <td>${product.product_quantity}</td>  <!-- Display product quantity -->
+                <td>${product.brand}</td>  <!-- Display product brand -->
+                <td>${product.product_category}</td>  <!-- Display product category -->
+                <td>${product.product_image}</td>  <!-- Display the image filename as text -->
+            `;
+
+            productTableBody.appendChild(row); // Add the new row to the table
+        });
+    } catch (error) {
+        console.error('Error fetching products:', error); // Log any errors
+    }
+}
+
+// Fetch the products when the page loads
+document.addEventListener('DOMContentLoaded', fetchProducts);
+
+
+//the ontainers for
+async function fetchProducts() {
+    try {
+        const response = await fetch('/item_list');
+        const products = await response.json();
+        
+        const productTableBody = document.getElementById('productTableBody');
+        const productCardsContainer = document.getElementById('productCardsContainer');
+
+        // Clear previous content
+        productTableBody.innerHTML = '';
+        productCardsContainer.innerHTML = '';
+
+        // Populate Table and Cards
+        products.forEach(product => {
+            // Table Row
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${product.id}</td>
+                <td>${product.product_name}</td>
+                <td>${product.product_price}</td>
+                <td>${product.product_description}</td>
+                <td>${product.product_quantity}</td>
+                <td>${product.brand}</td>
+                <td>${product.product_category}</td>
+                <td>${product.product_image}</td>
+            `;
+            productTableBody.appendChild(row);
+
+            // Product Card
+            const card = document.createElement('div');
+            card.classList.add('col-md-6', 'mb-4');
+            card.innerHTML = `
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">${product.product_name}</h5>
+                        <p class="card-text"><strong>Price:</strong> $${product.product_price}</p>
+                        <p class="card-text"><strong>Description:</strong> ${product.product_description}</p>
+                        <p class="card-text"><strong>Brand:</strong> ${product.brand}</p>
+                        <p class="card-text"><strong>Category:</strong> ${product.product_category}</p>
+                        <p class="card-text"><strong>Image:</strong> ${product.product_image}</p>
+                    </div>
+                </div>
+            `;
+            productCardsContainer.appendChild(card);
+        });
+    } catch (error) {
+        console.error('Error fetching products:', error);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', fetchProducts);
+
+
+// Assuming you have a function that fetches product data
+function fetchProductData() {
+    fetch('/item_list') // Adjust to your API endpoint
+        .then(response => response.json())
+        .then(data => {
+            const productCardsContainer = document.getElementById('productCardsContainer');
+            productCardsContainer.innerHTML = ''; // Clear previous data
+
+            data.forEach(product => {
+                // Create product card
+                const card = document.createElement('div');
+                card.className = 'col-md-6'; // Use bootstrap grid system
+                
+                // Use the product image path (direct from database)
+                const imagePath = `Uploads/pics/${product.product_image}`;
+
+                card.innerHTML = `
+                    <div class="product-card">
+                        <img src="${imagePath}" class="product-image" alt="${product.product_name}"
+                             onerror="this.onerror=null; this.src='Uploads/pics/default.jpg';">
+                        <h5>${product.product_name}</h5>
+                        <p>Price: $${product.product_price}</p>
+                        <p>Description: ${product.product_description}</p>
+                        <p>Quantity: ${product.product_quantity}</p>
+                        <p>Brand: ${product.brand}</p>
+                        <p>Category: ${product.product_category}</p>
+                    </div>
+                `;
+
+                productCardsContainer.appendChild(card);
+            });
+        })
+        .catch(error => console.error('Error fetching products:', error));
+}
+
+// Call the function to fetch product data when the page loads
+window.onload = fetchProductData;
+
+
+    
+

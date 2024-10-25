@@ -1,0 +1,46 @@
+/* Styling for the product cards */
+.product-card {
+    margin-bottom: 20px; /* Space between cards */
+    border: 1px solid #e0e0e0; /* Border around cards */
+    border-radius: 8px; /* Rounded corners */
+    transition: box-shadow 0.3s ease-in-out; /* Smooth shadow transition */
+    padding: 15px; /* Padding inside product cards */
+    width: 100%; /* Ensure full width */
+    box-sizing: border-box; /* Include padding in width */
+    display: flex; /* Use flex to make sure text and image don't overlap */
+    flex-direction: column; /* Align items vertically */
+    height: auto; /* Let height adjust according to content */
+}
+
+.product-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow on hover */
+}
+
+.product-image {
+    width: 100%; /* Make the image fill the container */
+    height: 200px; /* Fixed height for uniformity */
+    object-fit: cover; /* Ensures the image covers the area */
+    border-bottom: 1px solid #ddd; /* Bottom border to separate the image */
+    margin-bottom: 15px; /* Add space between the image and the text */
+}
+
+.product-card h5, 
+.product-card p {
+    margin: 5px 0; /* Add margin to the text elements for better spacing */
+}
+
+/* Optional styling for the entire body and containers */
+body {
+    background-color: #f8f9fa; /* Light background for contrast */
+    padding: 15px; /* Add padding to the body */
+}
+
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+.container {
+    padding: 15px; /* Add padding around the container */
+}

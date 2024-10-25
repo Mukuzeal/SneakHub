@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for, session
+from flask import Flask, render_template, request, redirect, jsonify, url_for, session, send_from_directory
 from flask_mailman import Mail, EmailMessage
 from itsdangerous import URLSafeTimedSerializer  # For token generation
 from datetime import datetime, timedelta
@@ -14,7 +14,7 @@ app = Flask(__name__)
 mail = Mail()
 app.secret_key = os.urandom(24)
 
-UPLOAD_FOLDER = 'Uploads/pics'
+UPLOAD_FOLDER = 'static/Uploads/pics'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Token Serializer
@@ -511,6 +511,64 @@ def accSettings():
 @app.route('/sellerlogout')
 def sellerlogout():
     return render_template('index.html')
+
+
+
+@app.route('/Uploads/pics/<path:filename>')
+def serve_pics(filename):
+    return send_from_directory(os.path.join(app.root_path, 'static/Uploads/pics'), filename)
+
+@app.route('/item_list', methods=['GET'])
+def get_items():
+    user_id = session.get('user_id')  # Get the user ID from the session
+    if not user_id:
+        return jsonify({'error': 'User not logged in.'}), 401  # Return an error if not logged in
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # Modify the query to fetch only products uploaded by the current seller
+        cursor.execute("""
+            SELECT id, product_name, product_price, product_description, product_quantity, brand, product_category, product_image
+            FROM products
+            WHERE seller_id = %s
+        """, (user_id,))
+        products = cursor.fetchall()
+        
+        if products:
+            product_list = [
+                {
+                    'id': product[0],
+                    'product_name': product[1],
+                    'product_price': product[2],
+                    'product_description': product[3],
+                    'product_quantity': product[4],
+                    'brand': product[5],    
+                    'product_category': product[6],
+                    'product_image': product[7],
+                }
+                for product in products
+            ]
+            return jsonify(product_list)  # Send JSON response
+        else:
+            return jsonify([])  # Return empty list if no products found
+            
+    finally:
+        cursor.close()
+        conn.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 if __name__ == "__main__":
