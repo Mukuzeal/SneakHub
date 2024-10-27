@@ -1,0 +1,289 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600&display=swap");
+* {
+  box-sizing: border-box;
+  font-family: "Open Sans", sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+.nav-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 8%;
+  height: 100px;
+  background-color: white;
+  box-shadow: 0 2px 5px #ccc;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 10;
+}
+
+/* Logo container styling */
+.left-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+#logo1 img {
+  width: 80px;
+  height: 80px;
+}
+
+#logo2 img {
+  width: 100px;
+  height: auto;
+  max-height: 99px;
+}
+
+/* Centered navigation links */
+.center-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.section-title-in-nav {
+  margin: 0 16px; /* Space between nav items */
+  text-transform: uppercase;
+  font-size: 16px;
+  font-weight: 600;
+  color: black;
+  transition: color 0.2s ease;
+}
+
+.section-title-in-nav a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Search input styling */
+#input-wrapper__nav {
+  display: flex;
+  align-items: center;
+  max-width: 300px;
+  position: relative;
+}
+
+#search-box {
+  width: 100%;
+  padding-left: 30px;
+  height: 40px;
+  border: 1px solid rgb(245, 242, 242);
+  background-color: rgb(245, 242, 242);
+  color: black;
+  box-sizing: border-box;
+}
+
+#search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: auto;
+  color: #999;
+}
+
+#separator-icon {
+  width: 30px; /* Adjust size as needed */
+  height: 40px;
+  margin-left: 10px; /* Space between search box and icon */
+  cursor: pointer; /* Cursor pointer to indicate it's clickable */
+}
+
+/* New Account Button Styling */
+#account-button {
+  width: 30px; /* Adjust as needed */
+  height: auto;
+  margin-left: 10px; /* Space between profile icon and account button */
+  cursor: pointer; /* Makes it look clickable */
+}
+
+
+/* Center the carousel within the banner wrapper */
+
+#banner-wrapper {
+  display: flex;
+  justify-content: center; /* Center the carousel horizontally */
+  width: 70%; /* Full width for the wrapper */
+  padding-top: 150px; /* Add space from the top nav */
+  margin: 0 auto; /* Center the wrapper itself */
+}
+
+.owl-carousel {
+  width: 70%; /* Set the carousel width to 70% of the page */
+  max-width: 100%; /* Make sure it doesn’t exceed the parent container */
+}
+
+.owl-carousel .item {
+  margin: 0 15px; /* Adds horizontal space between items */
+}
+
+.owl-carousel .item img {
+  width: 100%; /* Make images take up the carousel’s width */
+  height: 400px; /* Set a specific height to reduce size */
+  object-fit: cover; /* Crop images to fit without stretching */
+  border-radius: 8px; /* Optional rounded corners */
+}
+
+
+
+
+.modal {
+  display: none; /* Hidden by default */
+  position: absolute; /* Position below account button */
+  z-index: 1000; /* Sit on top */
+  width: 150px; /* Set a fixed width for the modal */
+  max-width: 90vw; /* Ensure modal doesn't exceed 90% of the viewport width */
+  background-color: rgba(255, 255, 255, 255); /* Background color with slight transparency */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  opacity: 0; /* Start hidden for smooth transition */
+  transition: opacity 0.3s ease; /* Smooth transition */
+  pointer-events: none; /* Prevent interaction when hidden */
+}
+
+.modal.show {
+  display: block; /* Show the modal */
+  opacity: 1; /* Fully opaque when shown */
+  pointer-events: auto; /* Allow interaction */
+}
+
+.modal-content {
+  padding: 10px; /* Space inside modal */
+}
+
+.modal-text {
+  cursor: pointer; /* Makes the text look clickable */
+  margin: 0; /* Remove default margin */
+  padding: 3px 0; /* Padding for better spacing */
+  font-size: 14px;
+}
+
+/* Hover effect for text */
+.modal-text:hover {
+  background-color: #f0f0f0; /* Change background on hover */
+}
+
+#account-modal {
+  display: none;
+  position: absolute;
+  z-index: 1000;
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: opacity 0.3s ease; /* Smooth transition */
+}
+
+#account-modal.show {
+  display: block;
+  opacity: 1;
+}
+
+#account-modal:not(.show) {
+  opacity: 0;
+}
+
+
+
+
+
+
+
+
+
+
+#products-section {
+  padding: 20px; /* Space around the section */
+  text-align: center; /* Center the heading */
+}
+
+.product-container {
+  display: flex; /* Use flexbox to create a row layout */
+  flex-wrap: wrap; /* Allow items to wrap onto the next line */
+  justify-content: center; /* Center items */
+}
+
+.product-card {
+  width: calc(20% - 20px); /* Five items per row with some space */
+  margin: 10px; /* Space between product cards */
+  padding: 10px; /* Space inside each card */
+  border: 1px solid #ddd; /* Light border */
+  border-radius: 5px; /* Rounded corners */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Slight shadow */
+  text-align: left; /* Align text to the left */
+}
+
+.product-image {
+  width: 100%; /* Make the image responsive */
+  height: auto; /* Maintain aspect ratio */
+}
+
+.product-card h3 {
+  font-size: 1.2em; /* Heading size */
+  margin: 10px 0 5px; /* Space around the heading */
+}
+
+.product-card p {
+  font-weight: bold; /* Make the price bold */
+}
+
+
+.btn {
+    background-color: white; /* Change this color to fit your theme */
+    color: black; /* Text color */
+    border: none; /* No border */
+    padding: 5px 5px; /* Padding around the text */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 16px; /* Text size */
+}
+
+.btn:hover {
+    background-color: #d3d3d3; /* Greyish background on hover */
+}
+
+
+
+
+footer {
+  width: 100%;
+  background-color: #1c1b1e;
+  display: flex;
+  justify-content: space-evenly;
+
+  padding: 4% 8%;
+}
+
+footer div {
+  padding-right: 60px;
+}
+
+footer div p {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 16px;
+  color: white;
+  opacity: 0.9;
+  letter-spacing: 1px;
+}
+
+footer div a {
+  text-decoration: none;
+  color: white;
+  display: block;
+  margin-top: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+
+
+

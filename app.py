@@ -93,10 +93,17 @@ def reset_password(token):
 
 @app.route('/')  # Define the route for the root URL
 def home():
-    return render_template('index.html')  # Ensure the template exists
+    return render_template('MainWeb.html')  # Ensure the template exists
+
+
+@app.route('/sign-up')
+def sign_up():
+    return redirect(url_for('index'))
+
 
 @app.route('/logout')
 def index():
+    session.clear()
     return render_template('index.html')
 #Sign up
 @app.route('/submit_form', methods=['POST'])
@@ -510,6 +517,7 @@ def accSettings():
 
 @app.route('/sellerlogout')
 def sellerlogout():
+    session.clear()
     return render_template('index.html')
 
 
