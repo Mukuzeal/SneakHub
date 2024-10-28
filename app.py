@@ -67,28 +67,73 @@ def forgotpassword():
         return jsonify({'error': 'Email not found!'}), 404
 
 
+# Database connection
+def get_db_connection():
+    return mysql.connector.connect(
+        host="localhost",
+        user="root",  # Your DB username
+        password="",  # Your DB password
+        database="goodboisdb"
+    )
 
+def create_mail_app():
+    app.config["MAIL_SERVER"] = "smtp.gmail.com"
+    app.config["MAIL_PORT"] = 465
+    app.config["MAIL_USERNAME"] = "SneakHub.noreply@gmail.com"
+    app.config["MAIL_PASSWORD"] = "bifj ftki bkai moji"  # Use App Password
+    app.config["MAIL_USE_TLS"] = False
+    app.config["MAIL_USE_SSL"] = True
+    mail.init_app(app)
 
+create_mail_app()
 
-@app.route('/reset_password/<token>', methods=['GET', 'POST'])
-def reset_password(token):
+@app.route('/sign-up', methods=['POST'])
+def send_verification_email():
+    email = request.form['email']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if user:
+        
+        token = serializer.dumps(email, salt="email-verification-salt")
+        verification_link = url_for('verify_email', token=token, _external=True)
+
+        msg = EmailMessage(
+            "Email Verification",
+            f"Please verify your email by clicking on the following link: {verification_link}",
+            "SneakHub.noreply@gmail.com",
+            [email]
+        )
+        msg.send()
+        return jsonify({'message': 'Verification email sent!'}), 200
+    else:
+        return jsonify({'error': 'Email not found!'}), 404
+
+@app.route('/verify_email/<token>', methods=['GET'])
+def verify_email(token):
     try:
-        email = serializer.loads(token, salt="password-reset-salt", max_age=3600)  # Token valid for 1 hour
-    except Exception as e:
-        return jsonify({'error': 'The reset link is invalid or has expired.'}), 400
+        # Decode the token and verify it hasn't expired (5 minutes)
+        email = serializer.loads(token, salt="email-verification-salt", max_age=300)  #ginawa ko 5 mins lang, 5 minutes lang ba or dagdagan or bawasan yung time limit??? 
+    except Exception:
+        return jsonify({'error': 'The verification link is invalid or has expired.'}), 400
 
-    if request.method == 'POST':
-        new_password = request.form['password']
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("UPDATE users SET password = %s WHERE email = %s", (new_password, email))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        # Redirect to index.html after successful password change
-        return redirect(url_for('home'))  # Change to index.html route
+    # Update the user's isVerified column to "Yes" in the database
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET isVerified = 'Yes' WHERE isVerified = %s", (email,))
+    conn.commit()
+    cursor.close()
+    conn.close()
 
-    return render_template('reset_password.html', token=token)  # Render the reset password form
+
+    return redirect(url_for('home')) 
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 
 @app.route('/')  # Define the route for the root URL
