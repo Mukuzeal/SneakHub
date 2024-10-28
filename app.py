@@ -38,7 +38,7 @@ def create_mail_app():
     app.config["MAIL_USE_SSL"] = True
     mail.init_app(app)
 
-create_mail_app()
+
 
 @app.route('/forgotpassword', methods=['POST'])
 def forgotpassword():
@@ -67,25 +67,6 @@ def forgotpassword():
         return jsonify({'error': 'Email not found!'}), 404
 
 
-# Database connection
-def get_db_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",  # Your DB username
-        password="",  # Your DB password
-        database="goodboisdb"
-    )
-
-def create_mail_app():
-    app.config["MAIL_SERVER"] = "smtp.gmail.com"
-    app.config["MAIL_PORT"] = 465
-    app.config["MAIL_USERNAME"] = "SneakHub.noreply@gmail.com"
-    app.config["MAIL_PASSWORD"] = "bifj ftki bkai moji"  # Use App Password
-    app.config["MAIL_USE_TLS"] = False
-    app.config["MAIL_USE_SSL"] = True
-    mail.init_app(app)
-
-create_mail_app()
 
 @app.route('/sign-up', methods=['POST'])
 def send_verification_email():
@@ -131,10 +112,6 @@ def verify_email(token):
 
 
     return redirect(url_for('home')) 
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
 
 @app.route('/')  # Define the route for the root URL
 def home():
