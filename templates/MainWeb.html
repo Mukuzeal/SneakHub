@@ -50,13 +50,7 @@
           <!-- Modal Structure -->
           <div id="account-modal" class="modal">
             <div class="overlay__panel overlay--right">
-                {% if session.get('name') %}
-                    <!-- Display the user's name if they're signed in -->
-                    <span class="btn" id="userName">Hello, {{ session['name'] }}!</span>
-                {% else %}
-                    <!-- Show Sign Up button if no user is signed in -->
-                    <button class="btn" id="signUp" type="button" onclick="window.location.href='/sign-up'">Sign Up</button>
-                {% endif %}
+                <button class="btn" id="signUp" type="button" onclick="window.location.href='/sign-up'">Sign Up</button>
             </div>
         </div>
       </nav>
