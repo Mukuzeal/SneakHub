@@ -127,6 +127,7 @@ def sign_up():
 def index():
     session.clear()
     return render_template('index.html')
+
 #Sign up
 @app.route('/submit_form', methods=['POST'])
 def submit_form():
@@ -136,11 +137,12 @@ def submit_form():
     hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())  # Hash the password
     user_type = 'Buyer'  # Default user type
     archive = 'no'
+    isVerified = 'No'
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    sql = "INSERT INTO users (name, email, password, user_type, archieve) VALUES (%s, %s, %s, %s, %s)"
-    cursor.execute(sql, (name, email, hashed_password, user_type, archive))
+    sql = "INSERT INTO users (name, email, password, user_type, archieve, isVerified) VALUES (%s, %s, %s, %s, %s, %s)"
+    cursor.execute(sql, (name, email, hashed_password, user_type, archive, isVerified))
     conn.commit()
     cursor.close()
     conn.close()
@@ -764,6 +766,27 @@ def restore_product(product_id):
     finally:
         cursor.close()
         connection.close()
+
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        email = serializer.loads(token, salt="password-reset-salt", max_age=3600)  # Token valid for 1 hour
+    except Exception as e:
+        return jsonify({'error': 'The reset link is invalid or has expired.'}), 400
+    
+    if request.method == 'POST':
+        new_password = request.form['password']
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET password = %s WHERE email = %s", (new_password, email))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        # Redirect to index.html after successful password change
+        return redirect(url_for('home'))  # Change to index.html route
+    
+    return render_template('reset_password.html', token=token)  # Render the reset password 
 
 if __name__ == "__main__":
     app.run(debug=True)
