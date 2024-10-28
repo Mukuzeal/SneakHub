@@ -735,12 +735,5 @@ def restore_product(product_id):
         cursor.close()
         connection.close()
 
-
-
-
-
-
-
-
 if __name__ == "__main__":
     app.run(debug=True)
