@@ -127,7 +127,7 @@ def sign_up():
 def index():
     session.clear()
     return render_template('index.html')
-
+    
 #Sign up
 @app.route('/submit_form', methods=['POST'])
 def submit_form():
@@ -137,12 +137,11 @@ def submit_form():
     hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())  # Hash the password
     user_type = 'Buyer'  # Default user type
     archive = 'no'
-    isVerified = 'No'
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    sql = "INSERT INTO users (name, email, password, user_type, archieve, isVerified) VALUES (%s, %s, %s, %s, %s, %s)"
-    cursor.execute(sql, (name, email, hashed_password, user_type, archive, isVerified))
+    sql = "INSERT INTO users (name, email, password, user_type, archieve) VALUES (%s, %s, %s, %s, %s)"
+    cursor.execute(sql, (name, email, hashed_password, user_type, archive))
     conn.commit()
     cursor.close()
     conn.close()
