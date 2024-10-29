@@ -127,6 +127,15 @@ def sign_up():
 def buyersettings():
     return render_template('BuyerAccSettings.html')
 
+@app.route('/request')
+def requests():
+    return render_template('seller_requests.html')
+
+
+@app.route('/AdminRequests')
+def AdminRequests():
+    return render_template('admin_seller_requests.html')
+
 
 @app.route('/logout')
 def index():
@@ -851,7 +860,86 @@ def get_productBUYER(product_id):
         cursor.close()
         connection.close()
 
+@app.route('/request_seller', methods=['GET', 'POST'])
+def request_seller():
+    if request.method == 'POST':
+        # Collect form data
+        store_name = request.form['store_name']
+        address = request.form['address']
+        phone_number = request.form['phone_number']
+        email = request.form['email']
+        user_id = session.get('user_id')  # Get the current user's ID from the session
 
+        if user_id is None:
+            return jsonify({"error": "User not logged in"}), 403
+
+        # Update database
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+
+            # Insert additional details into a seller details table (optional)
+            cursor.execute("""
+                INSERT INTO seller_requests (user_id, store_name, address, phone_number, email, request_date)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (user_id, store_name, address, phone_number, email, datetime.now()))
+
+            # Update user_type to 'Seller'
+            cursor.execute("""
+                UPDATE users SET user_type = %s WHERE id = %s
+            """, ('Seller', user_id))
+
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+            return jsonify({"success": "Seller request submitted successfully."}), 200
+
+        except mysql.connector.Error as err:
+            print(f"Database error: {err}")
+            return jsonify({"error": "Failed to process request."}), 500
+
+    # Render the request form if method is GET
+    return render_template('seller_request.html')
+
+@app.route('/admin/handle_request/<int:request_id>', methods=['POST'])
+def handle_request(request_id):
+    action = request.form['action']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if action == 'accept':
+        # Insert into stores table
+        cursor.execute("""
+            INSERT INTO stores (user_id, store_name, address, phone_number, email)
+            SELECT user_id, store_name, address, phone_number, email FROM seller_requests WHERE id = %s
+        """, (request_id,))
+        
+        # Update status to accepted
+        cursor.execute("UPDATE seller_requests SET status = 'accepted' WHERE id = %s", (request_id,))
+    elif action == 'deny':
+        # Update status to denied
+        cursor.execute("UPDATE seller_requests SET status = 'denied' WHERE id = %s", (request_id,))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    return redirect(url_for('admin_seller_requests'))
+
+@app.route('/admin/seller_requests')
+def admin_seller_requests():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    # Fetch pending requests
+    cursor.execute("SELECT id, user_id, store_name, address, phone_number, email, status FROM seller_requests WHERE status = 'pending'")
+    requests = cursor.fetchall()
+    
+    cursor.close()
+    conn.close()
+
+    return render_template('admin_seller_requests.html', requests=requests)
 
 
 if __name__ == "__main__":

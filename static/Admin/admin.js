@@ -198,5 +198,7 @@ document.getElementById('archBtn').addEventListener('click', () => {
     window.location.href = '/archive'; // Redirect to the archive page
 });
 
+
+
 // Load users when the admin page loads
 document.addEventListener('DOMContentLoaded', loadUsers);

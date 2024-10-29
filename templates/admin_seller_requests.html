@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pending Seller Requests</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Success/success.css') }}">
+</head>
+<body>
+
+<h2>Pending Seller Requests</h2>
+
+{% if requests %}
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>User ID</th>
+            <th>Store Name</th>
+            <th>Address</th>
+            <th>Phone Number</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for req in requests %}
+        <tr>
+            <td>{{ req.id }}</td>
+            <td>{{ req.user_id }}</td>
+            <td>{{ req.store_name }}</td>
+            <td>{{ req.address }}</td>
+            <td>{{ req.phone_number }}</td>
+            <td>{{ req.email }}</td>
+            <td>{{ req.status }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('handle_request', request_id=req.id) }}">
+                    <button name="action" value="accept">Accept</button>
+                    <button name="action" value="deny">Deny</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No pending seller requests at this time.</p>
+{% endif %}
+
+</body>
+</html>

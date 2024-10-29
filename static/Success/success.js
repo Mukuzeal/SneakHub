@@ -12,8 +12,7 @@ $(document).ready(function() {
   });
   
 
-
-
+ 
 
 // Get the modal and account icon elements
 var modal = document.getElementById("account-modal");
