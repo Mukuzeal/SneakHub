@@ -134,9 +134,10 @@ body {
 
 
 
+
 .modal {
   display: none; /* Hidden by default */
-  position: absolute; /* Position below account button */
+  position: fixed; /* Position below account button */
   z-index: 1000; /* Sit on top */
   width: 150px; /* Set a fixed width for the modal */
   max-width: 90vw; /* Ensure modal doesn't exceed 90% of the viewport width */
@@ -170,6 +171,8 @@ body {
 }
 
 #account-modal {
+  width: 150px; /* Set a fixed width for the modal */
+  max-width: 90vw; /* Ensure modal doesn't exceed 90% of the viewport width */
   display: none;
   position: absolute;
   z-index: 1000;
@@ -188,12 +191,6 @@ body {
 #account-modal:not(.show) {
   opacity: 0;
 }
-
-
-
-
-
-
 
 
 
@@ -234,6 +231,7 @@ body {
 }
 
 
+
 .btn {
     background-color: white; /* Change this color to fit your theme */
     color: black; /* Text color */
@@ -247,6 +245,80 @@ body {
 .btn:hover {
     background-color: #d3d3d3; /* Greyish background on hover */
 }
+
+
+
+
+
+
+/* Container styling */
+.container {
+  width: 100%; /* Occupies full width */
+  padding: 15px; /* Padding around container */
+}
+
+/* Table Container */
+.table-container {
+  width: 100%; /* Full width of the container */
+  max-height: 700px; /* Limit table height for scrolling */
+  overflow-y: auto; /* Scroll vertically */
+  margin-bottom: 20px; /* Space between table and product cards */
+  border: 1px solid #ddd; /* Border around the table for definition */
+}
+
+/* Table styling */
+table {
+  width: 100%; /* Full width for table inside container */
+  border-collapse: collapse; /* Collapse table borders */
+}
+
+th, td {
+  padding: 10px; /* Padding for table cells */
+  text-align: left;
+  border: 1px solid #ddd; /* Table cell borders */
+}
+
+/* Hide the "Image Name" column */
+th:nth-child(8), td:nth-child(8) {
+  display: none;
+}
+
+/* Styling for product cards */
+.product-card {
+  margin-bottom: 20px; /* Space between cards */
+  border: 1px solid #e0e0e0; /* Border around cards */
+  border-radius: 8px; /* Rounded corners */
+  transition: box-shadow 0.3s ease-in-out; /* Smooth shadow transition */
+  padding: 15px; /* Padding inside product cards */
+  width: 100%; /* Ensure full width */
+  box-sizing: border-box; /* Include padding in width */
+  display: flex; /* Flex to prevent text/image overlap */
+  flex-direction: column; /* Vertical alignment */
+  height: auto; /* Adjust height based on content */
+}
+
+.product-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow on hover */
+}
+
+.product-image {
+  width: 100%; /* Image fills the container */
+  height: 200px; /* Fixed height for uniformity */
+  object-fit: cover; /* Ensures image covers area */
+  border-bottom: 1px solid #ddd; /* Separate image from text */
+  margin-bottom: 15px; /* Space between image and text */
+}
+
+.product-card h5, 
+.product-card p {
+  margin: 5px 0; /* Spacing for text elements */
+}
+
+
+
+
+
+
 
 
 
@@ -283,6 +355,8 @@ footer div a {
   font-size: 14px;
   opacity: 0.8;
 }
+
+
 
 
 

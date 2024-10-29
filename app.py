@@ -4,6 +4,7 @@ from itsdangerous import URLSafeTimedSerializer  # For token generation
 from datetime import datetime, timedelta
 import mysql.connector
 import os
+import random
 import uuid
 from werkzeug.utils import secure_filename
 import bcrypt
@@ -786,6 +787,68 @@ def reset_password(token):
         return redirect(url_for('home'))  # Change to index.html route
     
     return render_template('reset_password.html', token=token)  # Render the reset password 
+
+
+
+
+@app.route('/item_listBUYER', methods=['GET'])
+def get_itemsBUYER():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # Fetch all products that are not archived
+        cursor.execute("""
+            SELECT id, product_name, product_price, product_description, product_quantity, brand, product_category, product_image
+            FROM products
+            WHERE archive != 'yes'
+        """)
+        products = cursor.fetchall()
+        
+        if products:
+            product_list = [
+                {
+                    'id': product[0],
+                    'product_name': product[1],
+                    'product_price': product[2],
+                    'product_description': product[3],
+                    'product_quantity': product[4],
+                    'brand': product[5],    
+                    'product_category': product[6],
+                    'product_image': product[7],
+                }
+                for product in products
+            ]
+            return jsonify(product_list)  # Send JSON response
+        else:
+            return jsonify([])  # Return empty list if no products found
+            
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route('/get_productBUYER/<int:product_id>', methods=['GET'])
+def get_productBUYER(product_id):
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)  # Use dictionary=True for easier JSON conversion
+
+    try:
+        # Fetch the product by ID from the products table
+        cursor.execute("SELECT * FROM products WHERE id = %s AND archive != 'yes'", (product_id,))
+        product = cursor.fetchone()
+
+        if product:
+            return jsonify(product)  # Send product details as JSON
+        else:
+            return jsonify({'error': 'Product not found'}), 404
+    except mysql.connector.Error as err:
+        return jsonify({'error': str(err)})
+    finally:
+        cursor.close()
+        connection.close()
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
