@@ -123,6 +123,10 @@ def home():
 def sign_up():
     return redirect(url_for('index'))
 
+@app.route('/buyersettings')
+def buyersettings():
+    return render_template('BuyerAccSettings.html')
+
 
 @app.route('/logout')
 def index():

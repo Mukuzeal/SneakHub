@@ -173,6 +173,7 @@ body {
 #account-modal {
   width: 150px; /* Set a fixed width for the modal */
   max-width: 90vw; /* Ensure modal doesn't exceed 90% of the viewport width */
+  height: 200px;
   display: none;
   position: absolute;
   z-index: 1000;
@@ -180,7 +181,7 @@ body {
   padding: 10px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transition: opacity 0.3s ease; /* Smooth transition */
+  transition: opacity 0.3s ease; /* Smoot h transition */
 }
 
 #account-modal.show {
@@ -192,6 +193,28 @@ body {
   opacity: 0;
 }
 
+.main-content {
+  margin-top: 150px; /* Adjust based on your navbar height */
+  width: 70%;
+  text-align: center; /* Center align text */
+  margin-left: auto; /* Automatically adjust left margin */
+  margin-right: auto; /* Automatically adjust right margin */
+}
+
+.main-title {
+  font-size: 2em; /* Larger font size for title */
+  margin: 20px 0; /* Margin around title */
+}
+
+.seller-registration {  
+  font-size: 0.8em; /* Smaller font size for registration */
+}
+
+
+hr {
+  margin: 0px 0; /* Adjusts the spacing above and below the line */
+  border: 1px solid #ccc; /* Change the color and thickness of the line */
+}
 
 
 

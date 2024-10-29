@@ -150,7 +150,14 @@ function fetchProductData() {
 
 
   
-  
+
+function setSessionData() {
+    // Any logic you need to perform before redirecting can go here
+    // For example, setting values in session storage if needed
+
+    // Redirect to the success page
+    window.location.href = '/success';
+}
 
   
   

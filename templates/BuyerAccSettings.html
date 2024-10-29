@@ -35,7 +35,7 @@
           </div>
       
           <div class="center-links">
-              <div class="section-title-in-nav"><a href="#NewArrivals">NEW ARRIVALS</a></div>
+            <div class="section-title-in-nav"><a href="/success" onclick="setSessionData()">NEW ARRIVALS</a></div>
               <div class="section-title-in-nav"><a href="#BestSellers">BEST SELLERS</a></div>
               <div class="section-title-in-nav"><a href="#Sales">SALES</a></div>
               <div class="section-title-in-nav"><a href="#AboutUs">ABOUT US</a></div>
@@ -57,7 +57,7 @@
                     <!-- Display the user's name if they're signed in -->
                     <span class="btn" id="userName">Hello, {{ session['name'] }}!</span>
                     <hr> <!-- Horizontal line below the user's name -->
-                    <span class="btn small-text-button" id="sellerRegistration" style="cursor: pointer;" onclick="window.location.href='/buyersettings'">Settings</span>
+                    <span class="btn small-text-button" id="sellerRegistration" style="cursor: pointer;">Settings</span>
                     <span class="btn small-text-button" id="logout" style="cursor: pointer;" onclick="window.location.href='/logout'">Logout</span> <!-- Logout span -->
                 {% else %}
                     <!-- Show Sign Up button if no user is signed in -->
@@ -68,69 +68,18 @@
 
       </nav>
       </header>
-      <section id="banner-wrapper">
-        <div id="owl-carousel" class="owl-carousel owl-theme">
-          <div class="item">
-            <img src="static/images/bg.png" alt=" pics " />
-          </div>
-          <div class="item">
-            <img src="static/images/bg.png" alt=" pics " />
-          </div>
-          <div class="item">
-            <img src="static/images/bg.png" alt=" pics " />
-          </div>
-          <div class="item">
-            <img src="static/images/bg.png" alt=" pics " />
-          </div>
+
+      <main class="main-content">
+        <div>
+            <h1 class="main-title">Account Settings</h1> <!-- Account Settings Title -->
+            <span class="btn small-text-button" style="cursor: pointer;" href = /success onclick="setSessionData()">Go Back</span>
+            <hr> <!-- Horizontal line below Account Settings -->
+            <span class="btn small-text-button seller-registration" id="sellerRegistration" style="cursor: pointer;">Seller Registration</span>
         </div>
-      </section>
-
-      <!-- Main Content -->
-  <div class="container mt-4">    
-  <h1>Products</h1>
-
-  
-
-
-  <!-- Product Cards Container -->
-  <div id="productCardsContainer" class="row">
-      <!-- JavaScript will dynamically create product cards here -->
-  </div>
-  </div>
-
+    </main>
     
+      
 
-
-      <footer>
-        <div>
-          <p>Online Store</p>
-          <a href="#">Men Shoes</a>
-          <a href="#">Women Shoes</a>
-          <a href="#">Stylish Shoes</a>
-          <a href="#">Runnin Shoes</a>
-        </div>
-        <div>
-          <p>Helpful Links</p>
-          <a href="#">Home</a>
-          <a href="#">About</a>
-          <a href="#">Contact</a>
-        </div>
-        <div>
-          <p>Partners</p>
-          <a href="#">Zara</a>
-          <a href="#">Pantaloons</a>
-          <a href="#">Levis</a>
-          <a href="#">UCB</a>
-          <a href="#">+ Many More</a>
-        </div>
-        <div>
-          <p>Address</p>
-          <a href="#">Building 101</a>
-          <a href="#">Central Avenue</a>
-          <a href="#">LA - 902722</a>
-          <a href="#">United States</a>
-        </div>
-      </footer>
 
 
 
