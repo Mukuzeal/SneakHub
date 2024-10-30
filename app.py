@@ -816,17 +816,21 @@ def reset_password(token):
     
     if request.method == 'POST':
         new_password = request.form['password']
+        
+        # Hash the new password using bcrypt
+        hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("UPDATE users SET password = %s WHERE email = %s", (new_password, email))
+        cursor.execute("UPDATE users SET password = %s WHERE email = %s", (hashed_password, email))
         conn.commit()
         cursor.close()
         conn.close()
+        
         # Redirect to index.html after successful password change
         return redirect(url_for('home'))  # Change to index.html route
     
-    return render_template('reset_password.html', token=token)  # Render the reset password 
-
+    return render_template('reset_password.html', token=token)  # Render the reset password page
 
 
 
