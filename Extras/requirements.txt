@@ -1,6 +1,6 @@
 Flask
-mysql-connector
 flask-mailman
-werkzeug
 itsdangerous
+mysql-connector-python
+werkzeug
 bcrypt

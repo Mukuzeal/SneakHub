@@ -10,7 +10,6 @@ from werkzeug.utils import secure_filename
 import bcrypt
 
 
-
 app = Flask(__name__)
 mail = Mail()
 app.secret_key = os.urandom(24)
@@ -25,8 +24,8 @@ serializer = URLSafeTimedSerializer("your_secret_key")  # Change to a random sec
 def get_db_connection():
     return mysql.connector.connect(
         host="localhost",
-        user="root",  # Your DB username
-        password="",  # Your DB password
+        user="root",
+        password="",
         database="goodboisdb"
     )
 
@@ -39,34 +38,48 @@ def create_mail_app():
     app.config["MAIL_USE_SSL"] = True
     mail.init_app(app)
 
-
+create_mail_app()
 
 @app.route('/forgotpassword', methods=['POST'])
 def forgotpassword():
     email = request.form['email']
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-    user = cursor.fetchone()
-    cursor.close()
-    conn.close()
 
-    if user:
-        token = serializer.dumps(email, salt="password-reset-salt")
-        reset_link = url_for('reset_password', token=token, _external=True)
+    try:
+        # Retrieve user information
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()  # Fetches one result
 
-        msg = EmailMessage(
-            "Password Recovery",
-            f"Here is your password recovery link: {reset_link}",
-            "SneakHub.noreply@gmail.com",
-            [email]
-        )
-        msg.send()
-        # Redirect to index.html after sending email
-        return redirect(url_for('home'))  # Change to index.html route
-    else:
-        return jsonify({'error': 'Email not found!'}), 404
+        # If user exists, proceed to send email
+        if user:
+            token = serializer.dumps(email, salt="password-reset-salt")
+            reset_link = url_for('reset_password', token=token, _external=True)
 
+            msg = EmailMessage(
+                "Password Recovery",
+                f"Here is your password recovery link: {reset_link}",
+                "SneakHub.noreply@gmail.com",
+                [email]
+            )
+            msg.send()
+
+            # Clear results if any remain
+            cursor.fetchall()  # Add this line to consume any remaining results
+
+            return redirect(url_for('home'))
+        else:
+            return jsonify({'error': 'Email not found!'}), 404
+    except mysql.connector.Error as e:
+        print(f"Database error: {e}")
+        return jsonify({'error': 'Database error occurred'}), 500
+    finally:
+        conn.commit()  # Ensure all transactions are committed
+        cursor.close()
+        conn.close()
+
+
+create_mail_app()
 
 
 @app.route('/sign-up', methods=['POST'])
