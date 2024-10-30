@@ -198,6 +198,10 @@ document.getElementById('archBtn').addEventListener('click', () => {
     window.location.href = '/archive'; // Redirect to the archive page
 });
 
+// Handle Archive Button
+document.getElementById('categoriesBtn').addEventListener('click', () => {
+    window.location.href = '/requests'; // Redirect to the archive page
+});
 
 
 // Load users when the admin page loads

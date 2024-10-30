@@ -135,4 +135,19 @@ secondForm.addEventListener("submit", async (e) => {
 });
 
 
-
+document.querySelectorAll('.toggle-password').forEach(button => {
+    button.addEventListener('click', function () {
+        const passwordInput = this.previousElementSibling; // Get the input before the button
+        const showIcon = this.querySelector('.toggle-icon'); // Get the icon inside the button
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            showIcon.src = 'static/images/hide.png'; // Set to hide icon
+            showIcon.alt = 'Hide'; // Update alt text
+        } else {
+            passwordInput.type = 'password';
+            showIcon.src = 'static/images/hide.png'; // Set to show icon
+            showIcon.alt = 'Show'; // Update alt text
+        }
+    });
+});

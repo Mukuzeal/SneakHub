@@ -142,13 +142,25 @@ def index():
     session.clear()
     return render_template('index.html')
     
-#Sign up
 @app.route('/submit_form', methods=['POST'])
 def submit_form():
-    name = request.form['name']
     email = request.form['email']
     password = request.form['password'].encode('utf-8')  # Encode the password
-    hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())  # Hash the password
+    confpass = request.form['confpass']
+    
+    # Validate that the email ends with '@gmail.com'
+    if not email.endswith('@gmail.com'):
+        return jsonify({'error': 'Email must be a Gmail address (e.g., user@gmail.com)'}), 400
+
+    # Check if the password and confirm password match
+    if password.decode('utf-8') != confpass:  # Decode for comparison
+        return jsonify({'error': 'Passwords do not match'}), 400
+    
+    # Extract name from the email (remove domain)
+    name = email.split('@')[0]  # Get the part before the '@'
+
+    # Hash the password
+    hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())
     user_type = 'Buyer'  # Default user type
     archive = 'no'
 
@@ -161,6 +173,7 @@ def submit_form():
     conn.close()
 
     return jsonify({'message': 'Sign Up Successful'})
+
 
 
 @app.route('/login', methods=['POST'])

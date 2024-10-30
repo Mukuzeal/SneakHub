@@ -10,14 +10,35 @@
 </head>
 <body>
 
+    <div class="video-container">
+        <video autoplay loop muted playsinline>
+            <source src="/static/vids/SignInBG.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
 <div class="container">
     <!-- Sign Up -->
     <div class="container__form container--signup">
         <form action="/submit_form" class="form" id="form1" method="POST">
             <h2 class="form__title">Sign Up</h2>
-            <input type="text" id="name" name="name" placeholder="Full Name" class="input" required />
+            
             <input type="email" id="email" name="email" placeholder="Email" class="input" required />
-            <input type="password" id="password" name="password" placeholder="Password" class="input" required />
+    
+            <div class="password-container">
+                <input type="password" id="password" name="password" placeholder="Password" class="input" required />
+                <button type="button" class="toggle-password" id="togglePassword">
+                    <img src="static/images/show.png" alt="Show" class="toggle-icon" id="showIcon">
+                </button>
+            </div>
+            
+            <div class="password-container">
+                <input type="password" id="confpass" name="confpass" placeholder="Confirm Password" class="input" required />
+                <button type="button" class="toggle-password" id="toggleConfPassword">
+                    <img src="static/images/show.png" alt="Show" class="toggle-icon" id="showConfIcon">
+                </button>
+            </div>
+    
             <button class="btn" type="submit">Sign Up</button>
         </form>		
     </div>
@@ -34,17 +55,22 @@
         </form>
     </div>
 
-    <!-- Overlay -->
-    <div class="container__overlay">
-        <div class="overlay">
-            <div class="overlay__panel overlay--left">
-                <button class="btn" id="signIn">Sign In</button>
-            </div>
-            <div class="overlay__panel overlay--right">
-                <button class="btn" id="signUp">Sign Up</button>
+        <!-- Overlay -->
+        <div class="container__overlay">
+            <div class="overlay">
+                <video class="overlay-video" autoplay loop muted playsinline>
+                    <source src="/static/vids/SignInBG.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="overlay__panel overlay--left">
+                    <button class="btn" id="signIn">Sign In</button>
+                </div>
+                <div class="overlay__panel overlay--right">
+                    <button class="btn" id="signUp">Sign Up</button>
+                </div>
             </div>
         </div>
-    </div>
+        
 </div>
 
 <!-- SweetAlert2 CDN -->
