@@ -1,10 +1,11 @@
 from flask import Flask, render_template, request, redirect, jsonify, url_for, session, send_from_directory
 from flask_mailman import Mail, EmailMessage
 from itsdangerous import URLSafeTimedSerializer  # For token generation
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import mysql.connector
 import os
-import random
+from random import randint
+import time
 import uuid
 from werkzeug.utils import secure_filename
 import bcrypt
@@ -13,6 +14,7 @@ import bcrypt
 app = Flask(__name__)
 mail = Mail()
 app.secret_key = os.urandom(24)
+app.secret_key = "your_secret_key"
 
 UPLOAD_FOLDER = 'static/Uploads/pics'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -168,6 +170,19 @@ def submit_form():
     # Check if the password and confirm password match
     if password.decode('utf-8') != confpass:  # Decode for comparison
         return jsonify({'error': 'Passwords do not match'}), 400
+
+    # Check if the email already exists in the database
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    check_email_sql = "SELECT COUNT(*) FROM users WHERE email = %s"
+    cursor.execute(check_email_sql, (email,))
+    email_exists = cursor.fetchone()[0] > 0
+    
+    if email_exists:
+        cursor.close()
+        conn.close()
+        return jsonify({'error': 'Email already exists'}), 400
     
     # Extract name from the email (remove domain)
     name = email.split('@')[0]  # Get the part before the '@'
@@ -177,8 +192,6 @@ def submit_form():
     user_type = 'Buyer'  # Default user type
     archive = 'no'
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
     sql = "INSERT INTO users (name, email, password, user_type, archieve) VALUES (%s, %s, %s, %s, %s)"
     cursor.execute(sql, (name, email, hashed_password, user_type, archive))
     conn.commit()
@@ -186,6 +199,7 @@ def submit_form():
     conn.close()
 
     return jsonify({'message': 'Sign Up Successful'})
+
 
 
 
@@ -971,6 +985,52 @@ def admin_seller_requests():
 
     return render_template('admin_seller_requests.html', requests=requests)
 
+
+
+@app.route('/send_otp', methods=['POST'])
+def send_otp():
+    email = request.json['email']
+
+    # Connect to the database
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Check if the email already exists in the database
+    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+    existing_user = cursor.fetchone()
+
+    if existing_user:
+        cursor.close()
+        conn.close()
+        return jsonify({'error': 'Email is already in use'}), 400
+
+    # If the email does not exist, proceed to generate and send the OTP
+    otp = str(randint(100000, 999999))
+    session['otp'] = otp
+    session['otp_expiration'] = datetime.now() + timedelta(minutes=5)
+
+    # Send the OTP via email
+    message = EmailMessage(
+        subject="Your OTP Code",
+        body=f"Your OTP code is {otp}",
+        to=[email]
+    )
+    message.send()
+
+    cursor.close()
+    conn.close()
+    
+    return jsonify({'success': True, 'message': 'OTP sent!'})
+
+
+@app.route('/verify_otp', methods=['POST'])
+def verify_otp():
+    otp = request.json['otp']
+    if otp == session.get('otp') and datetime.now(timezone.utc) < session.get('otp_expiration'):
+        session.pop('otp', None)
+        session.pop('otp_expiration', None)
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'message': 'Invalid or expired OTP.'})
 
 if __name__ == "__main__":
     app.run(debug=True)
