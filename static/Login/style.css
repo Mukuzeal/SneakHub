@@ -280,3 +280,10 @@ body {
     height: 20px; /* Adjust size as needed */
 }
 
+.logo {
+    width: 100px; /* Set the desired width */
+    height: auto; /* Maintain aspect ratio */
+    display: block; /* Make sure it's a block element */
+    margin: 0 auto; /* Center the logo */
+}
+
