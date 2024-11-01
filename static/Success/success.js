@@ -158,5 +158,283 @@ function setSessionData() {
     window.location.href = '/success';
 }
 
-  
-  
+
+document.getElementById("profile").addEventListener("click", function() {
+    window.location.href = "/buyer-profile";  // Adjust this if the route is different
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const userId = document.querySelector('.profile-container').dataset.userId;
+    if (userId) {
+        // Construct the image paths based on the user_id
+        const imagePathPng = `static/Uploads/pics/${userId}-profile-image.png`;
+        const imagePathJpg = `static/Uploads/pics/${userId}-profile-image.jpg`;
+
+        // Create an image element to check if the profile image exists
+        const tempImage = new Image();
+
+        // Check .png file
+        tempImage.onload = function () {
+            document.getElementById('profileImage').src = imagePathPng;
+        };
+        tempImage.onerror = function () {
+            // If .png doesn't exist, check for .jpg
+            tempImage.src = imagePathJpg;
+            tempImage.onload = function () {
+                document.getElementById('profileImage').src = imagePathJpg;
+            };
+            tempImage.onerror = function () {
+                // If neither image exists, keep default
+                console.log("No profile image found; using default.");
+            };
+        };
+        
+        // Start the check with the .png image path
+        tempImage.src = imagePathPng;
+    }
+});
+
+function uploadProfileImage() {
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+    
+    if (file) {
+        const formData = new FormData();
+        formData.append('profile_image', file);
+
+        fetch('/upload-profile-image', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the profile image preview
+                document.getElementById('profileImage').src = `/static/Uploads/pics/${data.imageName}`;
+                
+                // Show SweetAlert for successful upload
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Uploading is successful.',
+                    icon: 'success',
+                    confirmButtonText: 'Okay'
+                });
+            } else {
+                // Show SweetAlert for error during upload
+                Swal.fire({
+                    title: 'Error!',
+                    text: data.error || 'Failed to upload image.',
+                    icon: 'error',
+                    confirmButtonText: 'Okay'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Show SweetAlert for any unexpected errors
+            Swal.fire({
+                title: 'Error!',
+                text: 'An unexpected error occurred.',
+                icon: 'error',
+                confirmButtonText: 'Okay'
+            });
+        });
+    } else {
+        // Show SweetAlert when no file is selected
+        Swal.fire({
+            title: 'No File Selected',
+            text: 'Please select an image to upload.',
+            icon: 'warning',
+            confirmButtonText: 'Okay'
+        });
+    }
+}
+
+
+
+
+// Fetch user profile data from the server
+document.addEventListener('DOMContentLoaded', () => {
+    fetch('/profile/data')
+        .then(response => response.json())
+        .then(data => {
+            if (!data.error) {
+                document.getElementById('username').innerText = data.name || "Add name";
+                document.getElementById('fullName').innerText = data.FullName || "Add name";
+                document.getElementById('email').innerText = data.email || "email@example.com";
+                document.getElementById('bio').innerText = data.bio || "No Bio";
+                // Handle profile image similarly if needed
+            } else {
+                console.error(data.error);
+            }
+        })
+        .catch(err => console.error('Error fetching profile data:', err));
+});
+
+function openEditModal() {
+    document.getElementById("modal-profile").style.display = "block";
+}
+
+function closeEditModal() {
+    document.getElementById("modal-profile").style.display = "none";
+}
+
+// Function to send OTP to the user's email
+let isEmailVerified = false; // Variable to track email verification status
+
+function sendOtp() {
+    const email = document.getElementById("editEmail").value;
+
+    // Check if the email field is empty
+    if (!email) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Warning',
+            text: 'Please enter your email.'
+        });
+        return;
+    }
+
+    // Make an AJAX request to send the OTP
+    fetch('/send_otp', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: email })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'OTP sent successfully!'
+            });
+            document.getElementById("modal-otp").style.display = "block"; // Show OTP modal
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message // Show error message if email is already in use
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred while sending OTP.'
+        });
+    });
+}
+
+function verifyOtp() {
+    const otp = document.getElementById("otpInput").value;
+
+    // Check if the OTP field is empty
+    if (!otp) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Warning',
+            text: 'Please enter the OTP.'
+        });
+        return;
+    }
+
+    console.log('Verifying OTP:', otp); // Debugging log
+
+    // Make an AJAX request to verify the OTP
+    fetch('/verify_otp', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ otp: otp })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Verified',
+                text: 'OTP verified successfully!'
+            });
+            isEmailVerified = true; // Update verification status
+            closeModal('modal-otp'); // Close OTP modal
+
+            // Show the submit button after successful verification
+            document.getElementById("submitButton").style.display = "block"; // Show the submit button
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message // Show error if OTP is invalid or expired
+            });
+        }
+    })
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = "none"; // Hide the modal
+    }
+}
+
+// Disable the submit button initially
+document.getElementById("submitButton").style.display = "none"; // Ensure the submit button is hidden
+
+// Add event listener for the form submission
+document.getElementById("editProfileForm").addEventListener("submit", function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    const email = document.getElementById("editEmail").value;
+    const fullName = document.getElementById("editFullName").value;
+    const bio = document.getElementById("editBio").value;
+    const username = document.getElementById("editUsername").value;
+
+    // Make an AJAX request to update the profile information
+    fetch('/update_profile', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            email: email,
+            fullName: fullName,
+            bio: bio,
+            username: username
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data); // Log the full response for debugging
+
+        if (data.success) {
+            // Show success message
+            Swal.fire({
+                icon: 'success',
+                title: 'Profile Updated',
+                text: 'Your profile information has been successfully updated.'
+            }).then(() => {
+                // Close the modal
+                closeEditModal();
+        
+                // Reload the page after the modal is closed
+                location.reload(); // This will refresh the page
+            });
+        } else {
+            // Show error message from server
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message
+            });
+        }
+    });
+});
+
+
+

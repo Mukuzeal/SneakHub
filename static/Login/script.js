@@ -153,12 +153,15 @@ document.querySelectorAll('.toggle-password').forEach(button => {
     });
 });
 
-
 document.getElementById('sendOtpButton').addEventListener('click', function () {
     const email = document.getElementById('email').value;
 
     if (!email.includes("@gmail.com")) {
-        alert("Please enter a valid Gmail address.");
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Email',
+            text: 'Please enter a valid Gmail address.'
+        });
         return;
     }
 
@@ -172,9 +175,17 @@ document.getElementById('sendOtpButton').addEventListener('click', function () {
     .then(data => {
         if (data.success) {
             document.getElementById('otpSection').style.display = 'block';
-            alert("OTP has been sent to your email.");
+            Swal.fire({
+                icon: 'success',
+                title: 'OTP Sent',
+                text: 'OTP has been sent to your email.'
+            });
         } else {
-            alert("Error sending OTP.");
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error sending OTP.'
+            });
         }
     });
 });
@@ -192,7 +203,11 @@ document.getElementById("verifyOtpButton").addEventListener("click", function ()
     .then(result => {
         if (result.success) {
             // OTP verified, show password fields
-            alert("OTP verified successfully.");
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'OTP verified successfully.'
+            });
             document.getElementById("passwordSection").style.display = "block";
             document.getElementById("submitButton").style.display = "block";
             document.getElementById("email").disabled = true;
@@ -200,7 +215,11 @@ document.getElementById("verifyOtpButton").addEventListener("click", function ()
             document.getElementById("sendOtpButton").style.display = "none";
             document.getElementById("submitButton").disabled = false;
         } else {
-            alert(result.message || "Incorrect OTP. Please try again.");
+            Swal.fire({
+                icon: 'error',
+                title: 'Incorrect OTP',
+                text: result.message || 'Incorrect OTP. Please try again.'
+            });
         }
     });
 });
@@ -208,7 +227,6 @@ document.getElementById("verifyOtpButton").addEventListener("click", function ()
 document.getElementById("submitButton").addEventListener("click", function() {
     document.getElementById("email").disabled = false; // Ensure it's enabled for submission
 });
-
 
 // Function to reset the sign-up form
 function resetSignupForm() {
@@ -230,6 +248,7 @@ document.getElementById("signUp").addEventListener("click", function() {
     document.getElementById("sendOtpButton").style.display = "block"; // Hide the submit button
     document.getElementById("email").disabled = false; // Clear the email field
 });
+
 
 
 

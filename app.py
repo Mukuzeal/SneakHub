@@ -220,10 +220,10 @@ def login():
 
         if user:
             user_id = user[0]  # Assuming user_id is the 1st column
-            user_type = user[4]  # Assuming user_type is the 5th column
+            user_type = user[6]  # Assuming user_type is the 5th column
             name = user[1]  # Assuming name is the 2nd column
-            hashed_password = user[3].encode('utf-8')  # Assuming hashed password is the 4th column
-            archive_status = user[5]  # Assuming archive status is the 6th column
+            hashed_password = user[5].encode('utf-8')  # Assuming hashed password is the 4th column
+            archive_status = user[8]  # Assuming archive status is the 6th column
 
             # Check if user is archived
             if archive_status == 'yes':
@@ -1031,6 +1031,129 @@ def verify_otp():
         session.pop('otp_expiration', None)
         return jsonify({'success': True})
     return jsonify({'success': False, 'message': 'Invalid or expired OTP.'})
+
+
+@app.route('/buyer-profile')
+def buyer_profile():
+    user_id = session.get('user_id')
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT profile_image FROM users WHERE id = %s", (user_id,))
+    profile_image = cursor.fetchone()[0]
+    cursor.close()
+    conn.close()
+
+    image_path = f"/static/Uploads/pics/{profile_image}" if profile_image else "/static/Uploads/pics/default-profile.png"
+    return render_template('BuyerAccProfile.html', profile_image=image_path)
+
+
+
+
+
+@app.route('/upload-profile-image', methods=['POST'])
+def upload_profile_image():
+    if 'profile_image' not in request.files:
+        return jsonify({'success': False, 'error': 'No file part'})
+
+    file = request.files['profile_image']
+    if file.filename == '':
+        return jsonify({'success': False, 'error': 'No selected file'})
+
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'User not logged in'})
+
+    # Get the file extension and construct the new filename
+    file_ext = file.filename.rsplit('.', 1)[1].lower()
+    if file_ext not in ['png', 'jpg', 'jpeg']:
+        return jsonify({'success': False, 'error': 'Invalid file type. Only PNG and JPG are allowed.'})
+
+    new_filename = f"{user_id}-profile-image.{file_ext}"
+    filepath = os.path.join('static/Uploads/pics', new_filename)
+
+    # Check for and delete any existing profile image
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT profile_image FROM users WHERE id = %s", (user_id,))
+    current_image = cursor.fetchone()[0]
+    
+    if current_image:
+        current_image_path = os.path.join('static/Uploads/pics', current_image)
+        if os.path.exists(current_image_path):
+            os.remove(current_image_path)  # Delete the old image
+
+    # Save the new file and update the database
+    file.save(filepath)
+    cursor.execute("UPDATE users SET profile_image = %s WHERE id = %s", (new_filename, user_id))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({'success': True, 'imageName': new_filename})
+
+
+@app.route('/profile/data')
+def profile_data():
+    user_id = session.get('user_id')  # Get user_id from session
+    if not user_id:
+        return jsonify({'error': 'User not logged in'}), 401  # Return error if user is not logged in
+
+    # Connect to the database
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Query user information
+    cursor.execute("SELECT name, FullName, email, bio FROM users WHERE id = %s", (user_id,))
+    user_data = cursor.fetchone()
+
+    # Close the database connection
+    cursor.close()
+    conn.close()
+
+    if user_data:
+        # Convert the tuple to a dictionary for better access
+        user_info = {
+            'name': user_data[0],
+            'FullName': user_data[1],
+            'email': user_data[2],
+            'bio': user_data[3],
+        }
+        return jsonify(user_info)  # Return user data as JSON
+    else:
+        return jsonify({'error': 'User not found'}), 404  # Return error if user not found
+    
+
+@app.route('/update_profile', methods=['POST'])
+def update_profile():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'User not logged in.'}), 401
+
+    data = request.json
+    email = data.get('email')
+    full_name = data.get('fullName')
+    bio = data.get('bio')
+    username = data.get('username')
+
+    # Connect to the database
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Attempt to update the user's information in the database
+    cursor.execute(""" 
+        UPDATE users 
+        SET email = %s, FullName = %s, Bio = %s, name = %s 
+        WHERE id = %s 
+    """, (email, full_name, bio, username, session['user_id']))
+
+    conn.commit()  # Commit the changes
+    cursor.close()
+    conn.close()
+
+    return jsonify({'success': True})  # Indicate success without additional message
+
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

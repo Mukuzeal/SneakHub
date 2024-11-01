@@ -146,6 +146,7 @@ body {
   opacity: 0; /* Start hidden for smooth transition */
   transition: opacity 0.3s ease; /* Smooth transition */
   pointer-events: none; /* Prevent interaction when hidden */
+
 }
 
 .modal.show {
@@ -173,7 +174,7 @@ body {
 #account-modal {
   width: 150px; /* Set a fixed width for the modal */
   max-width: 90vw; /* Ensure modal doesn't exceed 90% of the viewport width */
-  height: 200px;
+  height: 300px;
   display: none;
   position: absolute;
   z-index: 1000;
@@ -194,17 +195,28 @@ body {
 }
 
 .main-content {
-  margin-top: 150px; /* Adjust based on your navbar height */
+  margin-top: 120px; /* Adjust based on your navbar height */
   width: 70%;
   text-align: center; /* Center align text */
   margin-left: auto; /* Automatically adjust left margin */
   margin-right: auto; /* Automatically adjust right margin */
 }
 
-.main-title {
-  font-size: 2em; /* Larger font size for title */
-  margin: 20px 0; /* Margin around title */
+.BuyerSettings {
+  display: flex;                /* Use flexbox for alignment */
+  justify-content: flex-start;  /* Align children to the start (left) */
+  align-items: center;          /* Center vertically (if needed) */
+  flex-direction: column;       /* Stack children vertically */
+  text-align: left;             /* Align text to the left */
+  margin: 20px 0;              /* Optional: add some vertical margin */
+  padding-left: 120px;          /* Optional: add some left padding to adjust further */
 }
+
+.main-title {
+  font-size: 2rem;              /* Adjust font size as needed */
+  margin: 0;                    /* Remove default margin */
+}
+
 
 .seller-registration {  
   font-size: 0.8em; /* Smaller font size for registration */
@@ -214,6 +226,7 @@ body {
 hr {
   margin: 0px 0; /* Adjusts the spacing above and below the line */
   border: 1px solid #ccc; /* Change the color and thickness of the line */
+  
 }
 
 
@@ -341,7 +354,164 @@ th:nth-child(8), td:nth-child(8) {
 
 
 
+.profile-container {
+  display: flex;               /* Use flexbox layout */
+  flex-direction: column;      /* Stack items vertically */
+  align-items: flex-start;     /* Align items to the left */
+  text-align: left;            /* Ensure text aligns to the left */
+  margin-left: 200px;
+}
 
+.profile-image {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #000000;      /* Add a border around the image */
+  margin-bottom: 10px;         /* Space between the image and button */
+}
+
+.upload-btn {
+  background-color: #ffffff; /* Change to your desired color */
+  color: rgb(0, 0, 0); /* Text color */
+  cursor: pointer;
+  padding: 5px 10px;
+  font-size: 14px;
+  margin-top: 8px;            /* Optional: Add some space above the button */
+  margin-left: 40px;
+}
+
+.upload-btn:hover {
+  background-color: #e0e4e7c2; /* Darker shade on hover */
+}
+
+.file-input {
+  display: none;              /* Hide the file input */
+}
+
+
+
+.profile-info {
+  margin-left: 20px; /* Space between the image and the info */
+  margin-top: 20px;
+  text-align: left;   /* Align text to the left */
+}
+
+.profile-info h2 {
+  margin: 0;         /* Remove default margin */
+  font-size: 1.5em;  /* Adjust size as needed */
+}
+
+.profile-info p {
+  margin: 5px 0;     /* Space between paragraphs */
+}
+
+.btn {
+  margin-top: 10px;  /* Space between buttons */
+  padding: 10px;     /* Padding for buttons */
+  cursor: pointer;    /* Pointer cursor on hover */
+}
+
+
+
+.modal2 {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 10% auto; /* Add margin to top for spacing from the top */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 40%; /* Set the desired width of the modal */
+  height: auto; /* Automatic height */
+  max-width: 600px; /* Maximum width for larger screens */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* Optional: add shadow for depth */
+  border-radius: 8px; /* Optional: rounded corners */
+  position: relative; /* Position for the close button */
+}
+
+.close {
+  color: #aaa;
+  position: absolute; /* Absolute positioning for the close button */
+  right: 15px; /* Distance from the right */
+  top: 15px; /* Distance from the top */
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Styling for input fields */
+input[type="text"], input[type="email"], textarea {
+  width: 100%; /* Full width */
+  padding: 10px; /* Padding inside the text field */
+  margin: 10px 0; /* Margin above and below */
+  border: 1px solid #ccc; /* Light gray border */
+  border-radius: 4px; /* Slightly rounded corners */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+/* Styling for buttons */
+button {
+  background-color: #4CAF50; /* Green background */
+  color: white; /* White text */
+  border: none; /* No border */
+  padding: 10px 15px; /* Padding for the button */
+  text-align: center; /* Center text */
+  text-decoration: none; /* No underline */
+  display: inline-block; /* Align with text */
+  margin: 10px 0; /* Margin above and below */
+  cursor: pointer; /* Pointer cursor on hover */
+  border-radius: 4px; /* Slightly rounded corners */
+  font-size: 16px; /* Font size */
+}
+
+button:hover {
+  background-color: #45a049; /* Darker green on hover */
+}
+
+/* Submit button specific styling */
+#submitButton {
+  background-color: #007bff; /* Blue background */
+}
+
+#submitButton:hover {
+  background-color: #45a049; /* Darker blue on hover */
+}
+
+/* OTP verification button specific styling */
+#sendOtpButton {
+  background-color: #45a049; /* Teal background */
+}
+
+#sendOtpButton:hover {
+  background-color: #45a049; /* Darker teal on hover */
+}
+
+.button-containerer {
+  display: flex; /* Use flexbox for alignment */
+  justify-content: flex-end; /* Align buttons to the right */
+  margin-top: 10px; /* Space above buttons */
+}
+
+#editProfileButton {
+  margin-left: 10px; /* Space between buttons */
+  /* You can add other styles here if needed, e.g., background color, padding, etc. */
+}
 
 
 
