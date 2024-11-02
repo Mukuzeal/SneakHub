@@ -597,6 +597,10 @@ def sellerlogout():
     session.clear()
     return render_template('index.html')
 
+@app.route('/buyer-account-settings')
+def buyer_account_settings():
+    return render_template('BuyerAccSettings.html')
+
 
 
 @app.route('/Uploads/pics/<path:filename>')
@@ -1152,7 +1156,26 @@ def update_profile():
     return jsonify({'success': True})  # Indicate success without additional message
 
 
-
+@app.route('/get-email', methods=['GET'])
+def get_email():
+    user_id = session.get('user_id')  # Retrieve user ID from session
+    if not user_id:
+        return jsonify({"error": "User not logged in"}), 401
+    
+    # Database connection
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT email FROM users WHERE id = %s", (user_id,))
+    result = cursor.fetchone()
+    
+    cursor.close()
+    conn.close()
+    
+    if result:
+        email = result[0]
+        return jsonify({"email": email}), 200
+    else:
+        return jsonify({"error": "User not found"}), 404
 
 
 if __name__ == "__main__":

@@ -56,7 +56,8 @@
                     <hr> <!-- Horizontal line below the user's name -->
                     <span class="btn small-text-button" id="profile" style="cursor: pointer;">Profile</span>
                     <span class="btn small-text-button" id="sellerRegistration" style="cursor: pointer;">Settings</span>
-                    <span class="btn small-text-button" id="logout" style="cursor: pointer;" onclick="window.location.href='/logout'">Logout</span> <!-- Logout span -->
+                    <span class="btn small-text-button" id="logout" style="cursor: pointer;">Logout</span> <!-- Logout span -->
+                    
                 {% else %}
                     <!-- Show Sign Up button if no user is signed in -->
                     <button class="btn" id="signUp" type="button" onclick="window.location.href='/sign-up'">Sign Up</button>
@@ -89,7 +90,7 @@
 
     </body>
   </html>
-  
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script  src="static/Success/success.js"></script>
   <script  src="static/SellerRequests/BuyerAccountSettings.js"></script>
 </body>

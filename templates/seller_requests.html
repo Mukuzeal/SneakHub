@@ -1,40 +1,112 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request Seller Access</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='SellerRequests/SellerRequests.css') }}">
+  <meta charset="UTF-8">
+  <title>SneakHub</title>
+  <link rel="stylesheet" href="static/Success/success.css">
+  <link rel="stylesheet" href="static/SellerRequests/SellerRequests.css">
+  
+<!-- Owl Carousel CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+
+<!-- jQuery -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<!-- Popper.js and Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+<!-- Owl Carousel JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
+
+
 </head>
 <body>
+  <!DOCTYPE html>
+  <html lang="en">
+    <body>
 
-<div class="form-container">
-    <h2>Request Seller Access</h2>
-    <form method="POST" action="/request_seller">
-        
-        <div class="form-group">
-            <label for="store_name">Store Name:</label>
-            <input type="text" id="store_name" name="store_name" required>
+      <header>
+        <nav class="nav-top">
+          <div class="left-wrapper">
+              <div id="logo1">
+                  <img src="/static/images/SneakHUb_-_2-removebg-preview.png" />
+              </div>
+              <div id="logo2">
+                  <img src="/static/images/SneakHUb_-_3-removebg-preview.png" />
+              </div>
+          </div>
+      
+          <div class="BuyerSettings">
+            <h1 class="main-title">Seller Registration</h1> <!-- Account Settings Title -->
+          </div>
+      
+          <div id="input-wrapper__nav" style="cursor: pointer;" >
+              <input id="search-box" type="text" name="search" placeholder="Search" />
+              <img src="static/images/searchicon.png" alt="Search Icon" id="search-icon" />
+              <img src="static/images/lineseparator.png" alt="separator" id="separator-icon" />
+              <img src="static/images/accountlogo.png" alt="Account Button" id="account-button" />
+          </div>
+
+       
+
+          <!-- Modal Structure -->
+          <div id="account-modal" class="modal">
+            <div>
+                {% if session.get('name') %}
+                    <!-- Display the user's name if they're signed in -->
+                    <span class="btn" id="userName">Hello, {{ session['name'] }}!</span>
+                    <hr> <!-- Horizontal line below the user's name -->
+                    <span class="btn small-text-button" id="profile" style="cursor: pointer;">Profile</span>
+                    <span class="btn small-text-button" id="sellerRegistration" style="cursor: pointer;">Settings</span>
+                    <span class="btn small-text-button" id="logout" style="cursor: pointer;">Logout</span> <!-- Logout span --> 
+                {% else %}
+                    <!-- Show Sign Up button if no user is signed in -->
+                    <button class="btn" id="signUp" type="button" onclick="window.location.href='/sign-up'">Sign Up</button>
+                {% endif %}
+            </div>
+          </div>
+
+      </nav>
+      </header>
+
+      <main class="main-content">
+        <span class="btn small-text-button" href="/success" onclick="setSessionData()">Go Back</span>
+        <hr>
+        <div class="container mt-5">
+          <h2 class="mb-4">Seller Information</h2>
+          <form id="sellerForm">
+            <div class="mb-3">
+              <label for="shopName" class="form-label">Shop Name</label>
+              <input type="text" class="form-control" id="shopName" name="shopName" placeholder="Enter your shop name" required>
+            </div>
+            <div class="mb-3">
+              <label for="phoneNumber" class="form-label">Phone Number</label>
+              <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="Enter your phone number" required>
+            </div>
+            <div class="mb-3">
+              <label for="pickupAddress" class="form-label">Pickup Address</label>
+              <input type="text" class="form-control" id="pickupAddress" name="pickupAddress" placeholder="Click to select address" readonly style="cursor: pointer;">
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Loading..." disabled>
+              </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
         </div>
-        
-        <div class="form-group">
-            <label for="address">Address:</label>
-            <input type="text" id="address" name="address" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="phone_number">Phone Number:</label>
-            <input type="text" id="phone_number" name="phone_number" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-        </div>
-        
-        <button type="submit">Request Seller Access</button>
-    </form>
-</div>
-<script src="{{ url_for('static', filename='SellerRequests/SellerRequests.js') }}"></script>
+      </main>
+    
+
+    </body>
+  </html>
+  
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script  src="static/Success/success.js"></script>
+  <script  src="static/SellerRequests/BuyerAccountSettings.js"></script>
+  <script  src="static/SellerRequests/SellerRequests.js"></script>
 </body>
 </html>
