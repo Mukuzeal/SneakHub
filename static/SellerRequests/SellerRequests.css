@@ -1,7 +1,75 @@
-/* Custom styling for the modal */
-.modal-content {
-    background-color: rgba(0, 0, 0, 0.8); /* Dark background with 80% opacity */
-    color: #fff; /* Set text color to white for contrast */
-  }
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent scrolling when modal is open */
+}
 
-  
+/* Modal overlay - covers the modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure it's on top */
+}
+
+/* Title spacing */
+#addressModalLabel {
+  margin-bottom: 20px; /* Space below the title */
+}
+
+/* Modal content */
+.modal-content {
+  position: relative; /* Set position to relative to position background */
+  background: white; /* White background for modal content */
+  padding: 20px; /* Padding for the modal content */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow effect */
+  max-width: 500px; /* Set max width for the modal */
+  width: 100%; /* Make it responsive */
+}
+
+.modal-background {
+  position: absolute; /* Position it absolutely within the modal content */
+  top: 0; /* Align to the top */
+  left: 0; /* Align to the left */
+  right: 0; /* Align to the right */
+  bottom: 0; /* Align to the bottom */
+  background: rgb(255, 255, 255); /* Your desired background color with opacity */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow effect */
+  border-radius: 8px; /* Match modal content's border radius */
+  z-index: -1; /* Place it behind the modal content */
+}
+
+
+
+.modal-footer {
+  display: flex; /* Use flexbox for layout */
+  justify-content: flex-end; /* Align buttons to the right */
+  margin-top: 20px; /* Space above the footer (optional) */
+}
+
+.modal-footer .btn {
+  margin-left: 10px; /* Space between the buttons */
+}
+
+.btn-primary {
+  padding: 10px 20px; /* Button padding */
+  background-color: #007bff; /* Primary button color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  padding: 10px 20px; /* Same padding as primary */
+  background-color: #6c757d; /* Secondary button color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
