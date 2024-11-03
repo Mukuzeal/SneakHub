@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for, session, send_from_directory
+from flask import Flask, render_template, request, redirect, jsonify, url_for, session, send_from_directory, flash
 from flask_mailman import Mail, EmailMessage
 from itsdangerous import URLSafeTimedSerializer  # For token generation
 from datetime import datetime, timedelta, timezone
@@ -1176,6 +1176,69 @@ def get_email():
         return jsonify({"email": email}), 200
     else:
         return jsonify({"error": "User not found"}), 404
+    
+
+
+
+@app.route('/submit_seller_request', methods=['POST'])
+def submit_seller_request():
+    # Fetch current user details based on the session user_id
+    user_id = session.get('user_id')
+    
+    if not user_id:
+        flash("User not logged in.")
+        return redirect(url_for('login'))  # Redirect to login if user is not authenticated
+
+    # Open a database connection
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)  # Use dictionary=True to get column names in results
+
+    # Retrieve user information from the 'users' table
+    cursor.execute("SELECT id, name, FullName, email FROM users WHERE id = %s", (user_id,))
+    user = cursor.fetchone()
+    
+    if not user:
+        flash("User not found.")
+        cursor.close()
+        conn.close()
+        return redirect(url_for('home'))  # Redirect to a relevant page if user is not found
+
+    # Get the input data from the form
+    shop_name = request.form.get('shopName')
+    phone_number = request.form.get('phoneNumber')
+    pickup_address = request.form.get('pickupAddress')
+    street = request.form.get('detailed-pickupAddress')
+    email = user['email']  # Assuming email is fetched from the user table
+    
+    # Generate custom request_id
+    cursor.execute("SELECT request_id FROM seller_requests ORDER BY request_id DESC LIMIT 1")
+    last_request = cursor.fetchone()
+    
+    if last_request:
+        # Extract and increment the last number part
+        last_number = int(last_request['request_id'].split('-')[1])
+        new_request_id = f"0123-{last_number + 1:04d}"
+    else:
+        new_request_id = "0123-0001"  # Initial ID if table is empty
+
+    # Insert new seller request into `seller_requests`
+    cursor.execute(
+        """
+        INSERT INTO seller_requests (request_id, user_id, username, fullname, ShopName, PhoneNo, PickUpAdd, Street, Email, request_status, submitted_at)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """,
+        (new_request_id, user['id'], user['name'], user['FullName'], shop_name, phone_number, pickup_address, street, email, "pending", datetime.now())
+    )
+    
+    # Commit the transaction and close the connection
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    flash("Your seller request has been submitted successfully.")
+    return redirect(url_for('success'))  # Redirect to a success page
+
+
 
 
 if __name__ == "__main__":

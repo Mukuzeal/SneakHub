@@ -14,6 +14,19 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
+
+function validatePhoneNumber(input) {
+  // Remove non-digit characters
+  input.value = input.value.replace(/\D/g, '');
+  
+  // Restrict to 11 characters
+  if (input.value.length > 11) {
+    input.value = input.value.slice(0, 11);
+  }
+}
+
+
+
 // Ensure DOM is loaded before adding event listeners
 document.addEventListener("DOMContentLoaded", function() {
   // Populate regions on page load
@@ -36,9 +49,29 @@ document.addEventListener("DOMContentLoaded", function() {
 const addressData = {
   "Region I – Ilocos Region": {
     "Ilocos Norte": {
-      "Adams": ["Barangay 1", "Barangay 2"], 
+      "Adams": ["Adams"], 
       "Bacarra": ["Barangay 3", "Barangay 4"], 
-      "Badoc": ["Barangay 5", "Barangay 6"]
+      "Badoc": ["Barangay 5", "Barangay 6"],
+      "Bangui": ["Barangay 5", "Barangay 6"],
+      "Banna": ["Barangay 5", "Barangay 6"],
+      "Batac": ["Barangay 5", "Barangay 6"],
+      "Burgos": ["Barangay 5", "Barangay 6"],
+      "Carasi": ["Barangay 5", "Barangay 6"],
+      "Currimao": ["Barangay 5", "Barangay 6"],
+      "Dingras": ["Barangay 5", "Barangay 6"],
+      "Dumalneg": ["Barangay 5", "Barangay 6"],
+      "Laoag": ["Barangay 5", "Barangay 6"],
+      "Marcos": ["Barangay 5", "Barangay 6"],
+      "Nueva Era": ["Barangay 5", "Barangay 6"],
+      "Pagudpud": ["Barangay 5", "Barangay 6"],
+      "Paoay": ["Barangay 5", "Barangay 6"],
+      "Pasuquin": ["Barangay 5", "Barangay 6"],
+      "Piddig": ["Barangay 5", "Barangay 6"],
+      "Pinili": ["Barangay 5", "Barangay 6"],
+      "San Nicolas": ["Barangay 5", "Barangay 6"],
+      "Sarrat": ["Barangay 5", "Barangay 6"],
+      "Solsona": ["Barangay 5", "Barangay 6"],
+      "Vintar": ["Barangay 5", "Barangay 6"],
     },
     "Ilocos Sur": ["Vigan City", "Candon City", "Santa"],
     "La Union": ["San Fernando", "Bauang", "Agoo"],
