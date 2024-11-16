@@ -188,7 +188,9 @@ def submit_form():
     name = email.split('@')[0]  # Get the part before the '@'
 
     # Hash the password
-    hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())
+    # Skip encoding if password is already in bytes
+    hashed_password = bcrypt.hashpw(password if isinstance(password, bytes) else password.encode('utf-8'), bcrypt.gensalt())
+
     user_type = 'Buyer'  # Default user type
     archive = 'no'
 
