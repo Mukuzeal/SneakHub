@@ -146,11 +146,9 @@ def buyersettings():
 def requests():
     return render_template('seller_requests.html')
 
-
 @app.route('/AdminRequests')
 def AdminRequests():
     return render_template('admin_seller_requests.html')
-
 
 @app.route('/logout')
 def index():
@@ -202,9 +200,6 @@ def submit_form():
 
     return jsonify({'message': 'Sign Up Successful'})
 
-
-
-
 @app.route('/login', methods=['POST'])
 def login():
     try:
@@ -251,7 +246,6 @@ def login():
             return jsonify({'error': 'Invalid Email or Password.'}), 401
     except Exception as e:
         return jsonify({'error': f'An error occurred: {str(e)}'}), 500
-
 
 @app.route('/success')
 def success():
@@ -310,8 +304,6 @@ def get_archived_users():
         })
 
     return jsonify(archived_user_list)  # Return JSON response
-
-
 
 # Add a new user (default to Buyer type)
 @app.route('/add_user', methods=['POST'])
