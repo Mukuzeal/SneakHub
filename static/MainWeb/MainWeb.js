@@ -140,3 +140,4 @@ function fetchProductData() {
         })
         .catch(error => console.error('Error fetching products:', error));
 }
+

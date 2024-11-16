@@ -1232,8 +1232,5 @@ def submit_seller_request():
     flash("Your seller request has been submitted successfully.")
     return redirect(url_for('success'))  # Redirect to a success page
 
-
-
-
 if __name__ == "__main__":
     app.run(debug=True)
