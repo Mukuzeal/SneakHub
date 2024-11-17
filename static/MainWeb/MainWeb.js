@@ -141,3 +141,36 @@ function fetchProductData() {
         .catch(error => console.error('Error fetching products:', error));
 }
 
+function fetchProductData() {
+    fetch('/item_listBUYER') // Endpoint to fetch all non-archived products
+        .then(response => response.json())
+        .then(data => {
+            const productCardsContainer = document.getElementById('productCardsContainer');
+            productCardsContainer.innerHTML = ''; // Clear previous data
+
+            data.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'col-md-3';
+                card.setAttribute('data-id', product.id);
+            
+                const imagePath = `Uploads/pics/${product.product_image}`;
+            
+                card.innerHTML = `
+                    <div class="product-card" onclick="window.location.href='/product/${product.id}'">
+                        <img src="${imagePath}" class="product-image" alt="${product.product_name}"
+                            onerror="this.onerror=null; this.src='Uploads/pics/default.jpg';" id="product-image-${product.id}">
+                        <h5>${product.product_name}</h5>
+                        <p>Price: $${product.product_price}</p>
+                    </div>
+                `;
+                productCardsContainer.appendChild(card);
+            });
+            
+        })
+        .catch(error => console.error('Error fetching products:', error));
+}
+
+// Function to navigate to product details
+function navigateToProduct(productId) {
+    window.location.href = `/product/${productId}`;
+}

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.product_name }} - Product Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .product-container {
+            max-width: 1200px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .product-details {
+            padding: 20px;
+        }
+
+        .product-price {
+            font-size: 28px;
+            color: #ff5722;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .add-to-cart-btn {
+            background-color: #ff5722;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .add-to-cart-btn:hover {
+            background-color: #e64a19;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #ff5722;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+ 
+
+    <div class="container product-container">
+        <div class="row">
+            <!-- Product Image -->
+            <div class="col-md-6">
+                <img src="{{ url_for('static', filename='Uploads/pics/' + product.product_image) }}" 
+                     alt="{{ product.product_name }}" class="product-image">
+            </div>
+            <!-- Product Details -->
+            <div class="col-md-6 product-details">
+                <h1>{{ product.product_name }}</h1>
+                <p class="product-price">₱{{ "%.2f" | format(product.product_price) }}</p>
+                <p><strong>Brand:</strong> {{ product.brand }}</p>
+                <button class="add-to-cart-btn">Add to Cart</button>
+                <p><a href="/" class="back-link">← Back to Home</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

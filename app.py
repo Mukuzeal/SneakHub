@@ -1232,5 +1232,43 @@ def submit_seller_request():
     flash("Your seller request has been submitted successfully.")
     return redirect(url_for('success'))  # Redirect to a success page
 
+@app.route('/product/<int:product_id>', methods=['GET'])
+def get_product_by_id(product_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Fetch the product details
+    query = """
+        SELECT product_name, product_price, brand, product_image 
+        FROM products 
+        WHERE id = %s
+    """
+    cursor.execute(query, (product_id,))
+    product = cursor.fetchone()
+
+    if product:
+        # Map the data to a dictionary
+        product_data = {
+            "product_name": product[0],
+            "product_price": product[1],
+            "brand": product[2],
+            "product_image": product[3] or "default.jpg"  # Handle missing image
+        }
+        return render_template('product.html', product=product_data)
+    else:
+        # Redirect or show an error if the product doesn't exist
+        return redirect(url_for('error_page'))  # Replace 'error_page' with your error handling route
+
+    cursor.close()
+    conn.close()
+
+
+
+@app.route('/product/<int:product_id>')
+def product_page(product_id):
+    return app.send_static_file('product.html')  # Assuming it's in the static folder
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)
