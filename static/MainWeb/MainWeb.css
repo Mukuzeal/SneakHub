@@ -71,7 +71,7 @@ body {
 
 #search-box {
   width: 100%;
-  padding-left: 30px;
+  padding-left: 40px; /* Space for the cart icon */
   height: 40px;
   border: 1px solid rgb(245, 242, 242);
   background-color: rgb(245, 242, 242);
@@ -92,15 +92,21 @@ body {
 #separator-icon {
   width: 30px; /* Adjust size as needed */
   height: 40px;
-  margin-left: 10px; /* Space between search box and icon */
+  margin-left: 10px; /* Space between search box and separator */
   cursor: pointer; /* Cursor pointer to indicate it's clickable */
 }
 
-/* New Account Button Styling */
+#cart-button {
+  width: 40px; /* Increased size of cart button */
+  height: auto;
+  margin-left: 10px; /* Space between separator icon and cart button */
+  margin-right: 20px; /* Space between cart button and account button */
+  cursor: pointer; /* Makes it look clickable */
+}
+
 #account-button {
   width: 30px; /* Adjust as needed */
   height: auto;
-  margin-left: 10px; /* Space between profile icon and account button */
   cursor: pointer; /* Makes it look clickable */
 }
 

@@ -5,8 +5,16 @@
   font-family: "Open Sans", sans-serif;
 }
 
+html, body {
+  height: 100%; /* Make the html and body take up full height */
+  margin: 0;    /* Remove default margins */
+  display: flex;
+  flex-direction: column; /* Arrange elements vertically */
+}
+
 body {
   margin: 0;
+  flex: 1;
 }
 
 .nav-top {
@@ -61,6 +69,9 @@ body {
   text-decoration: none;
 }
 
+
+
+
 /* Search input styling */
 #input-wrapper__nav {
   display: flex;
@@ -71,7 +82,7 @@ body {
 
 #search-box {
   width: 100%;
-  padding-left: 30px;
+  padding-left: 40px; /* Space for the cart icon */
   height: 40px;
   border: 1px solid rgb(245, 242, 242);
   background-color: rgb(245, 242, 242);
@@ -92,17 +103,24 @@ body {
 #separator-icon {
   width: 30px; /* Adjust size as needed */
   height: 40px;
-  margin-left: 10px; /* Space between search box and icon */
+  margin-left: 10px; /* Space between search box and separator */
   cursor: pointer; /* Cursor pointer to indicate it's clickable */
 }
 
-/* New Account Button Styling */
+#cart-button {
+  width: 40px; /* Increased size of cart button */
+  height: auto;
+  margin-left: 10px; /* Space between separator icon and cart button */
+  margin-right: 20px; /* Space between cart button and account button */
+  cursor: pointer; /* Makes it look clickable */
+}
+
 #account-button {
   width: 30px; /* Adjust as needed */
   height: auto;
-  margin-left: 10px; /* Space between profile icon and account button */
   cursor: pointer; /* Makes it look clickable */
 }
+
 
 
 /* Center the carousel within the banner wrapper */
@@ -243,6 +261,7 @@ hr {
 }
 
 .product-card {
+  position: relative; /* Make the product card the positioning context */
   width: calc(20% - 20px); /* Five items per row with some space */
   margin: 10px; /* Space between product cards */
   padding: 10px; /* Space inside each card */
@@ -265,6 +284,18 @@ hr {
 .product-card p {
   font-weight: bold; /* Make the price bold */
 }
+
+.add-cart-button {
+  position: absolute; /* Position relative to the product card */
+  bottom: 10px; /* Adjust distance from the bottom */
+  right: 10px; /* Adjust distance from the right */
+  width: 30px; /* Adjust size as needed */
+  height: 30px;
+  cursor: pointer;
+  z-index: 10; /* Ensure it stays above other elements */
+}
+
+
 
 
 
@@ -516,12 +547,12 @@ button:hover {
 
 
 
+
 footer {
   width: 100%;
   background-color: #1c1b1e;
   display: flex;
   justify-content: space-evenly;
-
   padding: 4% 8%;
 }
 

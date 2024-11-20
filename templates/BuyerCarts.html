@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SneakHub</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='Success/success.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='Carts/cart.css') }}">
+  
+  <!-- Owl Carousel CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+
+  <!-- jQuery -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+  <!-- Owl Carousel JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
+</head>
+<body>
+
+<header>
+  <nav class="nav-top">
+    <div class="left-wrapper">
+        <div id="logo1">
+            <img src="/static/images/SneakHUb_-_2-removebg-preview.png" />
+        </div>
+        <div id="logo2">
+            <img src="/static/images/SneakHUb_-_3-removebg-preview.png" />
+        </div>
+    </div>
+
+    <div class="center-links">
+        <div class="section-title-in-nav"><a href="#NewArrivals">NEW ARRIVALS</a></div>
+        <div class="section-title-in-nav"><a href="#BestSellers">BEST SELLERS</a></div>
+        <div class="section-title-in-nav"><a href="#Sales">SALES</a></div>
+        <div class="section-title-in-nav"><a href="#AboutUs">ABOUT US</a></div>
+    </div>
+
+    <div id="input-wrapper__nav">
+      <!-- Search Box -->
+      <input id="search-box" type="text" name="search" placeholder="Search">
+      <!-- Search Icon -->
+      <img src="{{ url_for('static', filename='images/searchicon.png') }}" alt="Search Icon" id="search-icon">
+      <!-- Cart Button -->
+      <img src="{{ url_for('static', filename='images/cart.png') }}" alt="Cart Button" id="cart-button">
+      <!-- Account Button -->
+      <img src="{{ url_for('static', filename='images/accountlogo.png') }}" alt="Account Button" id="account-button">
+    </div>
+  </nav>
+</header>
+
+<!-- Cart Section -->
+<div id="cart-page">
+  <div class="cart-section">
+    <h2>Your Cart</h2>
+    <table class="cart-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Total</th>
+          <th>Remove</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Loop through cart items and display them here -->
+        {% for item in cart_items %}
+        <tr>
+          <td>
+            <div class="cart-product">
+              <img src="{{ url_for('static', filename='images/' + item.product_image) }}" alt="Product Image">
+              <p>{{ item.product_name }}</p>
+            </div>
+          </td>
+          <td>${{ item.product_price }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>${{ item.product_price * item.quantity }}</td>
+          <td><button class="remove-item-btn" data-item-id="{{ item.product_id }}">Remove</button></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    
+    <!-- Cart Total Section -->
+    <div class="cart-total">
+      <p>Total: ${{ total_price }}</p>
+    </div>
+    
+    <!-- Checkout Button -->
+    <div class="cart-actions">
+      <button id="checkout-btn">Proceed to Checkout</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div>
+    <p>Online Store</p>
+    <a href="#">Men Shoes</a>
+    <a href="#">Women Shoes</a>
+    <a href="#">Stylish Shoes</a>
+    <a href="#">Running Shoes</a>
+  </div>
+  <div>
+    <p>Helpful Links</p>
+    <a href="#">Home</a>
+    <a href="#">About</a>
+    <a href="#">Contact</a>
+  </div>
+  <div>
+    <p>Partners</p>
+    <a href="#">Zara</a>
+    <a href="#">Pantaloons</a>
+    <a href="#">Levis</a>
+    <a href="#">UCB</a>
+    <a href="#">+ Many More</a>
+  </div>
+  <div>
+    <p>Address</p>
+    <a href="#">Building 101</a>
+    <a href="#">Central Avenue</a>
+    <a href="#">LA - 902722</a>
+    <a href="#">United States</a>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ url_for('static', filename='Success/success.js') }}"></script>
+<script src="{{ url_for('static', filename='Carts/Cart.js') }}"></script>
+<script src="{{ url_for('static', filename='SellerRequests/BuyerAccountSettings.js') }}"></script>
+
+</body>
+</html>

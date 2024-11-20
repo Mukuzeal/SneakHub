@@ -136,7 +136,7 @@ def home():
 
 @app.route('/sign-up')
 def sign_up():
-    return redirect(url_for('index'))
+    return render_template('index.html')
 
 @app.route('/buyersettings')
 def buyersettings():
@@ -153,7 +153,8 @@ def AdminRequests():
 @app.route('/logout')
 def index():
     session.clear()
-    return render_template('index.html')
+    return render_template('MainWeb.html')
+
     
 @app.route('/submit_form', methods=['POST'])
 def submit_form():
@@ -435,6 +436,7 @@ def get_categories():
 
     return jsonify(category_list)
 
+
 # Add a new category
 @app.route('/api/add_category', methods=['POST'])
 def add_category():
@@ -456,6 +458,7 @@ def add_category():
         conn.close()
 
     return jsonify({'message': 'Category added successfully.'}), 201
+
 
 # Edit a category
 @app.route('/api/edit_category/<int:category_id>', methods=['PUT'])
@@ -524,6 +527,8 @@ def submit_product():
         if file.filename == '':
             return jsonify({'error': 'No selected file'}), 400
         
+        print(f"Received category: {category}")
+
         # Insert product details without image filename
         sql = """INSERT INTO products (product_name, product_price, product_description, product_quantity, brand, product_category, seller_id, archive, created_at, updated_at)
                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())"""
@@ -552,6 +557,67 @@ def submit_product():
     finally:
         cursor.close()
         conn.close()
+
+
+@app.route('/addcategory', methods=['POST'])
+def addcategory():
+    user_id = session.get('user_id')  # Fetch the user_id from session
+    if not user_id:
+        return jsonify({'error': 'User not logged in.'}), 401
+
+    category_name = request.form['newCategory']
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Check if user is a seller
+        cursor.execute("SELECT id FROM users WHERE id = %s AND user_type = 'Seller'", (user_id,))
+        seller = cursor.fetchone()
+
+        if not seller:
+            return jsonify({'error': 'Seller not found or user is not a seller.'}), 404
+
+        # Insert new category
+        sql = "INSERT INTO categories (category_name, seller_id) VALUES (%s, %s)"
+        cursor.execute(sql, (category_name, user_id))
+        conn.commit()
+
+        return jsonify({'message': 'Category added successfully.'}), 201
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/getcategories', methods=['GET'])
+def getcategories():
+    user_id = session.get('user_id')  # Get the user_id from the session
+
+    if not user_id:
+        return jsonify({'error': 'User not logged in'}), 401
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Fetch categories where the seller_id matches the session user_id
+        sql = "SELECT id, category_name FROM categories WHERE seller_id = %s"
+        cursor.execute(sql, (user_id,))
+        categories = cursor.fetchall()
+
+        # Format categories as a list of dictionaries
+        category_list = [{'id': cat[0], 'category_name': cat[1]} for cat in categories]
+        return jsonify(category_list)
+    
+    finally:
+        cursor.close()
+        conn.close()
+
+
+
     
 
 #side nav functions
@@ -589,7 +655,7 @@ def accSettings():
 @app.route('/sellerlogout')
 def sellerlogout():
     session.clear()
-    return render_template('index.html')
+    return render_template('MainWeb.html')
 
 @app.route('/buyer-account-settings')
 def buyer_account_settings():
@@ -1267,6 +1333,184 @@ def get_product_by_id(product_id):
 @app.route('/product/<int:product_id>')
 def product_page(product_id):
     return app.send_static_file('product.html')  # Assuming it's in the static folder
+
+
+@app.route('/add-to-cart', methods=['POST'])
+def add_to_cart():
+    # Retrieve data from the request body (the JSON payload)
+    data = request.get_json()
+    product_id = data['product_id']
+    quantity = data['quantity']
+    
+    # Get the user_id from the session
+    user_id = session.get('user_id')  # Ensure the user_id is stored in the session during login
+    
+    if not user_id:
+        return jsonify({'message': 'User not logged in'}), 401  # Unauthorized if no user_id found in session
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Check if the product already exists in the cart for the user
+        check_sql = "SELECT * FROM cart_items WHERE product_id = %s AND user_id = %s"
+        cursor.execute(check_sql, (product_id, user_id))
+        existing_item = cursor.fetchone()
+
+        if existing_item:
+            # If the product already exists, update the quantity
+            update_sql = "UPDATE cart_items SET quantity = quantity + %s WHERE product_id = %s AND user_id = %s"
+            cursor.execute(update_sql, (quantity, product_id, user_id))
+        else:
+            # If the product doesn't exist in the cart, insert a new record
+            insert_sql = "INSERT INTO cart_items (user_id, product_id, quantity) VALUES (%s, %s, %s)"
+            cursor.execute(insert_sql, (user_id, product_id, quantity))
+
+        # Commit the changes
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        # Return success response
+        return jsonify({'message': 'Product added to cart successfully!'}), 200
+
+    except Exception as e:
+        # If any exception occurs, return an error response
+        print(f"Error adding to cart: {e}")
+        return jsonify({'message': 'Failed to add product to cart'}), 500
+    
+
+@app.route('/BuyerCarts.html', methods=['GET'])
+def buyer_carts():
+    # You can check if the user is logged in or perform any session management here
+    if 'user_id' in session:  # Example: check if the user is logged in
+        return render_template('BuyerCarts.html')
+    else:
+        return redirect(url_for('login'))  # Redirect to login page if not logged in
+    
+
+
+@app.route('/Carts.html')
+def Carts():
+    # Ensure the user is logged in (check session)
+    if 'user_id' not in session:
+        return redirect(url_for('login'))  # Redirect to login if not logged in
+    
+    user_id = session['user_id']  # Get the logged-in user's ID
+    
+    # Connect to the database
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # SQL query to get cart items and their related product information
+    query = """
+        SELECT p.id AS product_id, p.product_name, p.product_price, p.product_image, ci.quantity 
+        FROM cart_items ci
+        JOIN products p ON ci.product_id = p.id
+        WHERE ci.user_id = %s
+    """
+    
+    cursor.execute(query, (user_id,))
+    cart_items = cursor.fetchall()
+
+    # Calculate the total price
+    total_price = sum(item[2] * item[4] for item in cart_items)  # Adjust indices based on the query
+
+    cursor.close()
+    conn.close()
+    
+    # Convert cart_items to a list of dictionaries for easier access in the template
+    cart_items_list = [
+        {
+            'product_id': item[0],
+            'product_name': item[1],
+            'product_price': item[2],
+            'product_image': item[3],
+            'quantity': item[4]
+        } for item in cart_items
+    ]
+
+    return render_template('BuyerCarts.html', cart_items=cart_items_list, total_price=total_price)
+
+
+
+
+@app.route('/api/cart')
+def api_cart():
+    if 'user_id' not in session:
+        return jsonify({'error': 'User  not logged in'}), 401
+    
+    user_id = session['user_id']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    query = """
+        SELECT p.id AS product_id, p.product_name, p.product_price, p.product_image, ci.quantity 
+        FROM cart_items ci
+        JOIN products p ON ci.product_id = p.id
+        WHERE ci.user_id = %s
+    """
+    
+    cursor.execute(query, (user_id,))
+    cart_items = cursor.fetchall()
+
+    # Assuming the order of fields in the SELECT statement:
+    # product_id at index 0, product_name at index 1, product_price at index 2,
+    # product_image at index 3, and quantity at index 4
+    total_price = sum(item[2] * item[4] for item in cart_items)  # Adjust indices as necessary
+
+    cursor.close()
+
+    # Convert cart_items to a list of dictionaries for better JSON serialization
+    cart_items_list = [
+        {
+            'product_id': item[0],
+            'product_name': item[1],
+            'product_price': item[2],
+            'product_image': item[3],
+            'quantity': item[4]
+        } for item in cart_items
+    ]
+
+    return jsonify({'cart_items': cart_items_list, 'total_price': total_price})
+
+
+@app.route('/remove_cart_item/<int:product_id>', methods=['DELETE'])
+def remove_cart_item(product_id):
+    if 'user_id' not in session:
+        return jsonify({'error': 'User  not logged in'}), 401
+    
+    user_id = session['user_id']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        # SQL query to delete the item from the cart
+        cursor.execute("DELETE FROM cart_items WHERE user_id = %s AND product_id = %s", (user_id, product_id))
+        conn.commit()
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+    return jsonify({'success': True})
+
+
+@app.route('/remove_item/<int:item_id>', methods=['POST'])
+def remove_item(item_id):
+    # Logic to remove item from the cart
+    cart = session.get('cart', [])
+    cart = [item for item in cart if item['product_id'] != item_id]
+    session['cart'] = cart
+    return jsonify({'status': 'success'})
+
+
+
+
+
+
 
 
 

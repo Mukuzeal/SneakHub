@@ -197,7 +197,7 @@ function fetchProductData() {
                         <img src="${imagePath}" class="product-image" alt="${product.product_name}"
                             onerror="this.onerror=null; this.src='Uploads/pics/default.jpg';" id="product-image-${product.id}">
                         <h5>${product.product_name}</h5>
-                        <p>Price: $${product.product_price}</p>
+                        <p>Price: ₱${product.product_price}</p>
                         <p>Description: ${product.product_description}</p>
                         <p>Quantity: ${product.product_quantity}</p>
                         <p>Brand: ${product.brand}</p>
@@ -409,7 +409,7 @@ function fetchProductDataArchive() {
                         <img src="${imagePath}" class="product-image" alt="${product.product_name}"
                             onerror="this.onerror=null; this.src='Uploads/pics/default.jpg';" id="product-image-${product.id}">
                         <h5>${product.product_name}</h5>
-                        <p>Price: $${product.product_price}</p>
+                        <p>Price: ₱${product.product_price}</p>
                         <p>Description: ${product.product_description}</p>
                         <p>Quantity: ${product.product_quantity}</p>
                         <p>Brand: ${product.brand}</p>
@@ -453,6 +453,55 @@ async function restoreProduct(productId) {
         console.error('Error restoring product:', error);
     }
 }
+
+
+function openModal() {
+    document.getElementById('categoryModal').style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('categoryModal').style.display = 'none';
+}
+
+// Close the modal when the user clicks anywhere outside of it
+window.onclick = function(event) {
+    var modal = document.getElementById('categoryModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+
+
+// Function to fetch categories
+function fetchCategories() {
+    fetch('/getcategories')
+        .then(response => response.json())
+        .then(data => {
+            const categorySelect = document.getElementById('productCategory');
+            
+            // Clear existing options
+            categorySelect.innerHTML = '';
+
+            // Check if there's an error
+            if (data.error) {
+                console.error(data.error);
+                return;
+            }
+
+            // Populate the <select> element with categories
+            data.forEach(category => {
+                const option = document.createElement('option');
+                option.textContent = category.category_name; // Displayed in the dropdown
+                option.value = category.category_name; // Value sent to the backend
+                categorySelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching categories:', error));
+}
+
+// Call the function to fetch categories when the page loads
+window.onload = fetchCategories;
+
 
 
 

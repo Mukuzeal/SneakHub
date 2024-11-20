@@ -44,11 +44,21 @@
             <h1 class="main-title">Seller Registration</h1> <!-- Account Settings Title -->
           </div>
       
-          <div id="input-wrapper__nav" style="cursor: pointer;" >
-              <input id="search-box" type="text" name="search" placeholder="Search" />
-              <img src="static/images/searchicon.png" alt="Search Icon" id="search-icon" />
-              <img src="static/images/lineseparator.png" alt="separator" id="separator-icon" />
-              <img src="static/images/accountlogo.png" alt="Account Button" id="account-button" />
+          <div id="input-wrapper__nav" style="cursor: pointer;">
+            <!-- Search Box -->
+            <input id="search-box" type="text" name="search" placeholder="Search">
+            
+            <!-- Search Icon -->
+            <img src="{{ url_for('static', filename='images/searchicon.png') }}" alt="Search Icon" id="search-icon">
+            
+            <!-- Separator Icon -->
+            <img src="{{ url_for('static', filename='images/lineseparator.png') }}" alt="Separator" id="separator-icon">
+            
+            <!-- Cart Button (newly added) -->
+            <img src="{{ url_for('static', filename='images/cart.png') }}" alt="Cart Button" id="cart-button" onclick="goToCartPage(event)">
+            
+            <!-- Account Button -->
+            <img src="{{ url_for('static', filename='images/accountlogo.png') }}" alt="Account Button" id="account-button">
           </div>
 
        

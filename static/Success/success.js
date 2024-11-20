@@ -52,6 +52,10 @@ function hideModal() {
     modal.classList.remove("show");
 }
 
+function goBack() {
+    window.history.back();
+}
+
 
   
 
@@ -110,41 +114,53 @@ function shuffleArray(array) {
     return array;
 }
 
-// Assuming you have a function that fetches product data
+
+
 function fetchProductData() {
-    fetch('/item_listBUYER') // Adjust to your API endpoint
+    fetch('/item_listBUYER') // Endpoint to fetch all non-archived products
         .then(response => response.json())
         .then(data => {
-            // Shuffle the product data array
             const shuffledData = shuffleArray(data);
-
             const productCardsContainer = document.getElementById('productCardsContainer');
             productCardsContainer.innerHTML = ''; // Clear previous data
 
             shuffledData.forEach(product => {
-                // Create product card
                 const card = document.createElement('div');
-                card.className = 'col-md-3'; // Use bootstrap grid system
+                card.className = 'col-md-3';
                 card.setAttribute('data-id', product.id);
-
-                // Use the product image path (direct from database)
+            
                 const imagePath = `Uploads/pics/${product.product_image}`;
-
+            
                 card.innerHTML = `
-                    <div class="product-card">
-                        <img src="${imagePath}" class="product-image" alt="${product.product_name}"
-                            onerror="this.onerror=null; this.src='Uploads/pics/default.jpg';" id="product-image-${product.id}">
-                        <h5>${product.product_name}</h5>
-                        <p>Price: $${product.product_price}</p>
-                    </div>
-                `;
-
+                <div class="product-card" onclick="window.location.href='/product/${product.id}'">
+                    <img src="${imagePath}" class="product-image" alt="${product.product_name}"
+                        onerror="this.onerror=null; this.src='Uploads/pics/default.jpg';" id="product-image-${product.id}">
+                    <h5>${product.product_name}</h5>
+                    <p>Price: ₱${parseFloat(product.product_price).toFixed(2)}</p>
+                    <img src="static/images/add-cart.png" class="add-cart-button" alt="Add to Cart" onclick="addToCart(event, ${product.id}, 1)">
+                </div>
+            `;
+            
+            
+            
                 productCardsContainer.appendChild(card);
             });
         })
         .catch(error => console.error('Error fetching products:', error));
 }
 
+// Function to prevent event propagation when the add-to-cart button is clicked
+function addToCart(productId, event) {
+    event.stopPropagation(); // Prevent click event from bubbling to the parent div
+    console.log(`Product ${productId} added to cart`);
+    // Add logic to handle adding the product to the cart
+}
+
+
+// Function to navigate to product details
+function navigateToProduct(productId) {
+    window.location.href = `/product/${productId}`;
+}
 
 
 
@@ -435,6 +451,66 @@ document.getElementById("editProfileForm").addEventListener("submit", function(e
         }
     });
 });
+
+
+function addToCart(event, productId, quantity) {
+    // Prevent the click from propagating and causing page navigation
+    event.stopPropagation();
+
+    // Prepare data to be sent to the backend
+    const data = {
+        product_id: productId,
+        quantity: quantity
+    };
+
+    // Send the data to the backend using a POST request
+    fetch('/add-to-cart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        // If the operation is successful, show a SweetAlert notification
+        if (data.message === 'Product added to cart successfully!') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'The product has been added to your cart!',
+                showConfirmButton: false,
+                timer: 1500 // Hide the message after 1.5 seconds
+            });
+        } else {
+            // If there is an issue, show an error notification
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Something went wrong. Please try again later.',
+            });
+        }
+    })
+    .catch(error => {
+        // Handle any errors that may occur during the fetch request
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Something went wrong. Please try again later.',
+        });
+    });
+}
+
+
+function goToCartPage(event) {
+    // Prevent the default action
+    event.preventDefault();
+    
+    // Redirect to BuyerCarts.html page (Flask will manage session automatically)
+    window.location.href = "/BuyerCarts.html";  // Adjust the path as needed
+}
+
 
 
 
