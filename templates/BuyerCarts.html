@@ -51,42 +51,49 @@
   </nav>
 </header>
 
+          <!-- Modal Structure -->
+          <div id="account-modal" class="modal">
+            <div>
+                {% if session.get('name') %}
+                    <!-- Display the user's name if they're signed in -->
+                    <span class="btn" id="userName">Hello, {{ session['name'] }}!</span>
+                    <hr> <!-- Horizontal line below the user's name -->
+                    <span class="btn small-text-button" id="profile" style="cursor: pointer;">Profile</span>
+                    <span class="btn small-text-button" id="sellerRegistration" style="cursor: pointer;" onclick="window.location.href='/buyersettings'">Settings</span>
+                    <span class="btn small-text-button" id="logout" style="cursor: pointer;">Logout</span> <!-- Logout span -->
+                {% else %}
+                    <!-- Show Sign Up button if no user is signed in -->
+                    <button class="btn" id="signUp" type="button" onclick="window.location.href='/sign-up'">Sign Up</button>
+                {% endif %}
+            </div>
+          </div>
+
 <!-- Cart Section -->
 <div id="cart-page">
   <div class="cart-section">
     <h2>Your Cart</h2>
-    <table class="cart-table">
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Price</th>
-          <th>Quantity</th>
-          <th>Total</th>
-          <th>Remove</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Loop through cart items and display them here -->
-        {% for item in cart_items %}
-        <tr>
-          <td>
-            <div class="cart-product">
-              <img src="{{ url_for('static', filename='images/' + item.product_image) }}" alt="Product Image">
-              <p>{{ item.product_name }}</p>
-            </div>
-          </td>
-          <td>${{ item.product_price }}</td>
-          <td>{{ item.quantity }}</td>
-          <td>${{ item.product_price * item.quantity }}</td>
-          <td><button class="remove-item-btn" data-item-id="{{ item.product_id }}">Remove</button></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="cart-items-container">
+      <!-- Loop through cart items and display them here -->
+      {% for item in cart_items %}
+      <div class="cart-item">
+        <div class="cart-product">
+          <input type="checkbox" class="item-checkbox" data-item-id="{{ item.product_id }}">
+          <img src="{{ url_for('static', filename='images/' + item.product_image) }}" alt="Product Image">
+          <div class="cart-item-details">
+            <p>{{ item.product_name }}</p>
+            <p>Price: ₱{{ item.product_price }}</p>
+            <p>Quantity: {{ item.quantity }}</p>
+            <p>Total: ₱{{ item.product_price * item.quantity }}</p>
+            <button class="remove-item-btn" data-item-id="{{ item.product_id }}">Remove</button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
     
     <!-- Cart Total Section -->
     <div class="cart-total">
-      <p>Total: ${{ total_price }}</p>
+      <p>Total: ₱<span id="total-price">{{ total_price }}</span></p>
     </div>
     
     <!-- Checkout Button -->

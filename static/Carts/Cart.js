@@ -1,44 +1,42 @@
-// Assuming you have an endpoint to fetch cart items, for example, /api/cart
 document.addEventListener("DOMContentLoaded", function() {
-    // Fetch cart items from the backend (Flask API route or pre-rendered data)
+    // Fetch cart items from the backend
     fetch('/api/cart')
-        .then(response => response.json())  // Assuming the server sends data in JSON format
+        .then(response => response.json())
         .then(cartData => {
             displayCartItems(cartData.cart_items, cartData.total_price);
         })
         .catch(error => console.error('Error fetching cart data:', error));
 });
 
-// Function to display cart items dynamically in the table
+// Function to display cart items dynamically
 function displayCartItems(cartItems, totalPrice) {
-    const cartTableBody = document.querySelector('.cart-table tbody');
-    cartTableBody.innerHTML = '';  // Clear existing items in the table
+    const cartItemsContainer = document.querySelector('.cart-items-container');
+    cartItemsContainer.innerHTML = '';  // Clear existing items
 
-    // Loop through the cart items and create table rows
     cartItems.forEach(item => {
-        const row = document.createElement('tr');
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'cart-item';
 
-        // Product image, name, price, and quantity
-        row.innerHTML = `
-            <td>
-                <div class="cart-product">
-                    <img src="/static/Uploads/pics/${item.product_image}" alt="Product Image">
-                    <p>${item.product_name}</p>
-                </div>
-            </td>
-            <td>₱${item.product_price}</td>
-            <td>${item.quantity}</td>
-            <td>₱${(item.product_price * item.quantity).toFixed(2)}</td>
-            <td><button class="remove-item-btn" data-item-id="${item.product_id}">Remove</button></td>
+        itemDiv.innerHTML = `
+            <div class="cart-product">
+                <img src="/static/Uploads/pics/${item.product_image}" alt="Product Image">
+                <p>${item.product_name}</p>
+            </div>
+            <div class="cart-item-details">
+                <p>Price: ₱${item.product_price}</p>
+                <p>Quantity: ${item.quantity}</p>
+                <p>Total: ₱${(item.product_price * item.quantity).toFixed(2)}</p>
+                <input type="checkbox" class="item-checkbox" data-item-id="${item.product_id}">
+                <button class="remove-item-btn" data-item-id="${item.product_id}">Remove</button>
+            </div>
         `;
 
-        cartTableBody.appendChild(row);
+        cartItemsContainer.appendChild(itemDiv);
     });
 
     // Update the total price
-    const totalPriceElement = document.querySelector('.cart-total p');
-    totalPriceElement.textContent = `Total: ₱${totalPrice.toFixed(2)}`;
-    
+    updateTotalPrice();
+
     // Add event listeners for remove buttons
     const removeButtons = document.querySelectorAll('.remove-item-btn');
     removeButtons.forEach(button => {
@@ -47,6 +45,29 @@ function displayCartItems(cartItems, totalPrice) {
             removeCartItem(productId);
         });
     });
+
+    // Add event listeners for checkboxes
+    const checkboxes = document.querySelectorAll('.item-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateTotalPrice);
+    });
+}
+
+// Function to update the total price based on selected items
+function updateTotalPrice() {
+    const checkboxes = document.querySelectorAll('.item-checkbox');
+    let selectedTotal = 0;
+
+    checkboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+            const itemPrice = parseFloat(checkbox.closest('.cart-item-details').querySelector('p:nth-child(1)').textContent.replace('Price: ₱', ''));
+            const itemQuantity = parseInt(checkbox.closest('.cart-item-details').querySelector('p:nth-child(2)').textContent.replace('Quantity: ', ''));
+            selectedTotal += itemPrice * itemQuantity;
+        }
+    });
+
+    const totalPriceElement = document.querySelector('#total-price');
+    totalPriceElement.textContent = `${selectedTotal.toFixed(2)}`;
 }
 
 // Function to remove a cart item
@@ -56,7 +77,7 @@ function removeCartItem(productId) {
         .then(data => {
             if (data.success) {
                 alert('Item removed from cart');
-                // Re-fetch the updated cart data or remove the item from the DOM
+                // Re-fetch the updated cart data
                 fetch('/api/cart')
                     .then(response => response.json())
                     .then(cartData => {
@@ -68,34 +89,3 @@ function removeCartItem(productId) {
         })
         .catch(error => console.error('Error removing item:', error));
 }
-
-
-$(document).ready(function() {
-    // Show cart when the cart icon is clicked
-    $('#cart-button').click(function() {
-      $('#cart-page').toggle(); // Toggle the cart visibility
-    });
-  
-    // Handle removing items from the cart
-    $('.remove-item-btn').click(function() {
-      var productId = $(this).data('item-id');
-      // Send a request to the server to remove the item from the cart (using AJAX)
-      $.ajax({
-        url: '/remove_item/' + productId,
-        type: 'POST',
-        success: function(response) {
-          // Remove the item from the table
-          location.reload(); // Reload the page to update the cart
-        },
-        error: function() {
-          alert('Error removing item from the cart');
-        }
-      });
-    });
-  
-    // Checkout button (if needed)
-    $('#checkout-btn').click(function() {
-      window.location.href = '/checkout'; // Redirect to checkout page
-    });
-  });
-  
