@@ -1,0 +1,63 @@
+/* Seller Request Table */
+#sellerRequestDiv {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#sellerRequestDiv h2 {
+    color: #000000; /* Change this to any color you like */
+
+}
+
+body {
+    padding-top: 30px; /* Pushes all content below the top nav */
+}
+
+.table {
+    margin-top: 15px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table th, .table td {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.table th {
+    background-color: #343a40;
+    color: white;
+}
+
+/* Buttons */
+.btn-primary, .btn-danger {
+    margin: 0 5px;
+    font-size: 14px;
+    margin: 5px;
+}
+
+/* Modal Styling */
+.modal-content {
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.modal-header {
+    background-color: #007bff;
+    color: white;
+}
+
+.modal-footer {
+    justify-content: space-between;
+}
+
+.modal {
+    position: fixed !important;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1050; /* Ensure it's above other elements */
+}
+

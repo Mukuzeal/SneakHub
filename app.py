@@ -263,48 +263,33 @@ def admin():
     name = request.args.get('name', '')
     return render_template('admin.html', name=name)
 
-@app.route('/users', methods=['GET'])
+@app.route('/get_users', methods=['GET'])
 def get_users():
-    # Fetch users that are not admins from the database
     conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, name, email, password, user_type FROM users WHERE user_type != 'Admin' AND archieve = 'no'")
+    cursor = conn.cursor(dictionary=True)
+    
+    query = "SELECT id AS `User ID`, name AS `Username`, FullName AS `Full Name`, email AS `Email`, user_type AS `User Type` FROM users WHERE user_type != 'Admin' AND archieve ='no' "
+    cursor.execute(query)
     users = cursor.fetchall()
-    cursor.close()
-
-    # Convert query results to a list of dictionaries
-    user_list = []
-    for user in users:
-        user_list.append({
-            'id': user[0],
-            'name': user[1],
-            'email': user[2],
-            'password': user[3],  # Include password in the response
-            'user_type': user[4],
-        })
-
-    return jsonify(user_list)
-
-@app.route('/archived_users', methods=['GET'])
-def get_archived_users():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, name, email, user_type FROM users WHERE archieve = 'yes'")
-    users = cursor.fetchall()
+    
     cursor.close()
     conn.close()
+    
+    return jsonify(users)
 
-    # Convert query results to a list of dictionaries
-    archived_user_list = []
-    for user in users:
-        archived_user_list.append({
-            'id': user[0],
-            'name': user[1],
-            'email': user[2],
-            'user_type': user[3],  # Corrected the index to 3 for user_type
-        })
-
-    return jsonify(archived_user_list)  # Return JSON response
+@app.route('/get_usersArchive', methods=['GET'])
+def get_usersArchive():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    query = "SELECT id AS `User ID`, name AS `Username`, FullName AS `Full Name`, email AS `Email`, user_type AS `User Type` FROM users WHERE user_type != 'Admin' AND archieve ='yes' "
+    cursor.execute(query)
+    users = cursor.fetchall()
+    
+    cursor.close()
+    conn.close()
+    
+    return jsonify(users)
 
 # Add a new user (default to Buyer type)
 @app.route('/add_user', methods=['POST'])
@@ -326,38 +311,57 @@ def add_user():
     return jsonify({'message': 'User added successfully.'}), 201
 
 # Archive a user
-@app.route('/delete_user/<int:user_id>', methods=['PUT'])  # Changed method to PUT since we're updating
-def delete_user(user_id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Update the 'archieve' column to 'yes' for the given user_id
-    cursor.execute("UPDATE users SET archieve = %s WHERE id = %s", ('yes', user_id))
-    
-    conn.commit()
-    cursor.close()
-    conn.close()
+@app.route('/archive_user', methods=['POST'])
+def archive_user():
 
-    return jsonify({'message': 'User archived successfully.'}), 200
+    user_id = request.json.get('user_id')
+    
+    if not user_id:
+        return jsonify({"success": False, "message": "Invalid User ID"})
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        query = "UPDATE users SET archieve = 'yes' WHERE id = %s"
+        cursor.execute(query, (user_id,))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({"success": True, "message": "User archived successfully!"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
+
 
 @app.route('/archive')
 def archive():
     return render_template('archive.html')
 
 #Restore a user
-@app.route('/restore_user/<int:user_id>', methods=['POST'])
-def restore_user(user_id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Update the 'archieve' column to 'no' for the given user_id
-    cursor.execute("UPDATE users SET archieve = %s WHERE id = %s", ('no', user_id))
-    
-    conn.commit()
-    cursor.close()
-    conn.close()
+@app.route('/restore_user', methods=['POST'])
+def restore_user():
 
-    return jsonify({'message': 'User restored successfully.'}), 200
+    user_id = request.json.get('user_id')
+    
+    if not user_id:
+        return jsonify({"success": False, "message": "Invalid User ID"})
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        query = "UPDATE users SET archieve = 'no' WHERE id = %s"
+        cursor.execute(query, (user_id,))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({"success": True, "message": "User restored successfully!"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
 
 @app.route('/users/<int:user_id>', methods=['GET'])
 def get_user(user_id):
@@ -616,10 +620,33 @@ def getcategories():
         cursor.close()
         conn.close()
 
+#Admin
 
+@app.route('/AdminSellerRequestList')
+def AdminSellerRequestList():
+    if 'user_id' not in session or session.get('user_type') != 'Admin':
+        return redirect(url_for('index'))  # Redirect to login if not authenticated
+    return render_template('AdminSellerRequest.html')
 
+@app.route('/archivelist')
+def archivelist():
+    if 'user_id' not in session or session.get('user_type') != 'Admin':
+        return redirect(url_for('index'))  # Redirect to login if not authenticated
+    return render_template('AdminArchiveList.html')
+
+@app.route('/AdminDashboard')
+def AdminDashboard():
+    if 'user_id' not in session or session.get('user_type') != 'Admin':
+        return redirect(url_for('index'))  # Redirect to login if not authenticated
+    return render_template('admin.html')
+
+@app.route('/userList')
+def userList():
+    if 'user_id' not in session or session.get('user_type') != 'Admin':
+        return redirect(url_for('index'))  # Redirect to login if not authenticated
+    return render_template('AdminUserList.html')
     
-
+#Seller
 #side nav functions
 @app.route('/add-product')
 def add_product():
@@ -1270,24 +1297,14 @@ def submit_seller_request():
     street = request.form.get('detailed-pickupAddress')
     email = user['email']  # Assuming email is fetched from the user table
     
-    # Generate custom request_id
-    cursor.execute("SELECT request_id FROM seller_requests ORDER BY request_id DESC LIMIT 1")
-    last_request = cursor.fetchone()
-    
-    if last_request:
-        # Extract and increment the last number part
-        last_number = int(last_request['request_id'].split('-')[1])
-        new_request_id = f"0123-{last_number + 1:04d}"
-    else:
-        new_request_id = "0123-0001"  # Initial ID if table is empty
 
     # Insert new seller request into `seller_requests`
     cursor.execute(
         """
-        INSERT INTO seller_requests (request_id, user_id, username, fullname, ShopName, PhoneNo, PickUpAdd, Street, Email, request_status, submitted_at)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO seller_requests (user_id, username, fullname, ShopName, PhoneNo, PickUpAdd, Street, Email, request_status, submitted_at)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """,
-        (new_request_id, user['id'], user['name'], user['FullName'], shop_name, phone_number, pickup_address, street, email, "pending", datetime.now())
+        (user['id'], user['name'], user['FullName'], shop_name, phone_number, pickup_address, street, email, "pending", datetime.now())
     )
     
     # Commit the transaction and close the connection
@@ -1505,6 +1522,56 @@ def remove_item(item_id):
     cart = [item for item in cart if item['product_id'] != item_id]
     session['cart'] = cart
     return jsonify({'status': 'success'})
+
+
+@app.route('/get_seller_requests', methods=['GET'])
+def get_seller_requests():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM seller_requests")
+    requests = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return jsonify(requests)
+
+@app.route('/update_seller_request', methods=['POST'])
+def update_seller_request():
+    data = request.json
+    request_id = data['request_id']
+    status = data['status']
+    comments = data['comments']
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Update the seller request status and comments
+    cursor.execute("""
+        UPDATE seller_requests 
+        SET request_status = %s, comments = %s 
+        WHERE request_id = %s
+    """, (status, comments, request_id))
+
+    # If the request is accepted, update the user_type in the users table
+    if status == 'Accepted':
+        # You may need to fetch the user_id based on the request_id
+        cursor.execute("""
+            SELECT user_id FROM seller_requests 
+            WHERE request_id = %s
+        """, (request_id,))
+        user_id = cursor.fetchone()[0]  # Assuming user_id is in the first column
+
+        # Update the user_type in the users table
+        cursor.execute("""
+            UPDATE users 
+            SET user_type = 'Seller' 
+            WHERE id = %s
+        """, (user_id,))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return jsonify({'success': True})
+
 
 
 

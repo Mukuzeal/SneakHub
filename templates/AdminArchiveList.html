@@ -16,6 +16,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='Seller/sidenav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Admin/adminarchivelist.css') }}">
 </head>
 
 <body id="body-pd">
@@ -40,7 +41,7 @@
                 </a>
                 
                 <div class="nav_list"> 
-                    <a href="#" class="nav_link active" onclick="goToDashboard()"> 
+                    <a href="/AdminDashboard" class="nav_link"> 
                         <i class='bx bxs-dashboard nav_icon'></i> 
                         <span class="nav_name">Dashboard</span> 
                     </a> 
@@ -50,10 +51,10 @@
                         <span class="nav_name">User List</span> 
                     </a> 
                     
-                    <a href="/archivelist" class="nav_link"> 
+                    <a href="/archivelist" class="nav_link active"> 
                         <i class="bx bxs-message-alt-add nav_icon"></i>
                         <span class="nav_name">Archive List</span>
-                    </a>                   
+                    </a>                    
                     
                     
                     <a href="/AdminSellerRequestList" class="nav_link"> 
@@ -68,6 +69,9 @@
                     </a>
                 </div>
             </div>
+
+
+            
             
             <a href="sellerlogout" class="nav_link" onclick="logout()"> 
                 <i class='bx bx-log-out nav_icon'></i>
@@ -75,58 +79,37 @@
             </a>
         </nav>
     </div>
-    
-    <!-- Main Dashboard Section -->
-    <div class="container">
-        <h1>Admin 
-            <a href="#" class="icon_top"> 
-                <i class='bx bxs-cog bx-pull-right'></i>
-            </a>
-            <a href="#" class="icon_top"> 
-                <i class="bx bxs-bell bx-pull-right" id="notifbell"></i>
-            </a> 
-        </h1>
 
-        <!-- Cards for Dashboard Data -->
-        <div class="row row-cols-1 row-cols-sm-3 row-cols-md-3 row-cols-lg-8 row-cols-xl-12">
-
-            <!-- Card 1 -->
-            <div class="col mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">TOTAL DROPPED ITEMS</h5>
-                        <p class="card-text">
-                            <i class='bx bxl-dropbox' id="card_icon"></i> 0
-                        </p>
-                        <div class="card-footer">
-                            Add 
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 2 -->
-            <div class="col mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">TOTAL COLLECTIONS</h5>
-                        <p class="card-text">
-                            <i class="bx bxs-wallet" id="card_icon"></i> 0  
-                        </p>
-                        <div class="card-footer">
-                            Add 
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Other cards... -->
-
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Archive List</h1>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped" id="userTable">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>User ID</th>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>User Type</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be inserted here via JavaScript -->
+                </tbody>
+            </table>
+            
         </div>
+    </div>
+    
+
+
+
 
 
     <!-- JavaScript for Navbar Toggle and Navigation -->
     <script src="{{ url_for('static', filename='Seller/seller.js') }}"></script>
-    <script></script>
+    <script src="{{ url_for('static', filename='Admin/adminarchivelist.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>

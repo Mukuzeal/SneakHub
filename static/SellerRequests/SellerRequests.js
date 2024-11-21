@@ -200,3 +200,44 @@ function closeModal() {
 
 // Example button click to open modal
 document.getElementById("pickupAddress").addEventListener("click", openModal);
+
+
+document.getElementById("sellerForm").addEventListener("submit", function (event) {
+  event.preventDefault(); // Prevent the default form submission
+
+  const form = this;
+  const formData = new FormData(form);
+
+  fetch(form.action, {
+    method: form.method,
+    body: formData,
+  })
+    .then((response) => {
+      if (response.ok) {
+        // Show SweetAlert for successful submission
+        Swal.fire({
+          title: "Success!",
+          text: "Your seller request has been submitted successfully.",
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then(() => {
+          window.location.href = "/success"; // Redirect to success page after confirmation
+        });
+      } else {
+        return response.text().then((err) => {
+          throw new Error(err);
+        });
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+
+      // Show SweetAlert for submission failure
+      Swal.fire({
+        title: "Error!",
+        text: "There was an issue submitting your request. Please try again later.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    });
+});
