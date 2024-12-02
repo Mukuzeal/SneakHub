@@ -1572,6 +1572,27 @@ def update_seller_request():
     conn.close()
     return jsonify({'success': True})
 
+@app.route('/request', methods=['GET'])
+def request():
+    user_id = session.get('user_id')  # Adjust to match your session structure
+    is_request_pending = False
+    
+    if user_id:
+        # Connect to the database
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Check if the user exists in the seller_requests table
+        cursor.execute("SELECT COUNT(*) FROM seller_requests WHERE user_id = %s", (user_id,))
+        result = cursor.fetchone()
+        if result[0] > 0:  # If at least one record exists
+            is_request_pending = True
+        
+        cursor.close()
+        conn.close()
+
+    return render_template('seller_requests.html', is_request_pending=is_request_pending)
+
 
 
 

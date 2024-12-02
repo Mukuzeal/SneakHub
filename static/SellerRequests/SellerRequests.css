@@ -1,8 +1,66 @@
+/* General Styles */
 body {
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Prevent scrolling when modal is open */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  font-family: Arial, sans-serif; /* Ensure consistent typography */
 }
+
+/* Wrapper for main content */
+.content-wrapper {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative; /* Position for child alignment */
+}
+
+/* Title spacing */
+h2 {
+  margin-bottom: 20px; /* Space below the title */
+  font-size: 1.5em;
+  color: #333; /* Darker text color for titles */
+}
+
+/* Spacing for form elements */
+.mb-3 {
+  margin-bottom: 15px; /* Space between form groups */
+}
+
+/* Styling for buttons */
+.btn-primary {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.btn.small-text-button:hover {
+  color: #0056b3;
+}
+
+/* Form container spacing */
+.container {
+  width: 100%;
+}
+
+/* Light gray horizontal rule */
+hr {
+  border: 0;
+  height: 1px;
+  background: #ddd;
+}
+
 
 /* Modal overlay - covers the modal */
 .modal-overlay {
@@ -72,4 +130,32 @@ body {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+}
+
+/* Go Back button */
+.go-back-button {
+  display: flex; /* Flexbox to align icon and text */
+  align-items: center; /* Vertically center items */
+  position: absolute;
+  top: 10px; /* Position relative to the top of the content */
+  left: 10px; /* Align to the left */
+  background-color: transparent; /* Transparent background */
+  border: none; /* Remove border */
+  color: #007bff; /* Text color */
+  font-size: 16px; /* Font size */
+  font-weight: bold; /* Slightly bold text */
+  cursor: pointer; /* Pointer cursor */
+  transition: color 0.3s ease; /* Smooth hover effect */
+}
+
+/* Go Back button hover effect */
+.go-back-button:hover {
+  color: #0056b3; /* Darker text color on hover */
+}
+
+/* Back Icon */
+.back-icon {
+  width: 20px; /* Set icon size */
+  height: 20px;
+  margin-right: 8px; /* Space between icon and text */
 }
