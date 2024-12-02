@@ -1572,8 +1572,8 @@ def update_seller_request():
     conn.close()
     return jsonify({'success': True})
 
-@app.route('/request', methods=['GET'])
-def request():
+@app.route('/request2', methods=['GET'])
+def request2():
     user_id = session.get('user_id')  # Adjust to match your session structure
     is_request_pending = False
     
@@ -1592,13 +1592,6 @@ def request():
         conn.close()
 
     return render_template('seller_requests.html', is_request_pending=is_request_pending)
-
-
-
-
-
-
-
 
 
 
