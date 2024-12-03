@@ -240,7 +240,7 @@ def login():
                 elif user_type == 'Admin':
                     return jsonify({'redirect': 'admin', 'name': name})
                 elif user_type == 'Seller':
-                    return jsonify({'redirect': 'seller', 'name': name})
+                    return jsonify({'redirect': 'success', 'name': name})
             else:
                 return jsonify({'error': 'Invalid Email or Password.'}), 401
         else:
@@ -671,6 +671,12 @@ def updateList():
     if 'user_id' not in session or session.get('user_type') != 'Seller':
         return redirect(url_for('index'))  # Redirect to login if not authenticated
     return render_template('UpdateList.html')
+
+@app.route('/switchBuyer')
+def switchBuyer():
+    if 'user_id' not in session or session.get('user_type') != 'Seller':
+        return redirect(url_for('index'))  # Redirect to login if not authenticated
+    return render_template('success.html')
 
 @app.route('/accSettings')
 def accSettings():
@@ -1138,6 +1144,30 @@ def buyer_profile():
     return render_template('BuyerAccProfile.html', profile_image=image_path)
 
 
+@app.route('/update_email', methods=['POST'])
+def update_email():
+    email = request.json.get('email')  # Retrieve the email from the JSON request
+    user_id = session.get('user_id')  # Get the logged-in user's ID from the session
+
+    if not email or not user_id:
+        return jsonify({'success': False, 'message': 'Missing email or user information.'}), 400
+
+    # Connect to the database
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Update the email in the database for the current user
+        cursor.execute("UPDATE users SET email = %s WHERE id = %s", (email, user_id))
+        conn.commit()
+
+        return jsonify({'success': True, 'message': 'Email updated successfully.'})
+    except Exception as e:
+        print(f"Error updating email: {e}")
+        return jsonify({'success': False, 'message': 'Failed to update email.'}), 500
+    finally:
+        cursor.close()
+        conn.close()
 
 
 
@@ -1220,27 +1250,38 @@ def update_profile():
         return jsonify({'success': False, 'message': 'User not logged in.'}), 401
 
     data = request.json
-    email = data.get('email')
-    full_name = data.get('fullName')
-    bio = data.get('bio')
-    username = data.get('username')
+    field = data.get('field')  # Field to update (e.g., 'email', 'username')
+    value = data.get('value')  # New value for the field
+
+    # Validate the input
+    if not field or not value:
+        return jsonify({'success': False, 'message': 'Invalid input.'}), 400
+
+    # Map field names to database columns
+    field_map = {
+        'email': 'email',
+        'username': 'name',
+        'fullName': 'FullName',
+        'bio': 'Bio',
+    }
+
+    if field not in field_map:
+        return jsonify({'success': False, 'message': 'Invalid field.'}), 400
 
     # Connect to the database
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Attempt to update the user's information in the database
-    cursor.execute(""" 
-        UPDATE users 
-        SET email = %s, FullName = %s, Bio = %s, name = %s 
-        WHERE id = %s 
-    """, (email, full_name, bio, username, session['user_id']))
+    # Update the specific field for the logged-in user
+    sql = f"UPDATE users SET {field_map[field]} = %s WHERE id = %s"
+    cursor.execute(sql, (value, session['user_id']))
 
     conn.commit()  # Commit the changes
     cursor.close()
     conn.close()
 
-    return jsonify({'success': True})  # Indicate success without additional message
+    return jsonify({'success': True})
+
 
 
 @app.route('/get-email', methods=['GET'])
@@ -1592,6 +1633,30 @@ def request2():
         conn.close()
 
     return render_template('seller_requests.html', is_request_pending=is_request_pending)
+
+
+@app.route('/dashboard', methods=['GET'])
+def dashboard():
+    user_id = session.get('user_id')  # Adjust based on your session structure
+    user_type = None  # Default value
+
+    if user_id:
+        # Connect to the database
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Fetch the user_type from the database
+        cursor.execute("SELECT user_type FROM users WHERE id = %s", (user_id,))
+        result = cursor.fetchone()
+        if result:
+            user_type = result[0]  # Assuming user_type column exists
+
+        cursor.close()
+        conn.close()
+
+    # Render the dashboard and pass the user_type
+    return render_template('BuyerAccSettings.html', user_type=user_type)
+
 
 
 

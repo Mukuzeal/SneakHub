@@ -65,7 +65,9 @@
                     <span class="btn" id="userName">Hello, {{ session['name'] }}!</span>
                     <hr> <!-- Horizontal line below the user's name -->
                     <span class="btn small-text-button" id="profile" style="cursor: pointer;">Profile</span>
-                    <span class="btn small-text-button" id="sellerRegistration" style="cursor: pointer;">Settings</span>
+                    <a href="/dashboard" class="btn small-text-button" id="sellerRegistration" style="cursor: pointer;">
+                      Settings
+                    </a>
                     <span class="btn small-text-button" id="logout" style="cursor: pointer;">Logout</span> <!-- Logout span -->
                     
                 {% else %}
@@ -80,17 +82,27 @@
 
       <main class="main-content">
         <div>
-            <span class="btn small-text-button" style="cursor: pointer;" href = /success onclick="setSessionData()">Go Back</span>
-            <hr> <!-- Horizontal line below Account Settings -->
+          <span
+            class="btn small-text-button"
+            style="cursor: pointer;"
+            onclick="setSessionData()"
+          >
+            Go Back
+          </span>
+          <hr> <!-- Horizontal line below Account Settings -->
+          <!-- Render buttons conditionally based on user_type -->
+          {% if user_type == 'Buyer' %}
             <a href="/request2" class="btn small-text-button seller-registration" style="cursor: pointer;">
               Seller Registration
             </a>
-          
-          
-          
-          
+          {% elif user_type == 'Seller' %}
+            <a href="/backToDash" class="btn small-text-button open-shop" style="cursor: pointer;">
+              Open Shop
+            </a>
+          {% endif %}
         </div>
-    </main>
+      </main>
+      
     
       
 

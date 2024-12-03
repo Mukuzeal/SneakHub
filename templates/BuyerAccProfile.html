@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>SneakHub</title>
-  <link rel="stylesheet" href="static/Success/success.css">
+  <link rel="stylesheet" href="static/SellerRequests/BuyerAccSettings.css">
   
   <!-- Owl Carousel CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
@@ -65,7 +65,9 @@
                     <span class="btn" id="userName">Hello, {{ session['name'] }}!</span>
                     <hr> <!-- Horizontal line below the user's name -->
                     <span class="btn small-text-button" id="profile" style="cursor: pointer;">Profile</span>
-                    <span class="btn small-text-button" id="sellerRegistration" style="cursor: pointer;">Settings</span>
+                    <a href="/dashboard" class="btn small-text-button" id="sellerRegistration" style="cursor: pointer;">
+                      Settings
+                    </a>
                     <span class="btn small-text-button" id="logout" style="cursor: pointer;">Logout</span> <!-- Logout span -->
                 {% else %}
                     <!-- Show Sign Up button if no user is signed in -->
@@ -75,58 +77,87 @@
           </div>
 
       </nav>
-      </header>
+    </header>
 
-        <main class="main-content">
-            <div>
-                <span class="btn small-text-button" href="/success" onclick="setSessionData()">Go Back</span>
-                <hr>
-                
-                <div class="profile-container" data-user-id="{{ session['user_id'] }}">
-                    <img id="profileImage" src="static/Uploads/pics/default-profile.png" alt="Profile Image" class="profile-image">
-                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Update Image</button>
-                    <input type="file" id="fileInput" class="file-input" accept="image/*" onchange="uploadProfileImage()">
-                    <div class="profile-info" style="margin-left: 20px;">
-
-                      <h2 id="username">Loading...</h2> <!-- Placeholder for username -->
-                      <p id="fullName">Loading...</p> <!-- Placeholder for Full Name -->
-                      <p id="email">Loading...</p> <!-- Placeholder for Email -->
-                      <p id="bio">Loading...</p> <!-- Placeholder for Bio -->
-
-                      <div class="button-container " style="margin-left: 250px;">
-                        <button class="btn" onclick="viewPurchaseHistory()">View Purchase History</button>
-                        <button class="btn" onclick="viewFavorites()">View Favorites</button>
-                        <button class="btn" onclick="openEditModal()">Edit Profile</button>
-                    </div>
-                    </div>
-                </div>
-
-                                <!-- Modal Structure -->
-                <div id="modal-profile" class="modal2">
-                  <div class="modal-content">
-                      <span class="close" onclick="closeEditModal()">&times;</span>
-                      <h2>Edit Profile</h2>
-                      <form id="editProfileForm">
-                          <label for="editUsername">Username:</label>
-                          <input type="text" id="editUsername" name="username" required>
-                          <br>
-                          <label for="editFullName">Full Name:</label>
-                          <input type="text" id="editFullName" name="fullName" required>
-                          <br>
-                          <label for="editBio">Bio:</label>
-                          <textarea id="editBio" name="bio"></textarea>
-                          <br>
-                          <label for="editEmail">Email:</label>
-                          <input type="email" id="editEmail" name="email" required>
-                          <button type="button" onclick="sendOtp()">Send OTP</button>
-                          <br>
-                          <button class="btn" type="submit" id="submitButton" style="display: none;">Submit</button>
-                      </form>
+    <div class="profile-account-wrapper">
+      <main class="main-content">
+          <div>
+              <span class="btn small-text-button" href="/success" onclick="setSessionData()">Go Back</span>
+              <hr>
+  
+              <div class="profile-container" data-user-id="{{ session['user_id'] }}">
+                  <div class="profile-image-container">
+                      <img id="profileImage" src="static/Uploads/pics/default-profile.png" alt="Profile Image" class="profile-image">
+                      <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Update Image</button>
+                      <input type="file" id="fileInput" class="file-input" accept="image/*" onchange="uploadProfileImage()">
                   </div>
-                </div>
 
-                                <!-- OTP Verification Modal -->
-                <div id="modal-otp" class="modal2" style="display:none;">
+
+                  <div class="profile-info">
+                        <div class="profile-field">
+                          <h2 id="username">Loading...</h2>
+                          <button class="edit-btn" onclick="openEditModal('username')">Edit</button>
+                        </div>
+
+                        <div class="profile-field">
+                          <p id="fullName">Loading...</p>
+                          <button class="edit-btn" onclick="openEditModal('fullName')">Edit</button>
+                        </div>
+
+                        <div class="profile-field">
+                          <p id="bio">Loading...</p>
+                          <button class="edit-btn" onclick="openEditModal('bio')">Edit</button>
+                        </div>
+
+                        <div class="profile-field">
+                          <p id="email">Loading...</p>
+                          <button class="edit-btn" onclick="openEmailModal()">Change Email</button>
+                        </div>
+  
+                      <div class="button-container">
+                          <button class="btn" onclick="viewPurchaseHistory()">View Purchase History</button>
+                          <button class="btn" onclick="viewFavorites()">View Favorites</button>
+                          <button class="btn" onclick="openEditModal()">Edit Profile</button>
+                      </div>
+                  </div>
+              </div>
+
+              
+
+
+             
+            <!-- Modal for Editing Fields -->
+            <div id="editModal" class="modal">
+              <div class="modal-content">
+                  <span class="close" onclick="closeModal('editModal')">&times;</span>
+                  <h2 id="modalTitle">Edit Field</h2>
+                  <input type="text" id="editInput">
+                  <button class="btn" onclick="saveChanges()">Save</button>
+              </div>
+            </div>
+
+            <!-- Change Email Modal -->
+            <div id="emailModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal('emailModal')">&times;</span>
+                    <h2>Change Email</h2>
+                    <input type="email" id="newEmailInput" placeholder="Enter new email" class="input">
+                    <button class="btn" id="sendOtpButton" onclick="sendOtp()">Send OTP</button>
+
+                    <div id="otpSection" style="display: none; margin-top: 15px;">
+                        <label for="otpInput">Enter OTP:</label>
+                        <input type="text" id="otpInput" class="input-field">
+                        <button class="btn" id="verifyOtpButton" onclick="verifyOtp()">Verify OTP</button>
+                    </div>
+
+                    <button class="btn" id="saveEmailButton" style="display: none;" onclick="saveEmail()">Save</button>
+                </div>
+            </div>
+
+
+  
+              <!-- OTP Verification Modal -->
+              <div id="modal-otp" class="modal2" style="display:none;">
                   <div class="modal-content">
                       <span class="close" onclick="closeModal('modal-otp')">&times;</span>
                       <h2>Verify OTP</h2>
@@ -134,10 +165,14 @@
                       <input type="text" id="otpInput" class="input-field">
                       <button class="btn" id="sendOtpButton" onclick="verifyOtp()">Verify OTP</button>
                   </div>
-                </div>
+              </div>
+          </div>
+      </main>
+  </div>
+  
+  
 
-            </div>
-        </main> 
+
     
     
       

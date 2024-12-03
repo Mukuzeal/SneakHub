@@ -29,3 +29,219 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+
+// Store the field that is being edited
+let currentField = "";
+
+// Open the edit modal and set up the input for the correct field
+function openEditModal(field) {
+    currentField = field; // Store the current field being edited
+    const fieldValue = document.getElementById(field).innerText;
+
+    // Set the modal title and pre-fill the input field with the current value
+    document.getElementById("modalTitle").innerText = `Edit ${capitalizeFirstLetter(field)}`;
+    document.getElementById("editInput").value = fieldValue;
+
+    // Show the modal
+    document.getElementById("editModal").style.display = "block";
+}
+
+// General Close Modal Function
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = "none";
+    } else {
+        console.error(`Modal with ID ${modalId} not found.`);
+    }
+}
+
+
+// Save the changes when the user clicks "Save"
+function saveChanges() {
+    const newValue = document.getElementById("editInput").value;
+
+    // Update the field's content with the new value
+    document.getElementById(currentField).innerText = newValue;
+
+    // Close the modal
+    closeModal();
+}
+
+// Helper function to capitalize the first letter of a string
+function capitalizeFirstLetter(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+    
+}
+
+let isOtpVerified = false; // Tracks if OTP verification is successful
+
+// Open the Change Email Modal
+function openEmailModal() {
+    document.getElementById("emailModal").style.display = "block";
+    document.getElementById("sendOtpButton").style.display = "block";
+    document.getElementById("otpSection").style.display = "none";
+    document.getElementById("saveEmailButton").style.display = "none";
+}
+
+
+
+
+
+// Send OTP to the provided email
+function sendOtp() {
+    const email = document.getElementById("newEmailInput").value;
+
+    if (!email) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Warning',
+            text: 'Please enter an email address.',
+        });
+        return;
+    }
+
+    // Send OTP request to the server
+    fetch('/send_otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.error || 'Failed to send OTP.');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            Swal.fire({
+                icon: 'success',
+                title: 'OTP Sent',
+                text: 'An OTP has been sent to your email.',
+            });
+
+            // Show OTP input section
+            document.getElementById("otpSection").style.display = "block";
+        })
+        .catch(error => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message,
+            });
+        });
+}
+
+
+
+// Verify OTP
+function verifyOtp() {
+    const otp = document.getElementById("otpInput").value;
+
+    if (!otp) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Warning',
+            text: 'Please enter the OTP.',
+        });
+        return;
+    }
+
+    // Verify OTP request
+    fetch('/verify_otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ otp }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'OTP Verified',
+                    text: 'The OTP is correct.',
+                });
+
+                isOtpVerified = true;
+
+                // Disable the email input field after OTP verification
+                document.getElementById("newEmailInput").disabled = true;
+
+                // Hide the "Send OTP" button and show the "Save" button
+                document.getElementById("sendOtpButton").style.display = "none"; // Hide the Send OTP button
+                document.getElementById("saveEmailButton").style.display = "block"; // Show the Save button
+                document.getElementById("otpSection").style.display = "none"; // Optionally hide OTP section
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Invalid OTP. Please try again.',
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error verifying OTP:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred while verifying the OTP.',
+            });
+        });
+}
+
+// Save the new email
+function saveEmail() {
+    const email = document.getElementById("newEmailInput").value;
+
+    if (!isOtpVerified) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Warning',
+            text: 'Please verify your email before saving.',
+        });
+        return;
+    }
+
+    // Save email request
+    fetch('/update_email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Email Updated',
+                    text: 'Your email has been successfully updated.',
+                });
+
+                // Update the email on the profile page
+                document.getElementById("email").innerText = email; // Update the email in the HTML
+
+                // Close the email modal
+                closeModal('emailModal');
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to update email.',
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error updating email:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred while updating the email.',
+            });
+        });
+}
+
+
+

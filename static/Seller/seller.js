@@ -70,6 +70,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
     function goToUpdates() {
         window.location.href = 'UpdateList.html'; // Update to the correct updates path
     }
+    function goToBuyer() {
+        window.location.href = 'success.html'; // Update to the correct updates path
+    }
 
     function goToAccountSettings() {
         window.location.href = 'AccountSettings.html'; // Update to the correct account settings path

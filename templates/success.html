@@ -68,7 +68,9 @@
                     <span class="btn" id="userName">Hello, {{ session['name'] }}!</span>
                     <hr> <!-- Horizontal line below the user's name -->
                     <span class="btn small-text-button" id="profile" style="cursor: pointer;">Profile</span>
-                    <span class="btn small-text-button" id="sellerRegistration" style="cursor: pointer;" onclick="window.location.href='/buyersettings'">Settings</span>
+                    <a href="/dashboard" class="btn small-text-button" id="sellerRegistration" style="cursor: pointer;">
+                      Settings
+                    </a>
                     <span class="btn small-text-button" id="logout" style="cursor: pointer;">Logout</span> <!-- Logout span -->
                 {% else %}
                     <!-- Show Sign Up button if no user is signed in -->
