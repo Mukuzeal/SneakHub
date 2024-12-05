@@ -14,7 +14,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='Seller/sidenav.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='Seller/itemList.css') }}">
-    
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -106,8 +106,6 @@
                         <option value="">All Categories</option>
                     </select>
                     <select id="sortFilter" class="form-select">
-                        <option value="newest">Recently Archived</option>
-                        <option value="oldest">Oldest Archived</option>
                         <option value="price-high">Price: High to Low</option>
                         <option value="price-low">Price: Low to High</option>
                     </select>
@@ -130,7 +128,9 @@
 
     <!-- Scripts -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ url_for('static', filename='Seller/seller.js') }}"></script>
+    <script src="{{ url_for('static', filename='Seller/updateList.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('current-path').textContent = window.location.pathname;

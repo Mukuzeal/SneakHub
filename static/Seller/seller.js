@@ -89,25 +89,32 @@ function goToAccountSettings() {
 }
 
 // Logout function with SweetAlert confirmation
-function logout(event) {
-    // Prevent the default link behavior
-    event.preventDefault();
+document.addEventListener('DOMContentLoaded', function() {
+    // Find the logout link
+    const logoutLink = document.querySelector('a[href="/sellerlogout"]');
     
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You will be logged out of your account",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#4723D9',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, logout'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // If confirmed, proceed with logout
-            window.location.href = '/sellerlogout';
-        }
-    });
-}
+    if (logoutLink) {
+        logoutLink.addEventListener('click', function(e) {
+            // Prevent the default link behavior
+            e.preventDefault();
+            
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You will be logged out of your account",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#4723D9',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, logout'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // If confirmed, proceed with logout
+                    window.location.href = '/sellerlogout';
+                }
+            });
+        });
+    }
+});
 
 // Product Management Functions
 function editProduct(productId) {
@@ -227,69 +234,8 @@ async function saveProductChanges() {
     }
 }
 
-// Archive Page Functions
-function loadArchivedProducts() {
-    const productsGrid = document.getElementById('archivedProductsGrid');
-    productsGrid.innerHTML = '<div class="loading">Loading archived products...</div>';
 
-    fetch('/get_archived_products')
-        .then(response => response.json())
-        .then(products => {
-            if (!products || products.length === 0) {
-                productsGrid.style.display = 'none';
-                document.getElementById('noProductsMessage').style.display = 'block';
-                document.getElementById('archivedCount').textContent = '0';
-                return;
-            }
 
-            productsGrid.style.display = 'grid';
-            document.getElementById('noProductsMessage').style.display = 'none';
-            document.getElementById('archivedCount').textContent = products.length;
-
-            productsGrid.innerHTML = products.map(product => `
-                <div class="product-container">
-                    <div class="archive-card" data-product-id="${product.id}" data-category="${product.category}">
-                        <div class="archive-badge">
-                            <span>Archived</span>
-                        </div>
-                        
-                        <div class="product-image-container">
-                            <img src="/static/Uploads/pics/${product.image}" 
-                                 alt="${product.name}" 
-                                 class="product-image"
-                                 onerror="this.src='/static/Uploads/pics/default.jpg'">
-                        </div>
-
-                        <div class="product-details">
-                            <h5 class="product-title">${product.name}</h5>
-                            <div class="product-info">
-                                <span class="product-price">₱${product.price}</span>
-                                <span class="product-stock">Stock: ${product.quantity}</span>
-                            </div>
-                            <div class="product-meta">
-                                <span class="product-category">${product.category}</span>
-                                <span class="product-brand">${product.brand || 'No Brand'}</span>
-                            </div>
-                            <p class="product-description">${product.description ? product.description.substring(0, 100) : ''}...</p>
-                        </div>
-
-                        <div class="product-actions">
-                            <button onclick="restoreProduct(${product.id})" class="btn btn-success restore-btn">
-                                <i class='bx bx-refresh'></i> Restore Product
-                            </button>
-                            <button onclick="permanentDelete(${product.id})" class="btn btn-danger delete-btn">
-                                <i class='bx bx-trash'></i> Delete Permanently
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        })
-        .catch(error => {
-            console.error('Error loading archived products:', error);
-            productsGrid.innerHTML = '<div class="error">Error loading archived products</div>';
-        });
-}
 
 // Category Management Functions
 function openModal() {

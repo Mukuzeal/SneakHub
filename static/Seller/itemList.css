@@ -364,17 +364,31 @@ th:nth-child(8), td:nth-child(8) {
 }
 
 .product-actions {
-    position: absolute;
-    bottom: 1rem;
-    right: 1rem;
     display: flex;
-    gap: 0.5rem;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    justify-content: flex-end;
+    margin-top: 1rem;
 }
 
-.product-card:hover .product-actions {
-    opacity: 1;
+.restore-btn {
+    background-color: #4723D9;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.restore-btn:hover {
+    background-color: #3a1bb0;
+    transform: translateY(-2px);
+}
+
+.restore-btn i {
+    font-size: 1.2rem;
 }
 
 .action-btn {
@@ -578,6 +592,104 @@ body.body-pd .main-content {
 
 .archive-card {
     padding: 15px;
+}
+
+
+.restore-btn {
+    background-color: #28a745; /* Green background */
+    color: #fff; /* White text */
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.restore-btn:hover {
+    background-color: #218838; /* Darker green on hover */
+}
+
+.restore-btn i {
+    font-size: 1.2rem;
+}
+
+/* ItemList.html buttons (Edit and Archive) */
+.product-card .product-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.product-card:hover .product-actions {
+    opacity: 1;
+}
+
+.action-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 4px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-btn {
+    color: #4723D9;
+}
+
+.edit-btn:hover {
+    background: #4723D9;
+    color: white;
+}
+
+.delete-btn {
+    color: #dc3545;
+}
+
+.delete-btn:hover {
+    background: #dc3545;
+    color: white;
+}
+
+/* UpdateList.html restore button */
+.archive-card .product-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+    position: static;
+    opacity: 1;
+}
+
+.restore-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.restore-btn:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+}
+
+.restore-btn i {
+    font-size: 1.2rem;
 }
 
 
