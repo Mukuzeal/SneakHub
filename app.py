@@ -498,70 +498,75 @@ def forgot_password():
 
 @app.route('/submit_product', methods=['POST'])
 def submit_product():
-    user_id = session.get('user_id')  # Fetch the user_id from session
-    if not user_id:
-        return jsonify({'error': 'User not logged in.'}), 401
-    
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
+    if 'user_id' not in session:
+        return jsonify({'error': 'User not logged in'}), 401
+
     try:
-        cursor.execute("SELECT id FROM users WHERE id = %s AND user_type = 'Seller'", (user_id,))
-        seller = cursor.fetchone()
-        
-        if not seller:
-            return jsonify({'error': 'Seller not found or user is not a seller.'}), 404
-        
-        seller_id = seller[0]
-        
-        # Product details from the form
-        product_name = request.form['productName']
-        brand_name = request.form['brandname']
-        description = request.form['productDescription']
-        price = request.form['productPrice']
-        category = request.form['productCategory']
-        product_quantity = request.form['productQuantity']
-        archive = "no"  # Default value for 'archive'
-        
-        # Handle image upload
-        if 'productImage' not in request.files:
+        # Check if the post request has the file part
+        if 'product_image' not in request.files:
             return jsonify({'error': 'No file part'}), 400
         
-        file = request.files['productImage']
+        file = request.files['product_image']
+        
+        # If user does not select file, browser also submits an empty part without filename
         if file.filename == '':
             return jsonify({'error': 'No selected file'}), 400
-        
-        print(f"Received category: {category}")
 
-        # Insert product details without image filename
-        sql = """INSERT INTO products (product_name, product_price, product_description, product_quantity, brand, product_category, seller_id, archive, created_at, updated_at)
-                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())"""
-        cursor.execute(sql, (product_name, price, description, product_quantity, brand_name, category, seller_id, archive))
+        # Get form data
+        product_name = request.form.get('productName')
+        brand = request.form.get('brandname')
+        category = request.form.get('productCategory')
+        price = request.form.get('productPrice')
+        quantity = request.form.get('productQuantity')
+        description = request.form.get('productDescription')
+        user_id = session.get('user_id')
+
+        # Connect to database
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Insert product details first to get the product_id
+        cursor.execute("""
+            INSERT INTO products (
+                product_name, product_price, product_description, 
+                product_quantity, brand, product_category, 
+                seller_id, archive
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
+            product_name, price, description, 
+            quantity, brand, category, 
+            user_id, 'no'
+        ))
         
+        # Get the product_id of the newly inserted product
         product_id = cursor.lastrowid
-        
-        # Save the image with a new filename
-        if file:
-            original_filename = secure_filename(file.filename)
-            file_ext = original_filename.rsplit('.', 1)[1].lower()
-            new_filename = f"{seller_id}-{product_id}.{file_ext}"
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], new_filename)
-            file.save(file_path)
-            
-            # Update the product with the image URL
-            update_sql = "UPDATE products SET product_image = %s WHERE id = %s"
-            cursor.execute(update_sql, (new_filename, product_id))
-        
-        conn.commit()
-        return jsonify({'message': 'Product added successfully.', 'image_url': file_path}), 201
 
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    
-    finally:
+        # Save the file with the new naming convention
+        if file:
+            # Get file extension
+            file_ext = file.filename.rsplit('.', 1)[1].lower()
+            # Create new filename using user_id and product_id
+            filename = f"{user_id}-{product_id}.{file_ext}"
+            # Save file
+            file_path = os.path.join('static/Uploads/pics', filename)
+            file.save(file_path)
+
+            # Update the product with the image filename
+            cursor.execute("""
+                UPDATE products 
+                SET product_image = %s 
+                WHERE id = %s
+            """, (filename, product_id))
+
+        conn.commit()
         cursor.close()
         conn.close()
 
+        return jsonify({'success': True, 'message': 'Product added successfully'})
+
+    except Exception as e:
+        print(f"Error: {str(e)}")  # Log the error for debugging
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/addcategory', methods=['POST'])
 def addcategory():
@@ -664,7 +669,31 @@ def backToDash():
 def itemList():
     if 'user_id' not in session or session.get('user_type') != 'Seller':
         return redirect(url_for('index'))  # Redirect to login if not authenticated
-    return render_template('itemList.html')
+
+    user_id = session['user_id']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)  # Use dictionary cursor for easier access
+
+    try:
+        # Fetch products for the current seller
+        cursor.execute("""
+            SELECT id, product_name as name, product_price as price, 
+                   product_description as description, product_quantity as quantity,
+                   brand, product_category as category, product_image as image
+            FROM products 
+            WHERE seller_id = %s AND archive = 'no'
+        """, (user_id,))
+        
+        products = cursor.fetchall()
+        return render_template('itemList.html', products=products)
+
+    except Exception as e:
+        print(f"Error fetching products: {e}")
+        return render_template('itemList.html', products=[])
+
+    finally:
+        cursor.close()
+        conn.close()
 
 @app.route('/updateList')
 def updateList():
@@ -744,81 +773,127 @@ def get_items():
 
 @app.route('/get_product/<int:product_id>', methods=['GET'])
 def get_product(product_id):
-    connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)  # Use dictionary=True for easier JSON conversion
-
     try:
-        # Fetch the product by ID from the products table
-        cursor.execute("SELECT * FROM products WHERE id = %s AND archive != 'yes'", (product_id,))
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)  # Use dictionary cursor for easier JSON conversion
+        
+        cursor.execute("""
+            SELECT id, product_name, product_price, product_description, 
+                   product_quantity, brand, product_category, product_image
+            FROM products 
+            WHERE id = %s
+        """, (product_id,))
+        
         product = cursor.fetchone()
+        cursor.close()
+        conn.close()
 
         if product:
-            return jsonify(product)  # Send product details as JSON
+            return jsonify(product)
         else:
             return jsonify({'error': 'Product not found'}), 404
-    except mysql.connector.Error as err:
-        return jsonify({'error': str(err)})
-    finally:
-        cursor.close()
-        connection.close()
+
+    except Exception as e:
+        print(f"Error fetching product: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 
-@app.route('/update_product', methods=['POST'])
-def update_product():
-    product_id = request.form['product_id']
-    product_name = request.form['product_name']
-    product_price = request.form['product_price']
-    product_description = request.form['product_description']
-    product_quantity = request.form['product_quantity']
-    brand = request.form['brand']
-    product_category = request.form['product_category']
-    updated_at = datetime.now()  # Current timestamp
-
-    connection = get_db_connection()
-    cursor = connection.cursor()
-
+@app.route('/update_product/<int:product_id>', methods=['POST'])
+def update_product(product_id):
     try:
-        # Update the product in the database
-        cursor.execute(""" 
-            UPDATE products 
-            SET product_name = %s, 
-                product_price = %s, 
-                product_description = %s, 
-                product_quantity = %s, 
-                brand = %s, 
-                product_category = %s, 
-                updated_at = %s 
-            WHERE id = %s
-        """, (product_name, product_price, product_description, product_quantity,
-              brand, product_category, updated_at, product_id))
+        # Get form data
+        product_name = request.form.get('product_name')
+        product_price = request.form.get('product_price')
+        product_quantity = request.form.get('product_quantity')
+        brand = request.form.get('brand')
+        product_category = request.form.get('product_category')
+        product_description = request.form.get('product_description')
 
-        connection.commit()
+        # Print received data for debugging
+        print(f"Updating product {product_id} with data:", {
+            'name': product_name,
+            'price': product_price,
+            'quantity': product_quantity,
+            'brand': brand,
+            'category': product_category,
+            'description': product_description
+        })
 
-        return jsonify({'success': True, 'message': 'Product updated successfully'})
+        conn = get_db_connection()
+        cursor = conn.cursor()
 
-    except mysql.connector.Error as err:
-        return jsonify({'error': str(err)})
+        try:
+            # Handle image upload if a new image was provided
+            if 'product_image' in request.files and request.files['product_image'].filename != '':
+                file = request.files['product_image']
+                # Get file extension
+                file_ext = file.filename.rsplit('.', 1)[1].lower()
+                # Create new filename
+                filename = f"{session.get('user_id')}-{product_id}.{file_ext}"
+                # Save file
+                file_path = os.path.join('static/Uploads/pics', filename)
+                file.save(file_path)
 
-    finally:
-        cursor.close()
-        connection.close()
+                # Update product with new image
+                cursor.execute("""
+                    UPDATE products 
+                    SET product_name = %s, 
+                        product_price = %s, 
+                        product_quantity = %s,
+                        brand = %s, 
+                        product_category = %s, 
+                        product_description = %s,
+                        product_image = %s
+                    WHERE id = %s
+                """, (
+                    product_name, 
+                    product_price, 
+                    product_quantity, 
+                    brand, 
+                    product_category, 
+                    product_description, 
+                    filename, 
+                    product_id
+                ))
+            else:
+                # Update product without changing the image
+                cursor.execute("""
+                    UPDATE products 
+                    SET product_name = %s, 
+                        product_price = %s, 
+                        product_quantity = %s,
+                        brand = %s, 
+                        product_category = %s, 
+                        product_description = %s
+                    WHERE id = %s
+                """, (
+                    product_name, 
+                    product_price, 
+                    product_quantity, 
+                    brand, 
+                    product_category, 
+                    product_description, 
+                    product_id
+                ))
 
-@app.route('/archive_product/<int:product_id>', methods=['POST'])
-def archive_product(product_id):
-    connection = get_db_connection()
-    cursor = connection.cursor()
-    try:
-        # Update the archive column to "yes" for the specified product ID
-        cursor.execute("UPDATE products SET archive = 'yes' WHERE id = %s", (product_id,))
-        connection.commit()
-        
-        return jsonify({'success': 'Product archived successfully.'}), 200
-    except mysql.connector.Error as err:
-        return jsonify({'error': str(err)}), 500
-    finally:
-        cursor.close()
-        connection.close()
+            conn.commit()
+            return jsonify({'success': True, 'message': 'Product updated successfully'})
+
+        except Exception as e:
+            print(f"Database error: {str(e)}")
+            conn.rollback()
+            return jsonify({'success': False, 'message': f'Database error: {str(e)}'}), 500
+
+        finally:
+            cursor.close()
+            conn.close()
+
+    except Exception as e:
+        print(f"General error: {str(e)}")
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
+
+
 
 
 
@@ -1060,7 +1135,7 @@ def handle_request(request_id):
         cursor.execute("UPDATE seller_requests SET status = 'accepted' WHERE id = %s", (request_id,))
     elif action == 'deny':
         # Update status to denied
-        cursor.execute("UPDATE seller_requests SET status = 'denied' WHERE id = %s", (request_id,))
+        cursor.execute("UPDATE seller_requests SET status = 'deny' WHERE id = %s", (request_id,))
 
     conn.commit()
     cursor.close()
@@ -1359,32 +1434,26 @@ def submit_seller_request():
 @app.route('/product/<int:product_id>', methods=['GET'])
 def get_product_by_id(product_id):
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)  # Use dictionary cursor
 
-    # Fetch the product details
+    # Fetch all product details
     query = """
-        SELECT product_name, product_price, brand, product_image 
+        SELECT id, product_name, product_price, product_description, 
+               product_quantity, brand, product_category, product_image 
         FROM products 
-        WHERE id = %s
+        WHERE id = %s AND archive = 'no'
     """
     cursor.execute(query, (product_id,))
     product = cursor.fetchone()
 
-    if product:
-        # Map the data to a dictionary
-        product_data = {
-            "product_name": product[0],
-            "product_price": product[1],
-            "brand": product[2],
-            "product_image": product[3] or "default.jpg"  # Handle missing image
-        }
-        return render_template('product.html', product=product_data)
-    else:
-        # Redirect or show an error if the product doesn't exist
-        return redirect(url_for('error_page'))  # Replace 'error_page' with your error handling route
-
     cursor.close()
     conn.close()
+
+    if product:
+        return render_template('product.html', product=product)
+    else:
+        # Handle case when product is not found
+        return redirect(url_for('home'))
 
 
 
@@ -1657,6 +1726,72 @@ def dashboard():
     # Render the dashboard and pass the user_type
     return render_template('BuyerAccSettings.html', user_type=user_type)
 
+@app.route('/archive_product/<int:product_id>', methods=['POST'])
+def archive_product(product_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Update the product to mark as archived with 'yes' and update the timestamp
+        cursor.execute("""
+            UPDATE products 
+            SET archive = 'yes', updated_at = NOW()
+            WHERE id = %s
+        """, (product_id,))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return jsonify({'success': True, 'message': 'Product archived successfully'})
+
+    except Exception as e:
+        print(f"Error archiving product: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+    
+
+@app.route('/updateList')
+@app.route('/UpdateList')
+@app.route('/item_listArchive')
+def item_list_archive():
+    if 'user_id' not in session or session.get('user_type') != 'Seller':
+        return redirect(url_for('index'))
+    print("Rendering UpdateList.html") # Debug print
+    return render_template('UpdateList.html')
+
+@app.route('/get_archived_products')
+def get_archived_products():
+    print("get_archived_products endpoint called") # Debug print
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        print("No user_id found in session")
+        return jsonify([])
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        query = """
+            SELECT id, product_name as name, product_price as price, 
+                   product_description as description, product_quantity as quantity,
+                   brand, product_category as category, product_image as image
+            FROM products 
+            WHERE archive = 'yes' AND seller_id = %s
+        """
+        print(f"Executing query for user_id: {user_id}")
+        cursor.execute(query, (user_id,))
+        products = cursor.fetchall()
+        print(f"Found {len(products)} archived products")
+        
+        cursor.close()
+        conn.close()
+        
+        return jsonify(products)
+        
+    except Exception as e:
+        print(f"Error in get_archived_products: {e}")
+        return jsonify([])
 
 
 

@@ -86,46 +86,147 @@
 
     <!-- Main Section for Add Product Form -->
     <div class="container">
-        <h1>Add New Product</h1>
-        <form id="addProductForm" action="{{ url_for('submit_product') }}" method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="productName">Product Name:</label>
-                <input type="text" id="productName" name="productName" required>
+        <div class="product-form-wrapper">
+            <!-- Progress indicator -->
+            <div class="progress-steps">
+                <div class="step active">Basic Info</div>
+                <div class="step">Images</div>
+                <div class="step">Sales Info</div>
+                <div class="step">Preview</div>
             </div>
-            <div class="form-group">
-                <label for="brandname">Brand Name:</label>
-                <input type="text" id="brandname" name="brandname" required>
-            </div>
-            <div class="form-group">
-                <label for="productDescription">Description:</label>
-                <textarea id="productDescription" name="productDescription" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="productQuantity">Quantity:</label>
-                <input type="number" id="productQuantity" name="productQuantity" min="1" required>
-            </div>
-            <div class="form-group">
-                <label for="productPrice">Price:</label>
-                <input type="number" id="productPrice" name="productPrice" required step="0.01">
-            </div>
-            <div class="form-group">
-                <label for="productCategory">Category:</label>
-                <select id="productCategory" name="productCategory" required>
-                    {% for category in categories %}
-                        <option value="{{ category.category_name }}">{{ category.category_name }}</option>
-                    {% endfor %}
-                </select>  
-                <button type="button" class="btn btn-secondary custom-btn" onclick="openModal()">Manage Categories</button>
-            </div>
-            
-            <div class="form-group">
-                <label for="productImage">Upload Image:</label>
-                <input type="file" id="productImage" name="productImage" accept="image/*" required>
-            </div>
-            <button type="submit">Add Product</button>
-            <!-- Other form fields... -->
-        </form>
-    
+
+            <form id="addProductForm" action="{{ url_for('submit_product') }}" method="POST" enctype="multipart/form-data">
+                <!-- Step 1: Basic Info -->
+                <div class="form-section active" id="basic-info">
+                    <div class="form-group">
+                        <label for="productName">Product Name* <span class="char-count">0/120</span></label>
+                        <input type="text" id="productName" name="productName" maxlength="120" required>
+                        <small class="form-text">Choose a name that customers will easily understand</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="brandname">Brand Name*</label>
+                        <div class="brand-input-wrapper">
+                            <input type="text" id="brandname" name="brandname" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productCategory">Category*</label>
+                        <div class="category-selection">
+                            <select id="productCategory" name="productCategory" required>
+                                {% for category in categories %}
+                                    <option value="{{ category.category_name }}">{{ category.category_name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="button" class="btn btn-link" onclick="openModal()">
+                                <i class='bx bx-plus'></i> Add New Category
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Images -->
+                <div class="form-section" id="images">
+                    <div class="image-upload-container">
+                        <div class="main-image-upload">
+                            <label>Main Product Image*</label>
+                            <div class="dropzone" id="mainImageDropzone" onclick="triggerFileInput('mainImage')">
+                                <input type="file" id="mainImage" name="product_image" accept="image/*" style="display: none;" onchange="handleImagePreview(this, 'mainPreview')">
+                                <div id="mainPreview" class="image-preview">
+                                    <i class='bx bx-upload'></i>
+                                    <p>Drag & drop or click to upload</p>
+                                    <small>Recommended size: 1000x1000px (Max 5MB)</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Sales Info -->
+                <div class="form-section" id="sales-info">
+                    <div class="price-section">
+                        <div class="form-group">
+                            <label for="productPrice">Price*</label>
+                            <div class="price-input">
+                                <span class="currency">₱</span>
+                                <input type="number" 
+                                       id="productPrice" 
+                                       name="productPrice" 
+                                       required 
+                                       min="0" 
+                                       step="0.01" 
+                                       onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode === 46">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productQuantity">Stock Quantity*</label>
+                            <input type="number" 
+                                   id="productQuantity" 
+                                   name="productQuantity" 
+                                   min="1" 
+                                   required 
+                                   onkeypress="return event.charCode >= 48 && event.charCode <= 57">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productDescription">Product Description*</label>
+                        <div class="rich-text-editor">
+                            <div class="editor-toolbar">
+                                <button type="button"><i class='bx bx-bold'></i></button>
+                                <button type="button"><i class='bx bx-italic'></i></button>
+                                <button type="button"><i class='bx bx-list-ul'></i></button>
+                            </div>
+                            <textarea id="productDescription" name="productDescription" required></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Preview -->
+                <div class="form-section" id="preview">
+                    <h3>Product Preview</h3>
+                    <div class="preview-container">
+                        <div class="preview-row">
+                            <label>Product Image:</label>
+                            <div id="finalImagePreview"></div>
+                        </div>
+                        <div class="preview-row">
+                            <label>Product Name:</label>
+                            <div id="previewName"></div>
+                        </div>
+                        <div class="preview-row">
+                            <label>Brand:</label>
+                            <div id="previewBrand"></div>
+                        </div>
+                        <div class="preview-row">
+                            <label>Category:</label>
+                            <div id="previewCategory"></div>
+                        </div>
+                        <div class="preview-row">
+                            <label>Price:</label>
+                            <div id="previewPrice"></div>
+                        </div>
+                        <div class="preview-row">
+                            <label>Quantity:</label>
+                            <div id="previewQuantity"></div>
+                        </div>
+                        <div class="preview-row">
+                            <label>Description:</label>
+                            <div id="previewDescription"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation buttons -->
+                <div class="form-navigation">
+                    <button type="button" class="btn btn-secondary" id="prevBtn">Previous</button>
+                    <button type="button" class="btn btn-primary" id="nextBtn">Next</button>
+                    <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">List Product</button>
+                </div>
+            </form>
+        </div>
     </div>
 
         <!-- Modal -->

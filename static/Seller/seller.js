@@ -21,10 +21,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
     const linkColor = document.querySelectorAll('.nav_link');
 
     // Automatically add the active class based on the current page URL
-    const currentPage = window.location.pathname; // Get current page path
+    const currentPage = window.location.pathname;
 
     linkColor.forEach(link => {
-        // Match the href attribute or manually check the URL for each link
         if (currentPage.includes("itemList.html")) {
             if (link.textContent.trim() === "Item List") {
                 link.classList.add('active');
@@ -33,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
             if (link.textContent.trim() === "Add Item") {
                 link.classList.add('active');
             }
-        } else if (currentPage.includes("updateList.html")) {
+        } else if (currentPage.includes("updateList")) {
             if (link.textContent.trim() === "Updates") {
                 link.classList.add('active');
             }
@@ -54,462 +53,511 @@ document.addEventListener("DOMContentLoaded", function(event) {
         this.classList.add('active');
     }));
 
-    // JavaScript functions for navigation links
-    function goToDashboard() {
-        window.location.href = 'seller.html'; // Update to the correct dashboard path
-    }
-
-    function goToItemList() {
-        window.location.href = '/item_list'; // This should match your Flask route
-    }
+    // Check current page and load appropriate content
+    const path = window.location.pathname;
     
-    function goToselleraddproduct() {
-        window.location.href = 'selleraddproduct.html'; // Redirects to the Add Product page
-    }
-
-    function goToUpdates() {
-        window.location.href = 'UpdateList.html'; // Update to the correct updates path
-    }
-    function goToBuyer() {
-        window.location.href = 'success.html'; // Update to the correct updates path
-    }
-
-    function goToAccountSettings() {
-        window.location.href = 'AccountSettings.html'; // Update to the correct account settings path
-    }
-
-    function logout() {
-        alert("Logging out");
-        // Logic to log out the user, redirect or clear session as needed
-    }
-
-    // Handle form submission
-    const form = document.querySelector("#addProductForm");
-
-    if (form) {
-        form.addEventListener("submit", function(e) {
-            e.preventDefault();  // Prevent the default form submission
-            const formData = new FormData(form);
-
-            // Send the form data via AJAX (fetch)
-            fetch("/submit_product", {
-                method: "POST",
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message && data.image_url) {
-                    // Display success notification using SweetAlert2
-                    Swal.fire({
-                        title: 'Product Added Successfully!',
-                        text: data.message,
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                    }).then(() => {
-                        // Redirect to another page after success
-                        addProductForm.reset();
-                    });
-                } else if (data.error) {
-                    // Display error notification
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: data.error
-                    });
-                }
-            })
-            .catch(error => {
-                // Handle any unexpected errors
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'An unexpected error occurred. Please try again.'
-                });
-            });
-        });
+    // Load archived products if on archive page
+    if (path.includes('updateList') || 
+        path.includes('UpdateList') || 
+        path.includes('item_listArchive')) {
+        const productsGrid = document.getElementById('archivedProductsGrid');
+        if (productsGrid) {
+            loadArchivedProducts();
+        }
     }
 });
 
-async function fetchProducts() {
-    console.log('Fetching products...'); // Debugging log
-    try {
-        const response = await fetch('/item_list'); // Fetch product data from the server
-        const products = await response.json(); // Parse the JSON response
-        console.log('Products fetched:', products); // Debugging log
-
-        const productTableBody = document.getElementById('productTableBody'); // Get the table body
-
-        // Clear any existing rows in the table body
-        productTableBody.innerHTML = '';
-
-        // Populate the table with products
-        products.forEach(product => {
-            const row = document.createElement('tr');
-
-            row.innerHTML = `
-                <td>${product.id}</td>  <!-- Display product ID -->
-                <td>${product.product_name}</td>  <!-- Display product name -->
-                <td>${product.product_price}</td>  <!-- Display product price -->
-                <td>${product.product_description}</td>  <!-- Display product description -->
-                <td>${product.product_quantity}</td>  <!-- Display product quantity -->
-                <td>${product.brand}</td>  <!-- Display product brand -->
-                <td>${product.product_category}</td>  <!-- Display product category -->
-                <td>${product.product_image}</td>  <!-- Display the image filename as text -->
-
-                <td>
-                <div class="button-container">
-                    <button class="btn btn-custom" onclick="editProduct(${product.id})">Edit</button>
-                    <button class="btn btn-custom" onclick="deleteProduct(${product.id})">Delete</button>
-                </div>
-                </td>
-            `;
-
-            productTableBody.appendChild(row); // Add the new row to the table
-        });
-    } catch (error) {
-        console.error('Error fetching products:', error); // Log any errors
-    }
+// Navigation Functions
+function goToDashboard() {
+    window.location.href = 'seller.html';
 }
 
-// Fetch the products when the page loads
-document.addEventListener('DOMContentLoaded', fetchProducts);
-
-
-
-
-
-// Assuming you have a function that fetches product data
-function fetchProductData() {
-    fetch('/item_list') // Adjust to your API endpoint
-        .then(response => response.json())
-        .then(data => {
-            const productCardsContainer = document.getElementById('productCardsContainer');
-            productCardsContainer.innerHTML = ''; // Clear previous data
-
-            data.forEach(product => {
-                // Create product card
-                const card = document.createElement('div');
-                card.className = 'col-md-3'; // Use bootstrap grid system
-                card.setAttribute('data-id', product.id);
-                
-                // Use the product image path (direct from database)
-                const imagePath = `Uploads/pics/${product.product_image}`;
-
-                card.innerHTML = `
-                    <div class="product-card">
-                        <img src="${imagePath}" class="product-image" alt="${product.product_name}"
-                            onerror="this.onerror=null; this.src='Uploads/pics/default.jpg';" id="product-image-${product.id}">
-                        <h5>${product.product_name}</h5>
-                        <p>Price: ₱${product.product_price}</p>
-                        <p>Description: ${product.product_description}</p>
-                        <p>Quantity: ${product.product_quantity}</p>
-                        <p>Brand: ${product.brand}</p>
-                        <p>Category: ${product.product_category}</p>
-                        <button onclick="changeImage(${product.id})">Change Image</button>
-                        <input type="file" id="file-input-${product.id}" style="display: none;" accept="image/*" onchange="uploadImage(${product.id})">
-                    </div>
-                `;
-
-                productCardsContainer.appendChild(card);
-            });
-        })
-        .catch(error => console.error('Error fetching products:', error));
+function goToItemList() {
+    window.location.href = '/item_list';
 }
 
-
-
-function changeImage(productId) {
-    // Trigger file input for image change
-    document.getElementById(`file-input-${productId}`).click();
+function goToselleraddproduct() {
+    window.location.href = 'selleraddproduct.html';
 }
 
-async function uploadImage(productId) {
-    const fileInput = document.getElementById(`file-input-${productId}`);
-    const file = fileInput.files[0];
-
-    if (!file) return; // Exit if no file is selected
-
-    const formData = new FormData();
-    formData.append('image', file);
-    formData.append('product_id', productId);
-
-    try {
-        const response = await fetch(`/update_image/${productId}`, {
-            method: 'POST',
-            body: formData,
-        });
-
-        if (response.ok) {
-            const newImagePath = URL.createObjectURL(file);
-            document.getElementById(`product-image-${productId}`).src = newImagePath; // Update the image preview
-        } else {
-            console.error('Failed to update image');
-        }
-    } catch (error) {
-        console.error('Error uploading image:', error);
-    }
+function goToUpdates() {
+    window.location.href = '/updateList';
 }
 
+function goToAccountSettings() {
+    window.location.href = 'AccountSettings.html';
+}
 
+function logout() {
+    alert("Logging out");
+    // Add your logout logic here
+}
 
-
-// Function to open the modal for editing
+// Product Management Functions
 function editProduct(productId) {
     fetch(`/get_product/${productId}`)
         .then(response => response.json())
         .then(product => {
-            // Populate modal fields with product data
-            document.getElementById('productId').value = product.id; // Assuming this field exists
-            document.getElementById('productName').value = product.product_name;
-            document.getElementById('productPrice').value = product.product_price;
-            document.getElementById('productDescription').value = product.product_description;
-            document.getElementById('productQuantity').value = product.product_quantity;
-            document.getElementById('brand').value = product.brand;
-            document.getElementById('productCategory').value = product.product_category;
-            document.getElementById('editModal').style.display = 'flex'; // Show the modal
+            document.getElementById('editProductId').value = product.id;
+            document.getElementById('editProductName').value = product.name;
+            document.getElementById('editProductPrice').value = product.price;
+            document.getElementById('editProductQuantity').value = product.quantity;
+            document.getElementById('editProductBrand').value = product.brand;
+            document.getElementById('editProductCategory').value = product.category;
+            document.getElementById('editProductDescription').value = product.description;
+
+            const currentImage = document.getElementById('currentProductImage');
+            if (product.image) {
+                currentImage.src = `/static/Uploads/pics/${product.image}`;
+                currentImage.style.display = 'block';
+            }
+
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
+            modal.show();
         })
-        .catch(error => console.error('Error fetching product data:', error));
+        .catch(error => console.error('Error:', error));
 }
 
-// Function to close the modal
-function closeModal() {
-    document.getElementById('editModal').style.display = 'none'; // Hide the modal
-}
+async function deleteProduct(productId) {
+    try {
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "This item will be moved to the archive.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, archive it!'
+        });
 
-// Optional: Close modal when clicking outside the modal content
-window.onclick = function(event) {
-    const modal = document.getElementById('editModal');
-    if (event.target === modal) {
-        closeModal();
+        if (result.isConfirmed) {
+            const response = await fetch(`/archive_product/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                Swal.fire(
+                    'Archived!',
+                    'The product has been moved to archive.',
+                    'success'
+                ).then(() => {
+                    // Remove the product card if we're on the item list page
+                    const productCard = document.querySelector(`[data-product-id="${productId}"]`);
+                    if (productCard) {
+                        productCard.remove();
+                    }
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire(
+            'Error!',
+            'There was a problem archiving the product.',
+            'error'
+        );
     }
-};
+}
 
 async function saveProductChanges() {
-    const formData = new FormData(document.getElementById('editProductForm'));
+    const form = document.getElementById('editProductForm');
+    const formData = new FormData(form);
     
-    // Convert FormData to an object
-    const data = Object.fromEntries(formData.entries());
-
     try {
         const response = await fetch('/update_product', {
             method: 'POST',
-            body: new URLSearchParams(data) // Use URLSearchParams for form-like data
+            body: formData
         });
 
         const result = await response.json();
 
         if (result.success) {
-            // Show confirmation message
-            alert(result.message); // You can replace this with a nicer notification UI
-
-            // Update the product table row with the new data
-            await fetchProducts();
-            
-            // Close the modal
-            closeModal();
+            // Show success message
+            Swal.fire({
+                title: 'Success!',
+                text: 'Product updated successfully',
+                icon: 'success',
+                confirmButtonColor: '#4723D9'
+            }).then(() => {
+                // Close the modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editProductModal'));
+                modal.hide();
+                
+                // Refresh the product list
+                location.reload();
+            });
         } else {
-            alert(result.error); // Handle the error message
+            Swal.fire({
+                title: 'Error!',
+                text: result.error || 'Failed to update product',
+                icon: 'error',
+                confirmButtonColor: '#4723D9'
+            });
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred while updating the product.');
-    }
-}
-
-async function deleteProduct(productId) {
-    try {
-        const response = await fetch(`/archive_product/${productId}`, { method: 'POST' });
-        
-        if (response.ok) {
-            console.log(`Product ${productId} archived successfully`);
-
-            // Remove the specific product card from the DOM
-            const productCard = document.querySelector(`[data-id='${productId}']`);
-            if (productCard) {
-                productCard.remove();
-            }
-
-            // Also refresh the product table if needed
-            fetchProducts();
-        } else {
-            const errorData = await response.json();
-            console.error('Error archiving product:', errorData.error);
-        }
-    } catch (error) {
-        console.error('Error archiving product:', error);
-    }
-}
-
-
-
-//ARCHIVE PRODUCTS
-async function fetchArchivedProducts() {
-    console.log('Fetching products...'); // Debugging log
-    try {
-        const response = await fetch('/item_listArchive'); // Fetch product data from the server
-        const products = await response.json(); // Parse the JSON response
-        console.log('Products fetched:', products); // Debugging log
-
-        const productTableBodyArchive = document.getElementById('productTableBodyArchive'); // Get the table body
-
-        // Clear any existing rows in the table body
-        productTableBodyArchive.innerHTML = '';
-
-        // Populate the table with products
-        products.forEach(product => {
-            const row = document.createElement('tr');
-
-            row.innerHTML = `
-                <td>${product.id}</td>  <!-- Display product ID -->
-                <td>${product.product_name}</td>  <!-- Display product name -->
-                <td>${product.product_price}</td>  <!-- Display product price -->
-                <td>${product.product_description}</td>  <!-- Display product description -->
-                <td>${product.product_quantity}</td>  <!-- Display product quantity -->
-                <td>${product.brand}</td>  <!-- Display product brand -->
-                <td>${product.product_category}</td>  <!-- Display product category -->
-                <td>${product.product_image}</td>  <!-- Display the image filename as text -->
-
-                <td>
-                <div class="button-container">
-                    <button class="btn btn-custom" onclick="restoreProduct(${product.id})">Restore</button>
-                </div>
-                </td>
-            `;
-
-            productTableBodyArchive.appendChild(row); // Add the new row to the table
+        Swal.fire({
+            title: 'Error!',
+            text: 'An unexpected error occurred',
+            icon: 'error',
+            confirmButtonColor: '#4723D9'
         });
-    } catch (error) {
-        console.error('Error fetching products:', error); // Log any errors
     }
 }
 
-// Fetch both active and archived products when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-    fetchProducts();
-    fetchArchivedProducts();
-});
+// Archive Page Functions
+function loadArchivedProducts() {
+    const productsGrid = document.getElementById('archivedProductsGrid');
+    productsGrid.innerHTML = '<div class="loading">Loading archived products...</div>';
 
-
-// Assuming you have a function that fetches product data
-function fetchProductDataArchive() {
-    fetch('/item_listArchive') // Adjust to your API endpoint
+    fetch('/get_archived_products')
         .then(response => response.json())
-        .then(data => {
-            const productCardsContainerArchive = document.getElementById('productCardsContainerArchive');
-            productCardsContainerArchive.innerHTML = ''; // Clear previous data
-
-            data.forEach(product => {
-                // Create product card
-                const card = document.createElement('div');
-                card.className = 'col-md-3'; // Use bootstrap grid system
-                card.setAttribute('data-id', product.id);
-                
-                // Use the product image path (direct from database)
-                const imagePath = `Uploads/pics/${product.product_image}`;
-
-                card.innerHTML = `
-                    <div class="product-card">
-                        <img src="${imagePath}" class="product-image" alt="${product.product_name}"
-                            onerror="this.onerror=null; this.src='Uploads/pics/default.jpg';" id="product-image-${product.id}">
-                        <h5>${product.product_name}</h5>
-                        <p>Price: ₱${product.product_price}</p>
-                        <p>Description: ${product.product_description}</p>
-                        <p>Quantity: ${product.product_quantity}</p>
-                        <p>Brand: ${product.brand}</p>
-                        <p>Category: ${product.product_category}</p>
-                    </div>
-                `;
-
-                productCardsContainerArchive.appendChild(card);
-            });
-        })
-        .catch(error => console.error('Error fetching products:', error));
-}
-
-window.onload = function() {
-    fetchProductData();
-    fetchProductDataArchive();
-};
-
-
-
-async function restoreProduct(productId) {
-    try {
-        const response = await fetch(`/restore_product/${productId}`, { method: 'POST' });
-        
-        if (response.ok) {
-            console.log(`Product ${productId} restored successfully`);
-
-            // Remove the specific product card from the DOM
-            const productCardArchive = document.querySelector(`[data-id='${productId}']`);
-            if (productCardArchive) {
-                productCardArchive.remove();
+        .then(products => {
+            if (!products || products.length === 0) {
+                productsGrid.style.display = 'none';
+                document.getElementById('noProductsMessage').style.display = 'block';
+                document.getElementById('archivedCount').textContent = '0';
+                return;
             }
 
-            // Also refresh the product table if needed
-            fetchArchivedProducts();
-        } else {
-            const errorData = await response.json();
-            console.error('Error restoring product:', errorData.error);
-        }
-    } catch (error) {
-        console.error('Error restoring product:', error);
-    }
+            productsGrid.style.display = 'grid';
+            document.getElementById('noProductsMessage').style.display = 'none';
+            document.getElementById('archivedCount').textContent = products.length;
+
+            productsGrid.innerHTML = products.map(product => `
+                <div class="product-container">
+                    <div class="archive-card" data-product-id="${product.id}" data-category="${product.category}">
+                        <div class="archive-badge">
+                            <span>Archived</span>
+                        </div>
+                        
+                        <div class="product-image-container">
+                            <img src="/static/Uploads/pics/${product.image}" 
+                                 alt="${product.name}" 
+                                 class="product-image"
+                                 onerror="this.src='/static/Uploads/pics/default.jpg'">
+                        </div>
+
+                        <div class="product-details">
+                            <h5 class="product-title">${product.name}</h5>
+                            <div class="product-info">
+                                <span class="product-price">₱${product.price}</span>
+                                <span class="product-stock">Stock: ${product.quantity}</span>
+                            </div>
+                            <div class="product-meta">
+                                <span class="product-category">${product.category}</span>
+                                <span class="product-brand">${product.brand || 'No Brand'}</span>
+                            </div>
+                            <p class="product-description">${product.description ? product.description.substring(0, 100) : ''}...</p>
+                        </div>
+
+                        <div class="product-actions">
+                            <button onclick="restoreProduct(${product.id})" class="btn btn-success restore-btn">
+                                <i class='bx bx-refresh'></i> Restore Product
+                            </button>
+                            <button onclick="permanentDelete(${product.id})" class="btn btn-danger delete-btn">
+                                <i class='bx bx-trash'></i> Delete Permanently
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        })
+        .catch(error => {
+            console.error('Error loading archived products:', error);
+            productsGrid.innerHTML = '<div class="error">Error loading archived products</div>';
+        });
 }
 
-
+// Category Management Functions
 function openModal() {
     document.getElementById('categoryModal').style.display = 'block';
+    fetchCategories();
 }
 
 function closeModal() {
     document.getElementById('categoryModal').style.display = 'none';
 }
 
-// Close the modal when the user clicks anywhere outside of it
-window.onclick = function(event) {
-    var modal = document.getElementById('categoryModal');
-    if (event.target == modal) {
-        modal.style.display = 'none';
-    }
-}
-
-
-// Function to fetch categories
 function fetchCategories() {
     fetch('/getcategories')
         .then(response => response.json())
         .then(data => {
-            const categorySelect = document.getElementById('productCategory');
-            
-            // Clear existing options
-            categorySelect.innerHTML = '';
-
-            // Check if there's an error
-            if (data.error) {
-                console.error(data.error);
-                return;
-            }
-
-            // Populate the <select> element with categories
-            data.forEach(category => {
-                const option = document.createElement('option');
-                option.textContent = category.category_name; // Displayed in the dropdown
-                option.value = category.category_name; // Value sent to the backend
-                categorySelect.appendChild(option);
-            });
+            updateCategoryDropdown(data);
         })
-        .catch(error => console.error('Error fetching categories:', error));
+        .catch(error => console.error('Error:', error));
 }
 
-// Call the function to fetch categories when the page loads
-window.onload = fetchCategories;
+// New function to update category dropdown
+function updateCategoryDropdown(categories) {
+    const categorySelect = document.getElementById('productCategory');
+    if (categorySelect) {
+        // Store the current selection if any
+        const currentSelection = categorySelect.value;
+        
+        // Clear existing options
+        categorySelect.innerHTML = '';
+        
+        // Add categories to select element
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.category_name;
+            option.textContent = category.category_name;
+            categorySelect.appendChild(option);
+            
+            // If this is the newly added category, select it
+            if (category.category_name === currentSelection) {
+                option.selected = true;
+            }
+        });
+    }
+}
 
+// Add Category Form Submission
+document.addEventListener('DOMContentLoaded', function() {
+    const addCategoryForm = document.getElementById('addCategoryForm');
+    if (addCategoryForm) {
+        addCategoryForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const categoryName = document.getElementById('newCategory').value;
+            
+            fetch('/addcategory', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `newCategory=${encodeURIComponent(categoryName)}`
+            })
+            .then(response => {
+                if (response.status === 201) {
+                    return { success: true };
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Category added successfully',
+                        icon: 'success',
+                        confirmButtonColor: '#4723D9'
+                    }).then(() => {
+                        // Clear the input
+                        document.getElementById('newCategory').value = '';
+                        
+                        // Fetch updated categories and select the new one
+                        fetch('/getcategories')
+                            .then(response => response.json())
+                            .then(categories => {
+                                updateCategoryDropdown(categories);
+                                
+                                // Select the newly added category
+                                const categorySelect = document.getElementById('productCategory');
+                                if (categorySelect) {
+                                    const options = categorySelect.options;
+                                    for (let i = 0; i < options.length; i++) {
+                                        if (options[i].value === categoryName) {
+                                            categorySelect.selectedIndex = i;
+                                            break;
+                                        }
+                                    }
+                                }
+                            });
+                        
+                        closeModal();
+                    });
+                } else {
+                    throw new Error('Failed to add category');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                if (!error.message.includes('JSON')) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: error.message || 'An unexpected error occurred',
+                        icon: 'error',
+                        confirmButtonColor: '#4723D9'
+                    });
+                }
+            });
+        });
+    }
 
+    // Fetch categories when page loads if we're on the add product page
+    if (window.location.pathname.includes('add-product')) {
+        fetchCategories();
+    }
+});
 
+// Form Validation and Preview Functions
+function validateSection(sectionIndex) {
+    const currentSection = document.querySelectorAll('.form-section')[sectionIndex];
+    const inputs = currentSection.querySelectorAll('input[required], select[required], textarea[required]');
+    let valid = true;
 
+    inputs.forEach(input => {
+        if (!input.value) {
+            valid = false;
+            input.classList.add('invalid');
+        } else {
+            input.classList.remove('invalid');
+        }
+    });
 
+    if (!valid) {
+        Swal.fire({
+            title: 'Error!',
+            text: 'Please fill in all required fields',
+            icon: 'error',
+            confirmButtonColor: '#4723D9'
+        });
+    }
 
+    return valid;
+}
 
-    
+// Product Form Navigation
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.location.pathname.includes('add-product')) {
+        const sections = document.querySelectorAll('.form-section');
+        const steps = document.querySelectorAll('.step');
+        let currentSection = 0;
 
+        function showSection(n) {
+            sections.forEach(section => section.classList.remove('active'));
+            steps.forEach(step => step.classList.remove('active'));
+            
+            sections[n].classList.add('active');
+            for (let i = 0; i <= n; i++) {
+                steps[i].classList.add('active');
+            }
+
+            document.getElementById('prevBtn').style.display = n === 0 ? 'none' : 'block';
+            document.getElementById('nextBtn').style.display = n === sections.length - 1 ? 'none' : 'block';
+            document.getElementById('submitBtn').style.display = n === sections.length - 1 ? 'block' : 'none';
+        }
+
+        document.getElementById('nextBtn').addEventListener('click', function() {
+            if (validateSection(currentSection)) {
+                currentSection++;
+                if (currentSection >= sections.length) {
+                    currentSection = sections.length - 1;
+                }
+                showSection(currentSection);
+                updatePreview();
+            }
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', function() {
+            currentSection--;
+            if (currentSection < 0) {
+                currentSection = 0;
+            }
+            showSection(currentSection);
+        });
+
+        // Add form submission handler with SweetAlert
+        const addProductForm = document.querySelector('form');
+        if (addProductForm) {
+            addProductForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (validateSection(currentSection)) {
+                    const formData = new FormData(this);
+                    
+                    fetch('/submit_product', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'Product has been listed successfully',
+                                icon: 'success',
+                                confirmButtonColor: '#4723D9'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = '/itemList';
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: data.error || 'Failed to list product',
+                                icon: 'error',
+                                confirmButtonColor: '#4723D9'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An unexpected error occurred',
+                            icon: 'error',
+                            confirmButtonColor: '#4723D9'
+                        });
+                    });
+                }
+            });
+        }
+
+        // Initialize first section
+        showSection(currentSection);
+    }
+});
+
+function updatePreview() {
+    document.getElementById('previewName').textContent = document.getElementById('productName').value;
+    document.getElementById('previewBrand').textContent = document.getElementById('brandname').value;
+    document.getElementById('previewCategory').textContent = document.getElementById('productCategory').value;
+    document.getElementById('previewPrice').textContent = '₱' + document.getElementById('productPrice').value;
+    document.getElementById('previewQuantity').textContent = document.getElementById('productQuantity').value;
+    document.getElementById('previewDescription').textContent = document.getElementById('productDescription').value;
+
+    const mainImage = document.getElementById('mainImage').files[0];
+    if (mainImage) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.maxWidth = '300px';
+            img.style.maxHeight = '300px';
+            img.style.objectFit = 'contain';
+            const previewDiv = document.getElementById('finalImagePreview');
+            previewDiv.innerHTML = '';
+            previewDiv.appendChild(img);
+        };
+        reader.readAsDataURL(mainImage);
+    }
+}
+
+// Image Upload Functions
+function triggerFileInput(inputId) {
+    document.getElementById(inputId).click();
+}
+
+function handleImagePreview(input, previewId) {
+    const preview = document.getElementById(previewId);
+    const file = input.files[0];
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `
+                <img src="${e.target.result}" 
+                     alt="Preview" 
+                     style="max-width: 200px; max-height: 200px; object-fit: contain;">`;
+        };
+        reader.readAsDataURL(file);
+    }
+}
