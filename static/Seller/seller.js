@@ -88,9 +88,25 @@ function goToAccountSettings() {
     window.location.href = 'AccountSettings.html';
 }
 
-function logout() {
-    alert("Logging out");
-    // Add your logout logic here
+// Logout function with SweetAlert confirmation
+function logout(event) {
+    // Prevent the default link behavior
+    event.preventDefault();
+    
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You will be logged out of your account",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#4723D9',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, logout'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // If confirmed, proceed with logout
+            window.location.href = '/sellerlogout';
+        }
+    });
 }
 
 // Product Management Functions

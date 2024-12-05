@@ -9,6 +9,7 @@ import time
 import uuid
 from werkzeug.utils import secure_filename
 import bcrypt
+import glob
 
 
 app = Flask(__name__)
@@ -1249,43 +1250,40 @@ def update_email():
 @app.route('/upload-profile-image', methods=['POST'])
 def upload_profile_image():
     if 'profile_image' not in request.files:
-        return jsonify({'success': False, 'error': 'No file part'})
-
+        return jsonify({'success': False, 'error': 'No file uploaded'})
+    
     file = request.files['profile_image']
     if file.filename == '':
-        return jsonify({'success': False, 'error': 'No selected file'})
+        return jsonify({'success': False, 'error': 'No file selected'})
 
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({'success': False, 'error': 'User not logged in'})
+    try:
+        # Get user ID from session
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'error': 'User not logged in'})
 
-    # Get the file extension and construct the new filename
-    file_ext = file.filename.rsplit('.', 1)[1].lower()
-    if file_ext not in ['png', 'jpg', 'jpeg']:
-        return jsonify({'success': False, 'error': 'Invalid file type. Only PNG and JPG are allowed.'})
+        # Delete old profile image if it exists
+        old_image_pattern = f"{user_id}-profile-image.*"
+        upload_folder = os.path.join(app.static_folder, 'Uploads', 'pics')
+        for old_file in glob.glob(os.path.join(upload_folder, old_image_pattern)):
+            try:
+                os.remove(old_file)
+            except Exception as e:
+                print(f"Error removing old file: {e}")
 
-    new_filename = f"{user_id}-profile-image.{file_ext}"
-    filepath = os.path.join('static/Uploads/pics', new_filename)
+        # Save new image
+        filename = f"{user_id}-profile-image{os.path.splitext(file.filename)[1]}"
+        filepath = os.path.join(upload_folder, filename)
+        file.save(filepath)
 
-    # Check for and delete any existing profile image
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT profile_image FROM users WHERE id = %s", (user_id,))
-    current_image = cursor.fetchone()[0]
-    
-    if current_image:
-        current_image_path = os.path.join('static/Uploads/pics', current_image)
-        if os.path.exists(current_image_path):
-            os.remove(current_image_path)  # Delete the old image
+        return jsonify({
+            'success': True,
+            'imageName': filename
+        })
 
-    # Save the new file and update the database
-    file.save(filepath)
-    cursor.execute("UPDATE users SET profile_image = %s WHERE id = %s", (new_filename, user_id))
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-    return jsonify({'success': True, 'imageName': new_filename})
+    except Exception as e:
+        print(f"Error in upload_profile_image: {e}")
+        return jsonify({'success': False, 'error': str(e)})
 
 
 @app.route('/profile/data')

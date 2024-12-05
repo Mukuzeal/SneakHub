@@ -74,7 +74,7 @@
                 </div>
             </div>
             
-            <a href="sellerlogout" class="nav_link" onclick="logout()"> 
+            <a href="sellerlogout" class="nav_link" onclick="logout(event)"> 
                 <i class='bx bx-log-out nav_icon'></i>
                 <span class="nav_name">LOGOUT</span>
             </a>
@@ -129,7 +129,7 @@
 
         </div>
 
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- JavaScript for Navbar Toggle and Navigation -->
     <script src="{{ url_for('static', filename='Seller/seller.js') }}"></script>
     <script></script>

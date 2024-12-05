@@ -62,11 +62,60 @@ function closeModal(modalId) {
 function saveChanges() {
     const newValue = document.getElementById("editInput").value;
 
-    // Update the field's content with the new value
-    document.getElementById(currentField).innerText = newValue;
+    // Map the frontend field names to what the backend expects
+    const fieldMap = {
+        'username': 'username',
+        'fullName': 'fullName',
+        'bio': 'bio'
+    };
 
-    // Close the modal
-    closeModal();
+    // Get the correct field name for the backend
+    const fieldName = fieldMap[currentField];
+
+    fetch('/update_profile', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            field: fieldName,
+            value: newValue
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the UI
+            document.getElementById(currentField).innerText = newValue;
+            
+            // Show success message
+            Swal.fire({
+                icon: 'success',
+                title: 'Updated Successfully',
+                text: `Your ${currentField} has been updated.`,
+                confirmButtonColor: '#4723D9'
+            });
+
+            // Close the modal
+            closeModal('editModal');
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Update Failed',
+                text: data.message || 'Failed to update profile',
+                confirmButtonColor: '#4723D9'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An unexpected error occurred',
+            confirmButtonColor: '#4723D9'
+        });
+    });
 }
 
 // Helper function to capitalize the first letter of a string
@@ -242,6 +291,83 @@ function saveEmail() {
             });
         });
 }
+
+function uploadProfileImage() {
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+    
+    if (file) {
+        const formData = new FormData();
+        formData.append('profile_image', file);
+
+        fetch('/upload-profile-image', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the profile image preview
+                document.getElementById('profileImage').src = `/static/Uploads/pics/${data.imageName}`;
+                
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Profile image updated successfully',
+                    icon: 'success',
+                    confirmButtonColor: '#4723D9'
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: data.error || 'Failed to upload image',
+                    icon: 'error',
+                    confirmButtonColor: '#4723D9'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error!',
+                text: 'An unexpected error occurred',
+                icon: 'error',
+                confirmButtonColor: '#4723D9'
+            });
+        });
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    const userId = document.querySelector('.profile-container').dataset.userId;
+    if (userId) {
+        // Try to load user's profile image if it exists
+        const profileImage = document.getElementById('profileImage');
+        const imagePathPng = `/static/Uploads/pics/${userId}-profile-image.png`;
+        const imagePathJpg = `/static/Uploads/pics/${userId}-profile-image.jpg`;
+
+        // Try PNG first
+        fetch(imagePathPng)
+            .then(response => {
+                if (response.ok) {
+                    profileImage.src = imagePathPng;
+                } else {
+                    // If PNG doesn't exist, try JPG
+                    return fetch(imagePathJpg);
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    profileImage.src = imagePathJpg;
+                }
+            })
+            .catch(() => {
+                // If both fail, keep default image
+                console.log("No custom profile image found");
+            });
+    }
+});
+
+
 
 
 

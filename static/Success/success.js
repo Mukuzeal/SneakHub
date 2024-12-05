@@ -210,61 +210,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-function uploadProfileImage() {
-    const fileInput = document.getElementById('fileInput');
-    const file = fileInput.files[0];
-    
-    if (file) {
-        const formData = new FormData();
-        formData.append('profile_image', file);
 
-        fetch('/upload-profile-image', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Update the profile image preview
-                document.getElementById('profileImage').src = `/static/Uploads/pics/${data.imageName}`;
-                
-                // Show SweetAlert for successful upload
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'Uploading is successful.',
-                    icon: 'success',
-                    confirmButtonText: 'Okay'
-                });
-            } else {
-                // Show SweetAlert for error during upload
-                Swal.fire({
-                    title: 'Error!',
-                    text: data.error || 'Failed to upload image.',
-                    icon: 'error',
-                    confirmButtonText: 'Okay'
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            // Show SweetAlert for any unexpected errors
-            Swal.fire({
-                title: 'Error!',
-                text: 'An unexpected error occurred.',
-                icon: 'error',
-                confirmButtonText: 'Okay'
-            });
-        });
-    } else {
-        // Show SweetAlert when no file is selected
-        Swal.fire({
-            title: 'No File Selected',
-            text: 'Please select an image to upload.',
-            icon: 'warning',
-            confirmButtonText: 'Okay'
-        });
-    }
-}
 
 
 

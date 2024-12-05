@@ -86,11 +86,14 @@
               <hr>
   
               <div class="profile-container" data-user-id="{{ session['user_id'] }}">
-                  <div class="profile-image-container">
-                      <img id="profileImage" src="static/Uploads/pics/default-profile.png" alt="Profile Image" class="profile-image">
-                      <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Update Image</button>
-                      <input type="file" id="fileInput" class="file-input" accept="image/*" onchange="uploadProfileImage()">
-                  </div>
+                <div class="profile-image-container">
+                  <img id="profileImage" 
+                       src="{{ url_for('static', filename='Uploads/pics/default-profile.png') }}" 
+                       alt="Profile Image" 
+                       class="profile-image">
+                  <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Update Image</button>
+                  <input type="file" id="fileInput" class="file-input" accept="image/*" onchange="uploadProfileImage()">
+              </div>
 
 
                   <div class="profile-info">
