@@ -5,53 +5,217 @@ body {
   
   .product-container {
     max-width: 1200px;
-    margin: 50px auto;
+    margin: 30px auto;
     background: #fff;
-    padding: 20px;
+    padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .main-image-container {
+    margin-bottom: 20px;
   }
   
   .product-image {
     width: 100%;
-    max-height: 400px;
-    object-fit: cover;
+    height: 500px;
+    object-fit: contain;
     border-radius: 8px;
-    border: 1px solid #ddd;
+    background: #f8f8f8;
   }
   
-  .product-details {
-    padding: 20px;
+  .thumbnail-gallery {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+  }
+  
+  .product-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 15px;
+  }
+  
+  .product-meta {
+    display: flex;
+    gap: 20px;
+    color: #666;
+    margin-bottom: 20px;
+  }
+  
+  .pricing-section {
+    margin: 25px 0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
   }
   
   .product-price {
-    font-size: 28px;
+    font-size: 32px;
     color: #ff5722;
     font-weight: bold;
-    margin: 10px 0;
+    margin: 0;
+  }
+  
+  .stock-status {
+    color: #2ecc71;
+    font-weight: 500;
+  }
+  
+  .size-selector, .quantity-selector {
+    margin: 20px 0;
+  }
+  
+  .size-selector h3, .quantity-selector h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  
+  .size-options {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  
+  .size-btn {
+    padding: 10px 20px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: #333;
+  }
+  
+  .size-btn:hover, .size-btn.selected {
+    border-color: #ff5722;
+    color: #ff5722;
+    background-color: #fff4f0;
+  }
+  
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .qty-btn {
+    padding: 8px 15px;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+    color: #333;
+    font-size: 16px;
+    border-radius: 5px;
+    transition: all 0.3s;
+  }
+  
+  .qty-btn:hover {
+    background-color: #f8f8f8;
+    border-color: #ccc;
+  }
+  
+  .qty-input {
+    width: 60px;
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #333;
+    -moz-appearance: textfield;
+  }
+  
+  .qty-input::-webkit-outer-spin-button,
+  .qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 15px;
+    margin: 25px 0;
+  }
+  
+  .add-to-cart-btn, .buy-now-btn {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
   }
   
   .add-to-cart-btn {
     background-color: #ff5722;
     color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
+  }
+  
+  .buy-now-btn {
+    background-color: #2ecc71;
+    color: white;
   }
   
   .add-to-cart-btn:hover {
-    background-color: #e64a19;
+    background-color: #f4511e;
   }
   
-  .back-link {
+  .buy-now-btn:hover {
+    background-color: #27ae60;
+  }
+  
+  .product-description {
+    margin: 30px 0;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+  }
+  
+  .delivery-info {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f8f8f8;
+    border-radius: 5px;
+  }
+  
+  .delivery-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .breadcrumb {
+    margin-bottom: 20px;
+  }
+  
+  .breadcrumb a {
+    color: #666;
     text-decoration: none;
+  }
+  
+  .breadcrumb a:hover {
     color: #ff5722;
   }
   
-  .back-link:hover {
-    text-decoration: underline;
+  .back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 16px;
+    margin-bottom: 20px;
+    margin-left: -15px;
+  }
+  
+  .back-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
   }
 
   

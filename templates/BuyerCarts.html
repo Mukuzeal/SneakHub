@@ -59,7 +59,9 @@
                     <span class="btn" id="userName">Hello, {{ session['name'] }}!</span>
                     <hr> <!-- Horizontal line below the user's name -->
                     <span class="btn small-text-button" id="profile" style="cursor: pointer;">Profile</span>
-                    <span class="btn small-text-button" id="sellerRegistration" style="cursor: pointer;" onclick="window.location.href='/buyersettings'">Settings</span>
+                    <a href="/dashboard" class="btn small-text-button" id="sellerRegistration" style="cursor: pointer;">
+                      Settings
+                    </a>
                     <span class="btn small-text-button" id="logout" style="cursor: pointer;">Logout</span> <!-- Logout span -->
                 {% else %}
                     <!-- Show Sign Up button if no user is signed in -->
@@ -68,71 +70,93 @@
             </div>
           </div>
 
-<!-- Cart Section -->
 <div id="cart-page">
-  <div class="cart-section">
-    <h2>Your Cart</h2>
-    <div class="cart-items-container">
-      <!-- Loop through cart items and display them here -->
-      {% for item in cart_items %}
-      <div class="cart-item">
-        <div class="cart-product">
-          <input type="checkbox" class="item-checkbox" data-item-id="{{ item.product_id }}">
-          <img src="{{ url_for('static', filename='images/' + item.product_image) }}" alt="Product Image">
-          <div class="cart-item-details">
-            <p>{{ item.product_name }}</p>
-            <p>Price: ₱{{ item.product_price }}</p>
-            <p>Quantity: {{ item.quantity }}</p>
-            <p>Total: ₱{{ item.product_price * item.quantity }}</p>
-            <button class="remove-item-btn" data-item-id="{{ item.product_id }}">Remove</button>
-          </div>
+    <div class="container">
+        <div class="row">
+            <!-- Cart Items Column -->
+            <div class="col-lg-8">
+                <div class="cart-section">
+                    <div class="back-button-container">
+                        <a href="{{ url_for('success') }}" class="back-button">
+                            <img src="{{ url_for('static', filename='images/back.png') }}" alt="Back">
+                            <span>Back to Shopping</span>
+                        </a>
+                    </div>
+                    
+                    <div class="cart-header">
+                        <div class="header-with-checkbox">
+                            <input type="checkbox" id="select-all" class="cart-checkbox">
+                            <h1>Shopping Cart</h1>
+                        </div>
+                        <p class="items-count">{{ cart_items|length }} items</p>
+                    </div>
+                    
+                    <div class="cart-items">
+                        {% for item in cart_items %}
+                        <div class="cart-item">
+                            <div class="item-checkbox-wrapper">
+                                <input type="checkbox" class="cart-checkbox item-checkbox" data-price="{{ item.product_price }}" data-quantity="{{ item.quantity }}">
+                            </div>
+                            <div class="item-image">
+                                <img src="{{ url_for('static', filename='Uploads/pics/' + item.product_image) }}" alt="{{ item.product_name }}">
+                            </div>
+                            <div class="item-details">
+                                <div class="item-info">
+                                    <div>
+                                        <h3 class="item-name">{{ item.product_name }}</h3>
+                                        <p class="item-price">₱{{ item.product_price }}</p>
+                                    </div>
+                                </div>
+                                <div class="item-actions">
+                                    <div class="quantity-controls">
+                                        <button class="qty-btn minus">-</button>
+                                        <input type="number" class="qty-input" value="{{ item.quantity }}" min="1">
+                                        <button class="qty-btn plus">+</button>
+                                    </div>
+                                    <button class="remove-btn" data-item-id="{{ item.product_id }}">
+                                        Remove
+                                    </button>
+                                    <p class="item-total">₱{{ item.product_price * item.quantity }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary Column -->
+            <div class="col-lg-4">
+                <div class="order-summary">
+                    <h2>Order Summary</h2>
+                    <div class="summary-items">
+                        <div class="summary-line">
+                            <span>Selected Items</span>
+                            <span id="selected-items-count">0</span>
+                        </div>
+                        <div class="summary-line">
+                            <span>Subtotal</span>
+                            <span id="subtotal">₱0.00</span>
+                        </div>
+                        <div class="summary-line">
+                            <span>Shipping</span>
+                            <span>Free</span>
+                        </div>
+                    </div>
+                    <div class="summary-total">
+                        <span>Total</span>
+                        <span id="total">₱0.00</span>
+                    </div>
+                    <button class="checkout-btn" id="checkout-btn">Proceed to Checkout</button>
+                    <a href="/" class="continue-shopping">Continue Shopping</a>
+                </div>
+            </div>
         </div>
-      </div>
-      {% endfor %}
     </div>
-    
-    <!-- Cart Total Section -->
-    <div class="cart-total">
-      <p>Total: ₱<span id="total-price">{{ total_price }}</span></p>
-    </div>
-    
-    <!-- Checkout Button -->
-    <div class="cart-actions">
-      <button id="checkout-btn">Proceed to Checkout</button>
-    </div>
-  </div>
 </div>
 
-<footer>
-  <div>
-    <p>Online Store</p>
-    <a href="#">Men Shoes</a>
-    <a href="#">Women Shoes</a>
-    <a href="#">Stylish Shoes</a>
-    <a href="#">Running Shoes</a>
-  </div>
-  <div>
-    <p>Helpful Links</p>
-    <a href="#">Home</a>
-    <a href="#">About</a>
-    <a href="#">Contact</a>
-  </div>
-  <div>
-    <p>Partners</p>
-    <a href="#">Zara</a>
-    <a href="#">Pantaloons</a>
-    <a href="#">Levis</a>
-    <a href="#">UCB</a>
-    <a href="#">+ Many More</a>
-  </div>
-  <div>
-    <p>Address</p>
-    <a href="#">Building 101</a>
-    <a href="#">Central Avenue</a>
-    <a href="#">LA - 902722</a>
-    <a href="#">United States</a>
-  </div>
-</footer>
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{ url_for('static', filename='Success/success.js') }}"></script>

@@ -58,7 +58,9 @@
             <span class="btn" id="userName">Hello, {{ session['name'] }}!</span>
             <hr>
             <span class="btn small-text-button" id="profile" style="cursor: pointer;">Profile</span>
-            <span class="btn small-text-button" id="sellerRegistration" style="cursor: pointer;">Settings</span>
+            <a href="/dashboard" class="btn small-text-button" id="sellerRegistration" style="cursor: pointer;">
+              Settings
+            </a>
             <span class="btn small-text-button" id="logout" style="cursor: pointer;">Logout</span>
           {% else %}
             <button class="btn" id="signUp" type="button" onclick="window.location.href='/sign-up'">Sign Up</button>
@@ -69,32 +71,88 @@
   </header>
 
   <main class="main-content">
-    <!-- Product Container -->
     <div class="container product-container">
-      <div class="row">
-        <!-- Product Image -->
-        <div class="col-md-6">
-          <img src="{{ url_for('static', filename='Uploads/pics/' + product.product_image) }}" 
-               alt="{{ product.product_name }}" class="product-image">
+        <div class="row">
+            <!-- Back Button -->
+            <div class="col-12">
+                <button class="back-button">
+                    <img src="{{ url_for('static', filename='images/back.png') }}" alt="Back" class="back-icon">
+                    Back
+                </button>
+            </div>
+
+            <!-- Product Images Section -->
+            <div class="col-md-6">
+                <div class="main-image-container">
+                    <img src="{{ url_for('static', filename='Uploads/pics/' + product.product_image) }}" 
+                         alt="{{ product.product_name }}" class="product-image">
+                </div>
+                <div class="thumbnail-gallery">
+                    <!-- Placeholder for additional product images -->
+                </div>
+            </div>
+
+            <!-- Product Details Section -->
+            <div class="col-md-6 product-details">
+                <h1 class="product-title">{{ product.product_name }}</h1>
+                <div class="product-meta">
+                    <span class="brand">Brand: {{ product.brand }}</span>
+                    <span class="sku">SKU: {{ product.id }}</span>
+                </div>
+
+                <div class="pricing-section">
+                    <p class="product-price">₱{{ "%.2f" | format(product.product_price) }}</p>
+                    <span class="stock-status">In Stock</span>
+                </div>
+
+                <div class="size-selector">
+                    <h3>Select Size</h3>
+                    <div class="size-options">
+                        <button class="size-btn">US 7</button>
+                        <button class="size-btn">US 8</button>
+                        <button class="size-btn">US 9</button>
+                        <button class="size-btn">US 10</button>
+                        <button class="size-btn">US 11</button>
+                    </div>
+                </div>
+
+                <div class="quantity-selector">
+                    <h3>Quantity</h3>
+                    <div class="quantity-controls">
+                        <button class="qty-btn minus">-</button>
+                        <input type="number" value="1" min="1" class="qty-input" readonly>
+                        <button class="qty-btn plus">+</button>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="add-to-cart-btn">Add to Cart</button>
+                    <button class="buy-now-btn">Buy Now</button>
+                </div>
+
+                <div class="product-description">
+                    <h3>Product Description</h3>
+                    <p>{{ product.description if product.description else 'No description available.' }}</p>
+                </div>
+
+                <div class="delivery-info">
+                    <div class="delivery-item">
+                        <i class="fas fa-truck"></i>
+                        <span>Free shipping on orders over ₱5000</span>
+                    </div>
+                    <div class="delivery-item">
+                        <i class="fas fa-undo"></i>
+                        <span>30-day return policy</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <!-- Product Details -->
-        <div class="col-md-6 product-details">
-          <h1>{{ product.product_name }}</h1>
-          <p class="product-price">₱{{ "%.2f" | format(product.product_price) }}</p>
-          <p><strong>Brand:</strong> {{ product.brand }}</p>
-          <button class="add-to-cart-btn">Add to Cart</button>
-          <p>
-            <button class="back-link" onclick="goBack()" style="border: none; background: none; padding: 0; cursor: pointer;">← Back to Home</button>
-          </p>
-        </div>
-      </div>
     </div>
   </main>
 
   <!-- SweetAlert2 Library -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="{{ url_for('static', filename='Success/success.js') }}"></script>
-  <script src="{{ url_for('static', filename='SellerRequests/BuyerAccountSettings.js') }}"></script>
   <script src="{{ url_for('static', filename='product/product.js') }}"></script> <!-- Link to the new product.js -->
 </body>
 </html>
