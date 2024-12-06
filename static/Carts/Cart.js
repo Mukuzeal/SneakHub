@@ -103,7 +103,7 @@ function displayEmptyCart() {
             <div class="empty-cart">
                 <h2>Your cart is empty</h2>
                 <p>Looks like you haven't added any items to your cart yet.</p>
-                <a href="/" class="continue-shopping">Start Shopping</a>
+                <a href="/success" class="continue-shopping">Start Shopping</a>
             </div>
         `;
     }
@@ -125,6 +125,11 @@ function updateTotalPrice(cartItems) {
         totalElement.textContent = `₱${subtotal.toFixed(2)}`;
     }
 }
+ // Check Out Button
+document.getElementById('checkout-btn').addEventListener('click', function () {
+    window.location.href = "{{ url_for('checkout') }}";
+});
+
 
 function updateItemTotal(input) {
     const cartItem = input.closest('.cart-item');

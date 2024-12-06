@@ -20,10 +20,14 @@
     <nav class="nav-top">
       <div class="left-wrapper">
         <div id="logo1">
-          <img src="{{ url_for('static', filename='images/SneakHUb_-_2-removebg-preview.png') }}" />
+          <a href="/success">
+            <img src="{{ url_for('static', filename='images/SneakHUb_-_2-removebg-preview.png') }}" alt="SneakHub Logo 1"/>
+          </a>
         </div>
         <div id="logo2">
-          <img src="{{ url_for('static', filename='images/SneakHUb_-_3-removebg-preview.png') }}" />
+          <a href="/success">
+            <img src="{{ url_for('static', filename='images/SneakHUb_-_3-removebg-preview.png') }}" alt="SneakHub Logo 2"/>
+          </a>
         </div>
       </div>
 
@@ -45,7 +49,7 @@
           <img src="{{ url_for('static', filename='images/lineseparator.png') }}" alt="Separator" id="separator-icon">
           
           <!-- Cart Button (newly added) -->
-          <img src="{{ url_for('static', filename='images/cart.png') }}" alt="Cart Button" id="cart-button">
+          <img src="{{ url_for('static', filename='images/cart.png') }}" alt="Cart Button" id="cart-button" onclick="goToCartPage(event)">
           
           <!-- Account Button -->
           <img src="{{ url_for('static', filename='images/accountlogo.png') }}" alt="Account Button" id="account-button">

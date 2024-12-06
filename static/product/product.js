@@ -153,4 +153,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+function goToCartPage(event) {
+    // Prevent the default action
+    event.preventDefault();
+    
+    // Redirect to BuyerCarts.html page (Flask will manage session automatically)
+    window.location.href = "/BuyerCarts.html";  // Adjust the path as needed
+}
+
+
   

@@ -156,6 +156,10 @@ def index():
     session.clear()
     return render_template('MainWeb.html')
 
+@app.route('/checkout')
+def checkout():
+    return render_template('checkout.html')
+
     
 @app.route('/submit_form', methods=['POST'])
 def submit_form():

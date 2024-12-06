@@ -24,12 +24,16 @@
   <nav class="nav-top">
     <div class="left-wrapper">
         <div id="logo1">
-            <img src="/static/images/SneakHUb_-_2-removebg-preview.png" />
+          <a href="/success">
+            <img src="{{ url_for('static', filename='images/SneakHUb_-_2-removebg-preview.png') }}" alt="SneakHub Logo 1"/>
+          </a>
         </div>
         <div id="logo2">
-            <img src="/static/images/SneakHUb_-_3-removebg-preview.png" />
+          <a href="/success">
+            <img src="{{ url_for('static', filename='images/SneakHUb_-_3-removebg-preview.png') }}" alt="SneakHub Logo 2"/>
+          </a>
         </div>
-    </div>
+      </div>
 
     <div class="center-links">
         <div class="section-title-in-nav"><a href="#NewArrivals">NEW ARRIVALS</a></div>
@@ -148,7 +152,7 @@
                         <span id="total">₱0.00</span>
                     </div>
                     <button class="checkout-btn" id="checkout-btn">Proceed to Checkout</button>
-                    <a href="/" class="continue-shopping">Continue Shopping</a>
+                    <a href="{{ url_for('success') }}" class="continue-shopping">Continue Shopping</a>
                 </div>
             </div>
         </div>

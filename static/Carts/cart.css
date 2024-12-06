@@ -153,7 +153,7 @@ body {
   padding: 18px 36px; /* Increased padding for a prominent button */
   font-size: 20px; /* Larger font size for visibility */
   font-weight: bold;
-  background-color: #27ae60;
+  background-color: #059743;
   color: #fff;
   border: none;
   border-radius: 8px; /* Slightly rounded corners */
@@ -162,7 +162,7 @@ body {
 }
 
 #checkout-btn:hover {
-  background-color: #219150;
+  background-color: #00ea63;
   transform: scale(1.1); /* Larger scaling effect */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
