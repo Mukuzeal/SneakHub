@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Methods</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Manage Payment Methods</h2>
+        
+        <!-- Form to add new payment method -->
+        <form id="paymentMethodForm">
+            <div class="form-group">
+                <label for="methodName">Payment Method Name:</label>
+                <input type="text" id="methodName" name="methodName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Payment Description:</label>
+                <textarea id="description" name="description" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="isActive" name="isActive">
+                    Active
+                </label>
+            </div>
+            
+            <button type="submit">Add Payment Method</button>
+        </form>
+
+        <!-- List of existing payment methods -->
+        <div id="paymentMethodsList">
+            <h3>Your Payment Methods</h3>
+            <div class="payment-methods-container"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('paymentMethodForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                methodName: document.getElementById('methodName').value,
+                description: document.getElementById('description').value,
+                isActive: document.getElementById('isActive').checked
+            };
+
+            try {
+                const response = await fetch('/add_payment_method', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    alert('Payment method added successfully!');
+                    loadPaymentMethods(); // Refresh the list
+                    e.target.reset(); // Reset form
+                } else {
+                    alert('Failed to add payment method');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error adding payment method');
+            }
+        });
+
+        async function loadPaymentMethods() {
+            try {
+                const response = await fetch('/get_payment_methods');
+                const methods = await response.json();
+                
+                const container = document.querySelector('.payment-methods-container');
+                container.innerHTML = methods.map(method => `
+                    <div class="payment-method-item">
+                        <h4>${method.payment_method}</h4>
+                        <p>${method.payment_description}</p>
+                        <label>
+                            <input type="checkbox" 
+                                   onchange="updateStatus(${method.id}, this.checked)"
+                                   ${method.is_active ? 'checked' : ''}>
+                            Active
+                        </label>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function updateStatus(methodId, isActive) {
+            try {
+                const response = await fetch('/update_payment_method_status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ methodId, isActive })
+                });
+
+                if (!response.ok) {
+                    alert('Failed to update status');
+                    loadPaymentMethods(); // Refresh to show correct state
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error updating status');
+            }
+        }
+
+        // Load payment methods when page loads
+        document.addEventListener('DOMContentLoaded', loadPaymentMethods);
+    </script>
+</body>
+</html>

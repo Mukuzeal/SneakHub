@@ -43,33 +43,42 @@
                 </a>
                 
                 <div class="nav_list"> 
-                    <a href="backToDash" class="nav_link" onclick="goToDashboard()"> 
+                    <a href="#" class="nav_link active" onclick="goToDashboard()"> 
                         <i class='bx bxs-dashboard nav_icon'></i> 
                         <span class="nav_name">Dashboard</span> 
                     </a> 
-                
+                    
                     <a href="/itemList" class="nav_link" onclick="goToItemList()"> 
                         <i class='bx bx-list-ul nav_icon'></i> 
                         <span class="nav_name">Item List</span> 
                     </a> 
-                
-                    <!-- Mark the Add Item button as active -->
+                    
                     <a href="/add-product" class="nav_link"> 
                         <i class="bx bxs-message-alt-add nav_icon"></i>
                         <span class="nav_name">Add Item</span>
                     </a>                    
-                
+                    
+                    
                     <a href="/updateList" class="nav_link" onclick="goToUpdates()"> 
-                        <i class='bx bxs-message-alt-check nav_icon'></i>
+                        <i class='bx bxs-archive nav_icon' ></i>
                         <span class="nav_name">Archive</span>
                     </a>
-                
-                    <a href="#" class="nav_link active" onclick="goToAccountSettings()"> 
+
+                    <a href="/paymentMethods" class="nav_link" onclick="goToUpdates()"> 
+                        <i class='bx bxs-wallet nav_icon' ></i>
+                        <span class="nav_name">Payment Methods</span>
+                    </a>
+
+                    <a href="/switchBuyer" class="nav_link" onclick="goToBuyer()"> 
+                        <i class='bx bxs-user nav_icon' ></i>
+                        <span class="nav_name">Switch to Buyer</span>
+                    </a>
+
+                    <a href="/accSettings" class="nav_link" onclick="goToAccountSettings()"> 
                         <i class='bx bxs-cog nav_icon'></i>
                         <span class="nav_name">Account Setting</span>
                     </a>
                 </div>
-                
             </div>
             
             <a href="sellerlogout" class="nav_link" onclick="logout(event)"> 
