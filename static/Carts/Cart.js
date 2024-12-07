@@ -127,7 +127,7 @@ function updateTotalPrice(cartItems) {
 }
  // Check Out Button
 document.getElementById('checkout-btn').addEventListener('click', function () {
-    window.location.href = "/checkout";
+    window.location.href = "{{ url_for('checkout') }}";
 });
 
 

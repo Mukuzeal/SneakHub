@@ -225,7 +225,7 @@ h2{
     }
 
     .show {
-        width: calc(var(--nav-width) + 188px)
+        width: calc(var(--nav-width) + 156px)
     }
 
     .body-pd {

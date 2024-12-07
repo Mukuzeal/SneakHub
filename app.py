@@ -135,13 +135,6 @@ def home():
     return render_template('MainWeb.html')  # Ensure the template exists
 
 
-
-@app.route('/paymentMethods')
-def paymentMethods():
-    if 'user_id' not in session or session.get('user_type') != 'Seller':
-        return redirect(url_for('index'))  # Redirect to login if not authenticated
-    return render_template('paymentMethods.html')
-
 @app.route('/sign-up')
 def sign_up():
     return render_template('index.html')
@@ -1810,129 +1803,7 @@ def get_archived_products():
     
 
     
-@app.route('/add_payment_method', methods=['POST'])
-def add_payment_method():
-    if 'user_id' not in session or session.get('user_type') != 'Seller':
-        return jsonify({'error': 'Unauthorized'}), 401
 
-    try:
-        data = request.json
-        seller_id = session['user_id']
-        method_name = data['methodName']
-        description = data['description']
-        is_active = data['isActive']
-        current_time = datetime.now()
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # Insert new payment method
-        cursor.execute("""
-            INSERT INTO sellerpaymodes 
-            (seller_id, payment_method, payment_description, is_active, created_at, updated_at)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """, (seller_id, method_name, description, is_active, current_time, current_time))
-
-        conn.commit()
-        cursor.close()
-        conn.close()
-
-        return jsonify({'success': True, 'message': 'Payment method added successfully'})
-
-    except Exception as e:
-        print(f"Error adding payment method: {e}")
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/get_payment_methods', methods=['GET'])
-def get_payment_methods():
-    if 'user_id' not in session or session.get('user_type') != 'Seller':
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    try:
-        seller_id = session['user_id']
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)  # Use dictionary cursor for easier JSON conversion
-
-        cursor.execute("""
-            SELECT id, payment_method, payment_description, is_active, 
-                   created_at, updated_at
-            FROM sellerpaymodes
-            WHERE seller_id = %s
-            ORDER BY created_at DESC
-        """, (seller_id,))
-
-        payment_methods = cursor.fetchall()
-        cursor.close()
-        conn.close()
-
-        return jsonify(payment_methods)
-
-    except Exception as e:
-        print(f"Error fetching payment methods: {e}")
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/update_payment_method_status', methods=['POST'])
-def update_payment_method_status():
-    if 'user_id' not in session or session.get('user_type') != 'Seller':
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    try:
-        data = request.json
-        method_id = data['methodId']
-        is_active = data['isActive']
-        seller_id = session['user_id']
-        current_time = datetime.now()
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # Verify the payment method belongs to the seller before updating
-        cursor.execute("""
-            UPDATE sellerpaymodes 
-            SET is_active = %s, updated_at = %s
-            WHERE id = %s AND seller_id = %s
-        """, (is_active, current_time, method_id, seller_id))
-
-        if cursor.rowcount == 0:
-            return jsonify({'error': 'Payment method not found or unauthorized'}), 404
-
-        conn.commit()
-        cursor.close()
-        conn.close()
-
-        return jsonify({'success': True, 'message': 'Status updated successfully'})
-
-    except Exception as e:
-        print(f"Error updating payment method status: {e}")
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/delete_payment_method/<int:method_id>', methods=['DELETE'])
-def delete_payment_method(method_id):
-    if 'user_id' not in session or session.get('user_type') != 'Seller':
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    try:
-        seller_id = session['user_id']
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("""
-            DELETE FROM sellerpaymodes 
-            WHERE id = %s AND seller_id = %s
-        """, (method_id, seller_id))
-
-        if cursor.rowcount == 0:
-            return jsonify({'error': 'Payment method not found or unauthorized'}), 404
-
-        conn.commit()
-        cursor.close()
-        conn.close()
-
-        return jsonify({'success': True, 'message': 'Payment method deleted successfully'})
-
-    except Exception as e:
-        print(f"Error deleting payment method: {e}")
-        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == "__main__":

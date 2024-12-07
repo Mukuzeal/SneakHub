@@ -1,98 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout - SneakHub</title>
-    <link rel="stylesheet" href="/static/checkout/checkout.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout</title>
+  <link rel="stylesheet" href="checkout/checkout.css">
 </head>
 <body>
-    <div class="checkout-container">
-        <div class="checkout-form">
-            <div class="form-section">
-                <h2>Contact</h2>
-                <div class="form-group">
-                    <input type="email" id="email" placeholder="Email" required>
-                </div>
-                <div class="form-group">
-                </div>
-            </div>
+  <div class="checkout-container">
+    <h1>Checkout</h1>
 
-            <div class="form-section">
-                <h2>Delivery</h2>
-                <div class="form-group">
-                    <select id="country" required>
-                        <option value="PH">Philippines</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <input type="text" id="firstName" placeholder="First name" required>
-                </div>
-                <div class="form-group">
-                    <input type="text" id="lastName" placeholder="Last name" required>
-                </div>
-                <div class="form-group">
-                    <input type="text" id="address" placeholder="Address" required>
-                </div>
-                <div class="form-group">
-                    <input type="text" id="apartment" placeholder="Apartment, suite, etc. (optional)">
-                </div>
-                <div class="form-group">
-                    <input type="text" id="city" placeholder="City" required>
-                </div>
-                <div class="form-group">
-                    <select id="region" required>
-                        <option value="">Select Region</option>
-                        <!-- Add Philippines regions here -->
-                    </select>
-                </div>
-                <div class="form-group">
-                    <input type="text" id="postal" placeholder="Postal code" required>
-                </div>
-                <div class="form-group">
-                    <input type="tel" id="phone" placeholder="Phone" required>
-                </div>
-            </div>
-
-            <div class="form-section">
-                <h2>Payment</h2>
-                <p>All transactions are secure and encrypted.</p>
-                <div class="payment-options" id="dynamic-payment-options">
-                    <!-- Payment options will be dynamically inserted here -->
-                </div>
-                <div id="payment-details" class="payment-details">
-                    <!-- Additional payment details will be shown here based on selection -->
-                </div>
-            </div>
-        </div>
-
-        <div class="order-summary">
-            <h2>Order Summary</h2>
-            <div id="order-items">
-                <!-- Order items will be dynamically inserted here -->
-            </div>
-            <div class="discount-section">
-                <input type="text" id="discount-code" placeholder="Discount code">
-                <button id="apply-discount">Apply</button>
-            </div>
-            <div class="price-summary">
-                <div class="price-row">
-                    <span>Subtotal</span>
-                    <span id="subtotal">₱0.00</span>
-                </div>
-                <div class="price-row">
-                    <span>Shipping</span>
-                    <span id="shipping">FREE</span>
-                </div>
-                <div class="price-row total-row">
-                    <span>Total</span>
-                    <span id="total">₱0.00</span>
-                </div>
-            </div>
-            <button class="checkout-button" id="complete-order">Complete order</button>
-        </div>
+    <!-- Payment Method -->
+    <div class="payment-method">
+      <label for="payment-method">Payment Method:</label>
+      <select id="payment-method" onchange="togglePaymentDetails()">
+        <option value="cod">Cash on Delivery</option>
+        <option value="credit-debit">Debit/Credit Card</option>
+      </select>
     </div>
 
-    <script src="/static/checkout/checkout.js"></script>
+    <!-- Payment Details -->
+    <div id="payment-details" style="display:none;">
+      <label for="card-number">Card Number:</label>
+      <input type="text" id="card-number" placeholder="Enter Card Number">
+    </div>
+
+    <!-- Region, City, Town -->
+    <div class="location">
+      <label for="region">Region:</label>
+      <select id="region" onchange="updateProvinces()">
+        <option value="">Select Region</option>
+        <option value="calabarzon">CALABARZON</option>
+        <!-- Add other regions -->
+      </select>
+      
+      <label for="province">Province:</label>
+      <select id="province" onchange="updateCities()">
+        <option value="">Select Province</option>
+        <!-- Provinces will be added dynamically -->
+      </select>
+
+      <label for="city">City:</label>
+      <select id="city" onchange="updateTowns()">
+        <option value="">Select City</option>
+        <!-- Cities will be added dynamically -->
+      </select>
+
+      <label for="town">Town:</label>
+      <select id="town">
+        <option value="">Select Town</option>
+        <!-- Towns will be added dynamically -->
+      </select>
+    </div>
+
+    <!-- Items -->
+    <div class="items">
+      <h2>Your Items:</h2>
+      <ul id="items-list">
+        <!-- Items will be dynamically added -->
+      </ul>
+    </div>
+
+    <!-- Phone Number -->
+    <div class="phone">
+      <label for="phone">Phone Number:</label>
+      <input type="tel" id="phone" placeholder="Enter your phone number">
+    </div>
+
+    <!-- Coupon -->
+    <div class="coupon">
+      <label for="coupon">Coupon Code:</label>
+      <input type="text" id="coupon" placeholder="Enter coupon code">
+    </div>
+
+    <!-- Total Price -->
+    <div class="total-price">
+      <label for="total">Total Price:</label>
+      <span id="total">₱0.00</span>
+    </div>
+
+    <!-- Address -->
+    <div class="address">
+      <label for="address">Postal Address:</label>
+      <textarea id="address" placeholder="Enter your postal address"></textarea>
+    </div>
+
+    <button type="submit">Place Order</button>
+  </div>
+
+  <script src="checkout/checkout.js"></script>
 </body>
 </html>
