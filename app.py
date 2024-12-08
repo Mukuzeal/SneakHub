@@ -777,7 +777,7 @@ def get_items():
 
 
 
-@app.route('/api/checkout/items', methods=['GET'])
+@app.route('/api/checkout/items', methods=['GET', 'POST'])
 def get_checkout_items():
     if 'user_id' not in session:
         return jsonify({'error': 'User not logged in'}), 401
@@ -787,19 +787,64 @@ def get_checkout_items():
     cursor = conn.cursor(dictionary=True)
     
     try:
-        # Get cart items with product details
-        query = """
-            SELECT p.id, p.product_name, p.product_price, p.product_image, 
-                   ci.quantity
-            FROM cart_items ci
-            JOIN products p ON ci.product_id = p.id
-            WHERE ci.user_id = %s
-        """
-        cursor.execute(query, (user_id,))
-        items = cursor.fetchall()
-        
-        # Calculate subtotal
-        subtotal = sum(item['product_price'] * item['quantity'] for item in items)
+        if request.method == 'POST':
+            # Handle POST request with selected items
+            data = request.json
+            selected_items = data.get('selectedItems', [])
+            
+            if not selected_items:
+                return jsonify({'error': 'No items selected'}), 400
+            
+            items = []
+            subtotal = 0
+            
+            for item in selected_items:
+                product_id = item['product_id']
+                quantity = item['quantity']
+                
+                query = """
+                    SELECT p.id, p.product_name, p.product_price, p.product_image
+                    FROM products p
+                    WHERE p.id = %s
+                """
+                cursor.execute(query, (product_id,))
+                product = cursor.fetchone()
+                
+                if product:
+                    item_data = {
+                        **product,
+                        'quantity': quantity
+                    }
+                    items.append(item_data)
+                    subtotal += product['product_price'] * quantity
+        else:
+            # Handle GET request - get items from selected items in localStorage
+            selected_items = request.args.get('items', '').split(',')
+            if not selected_items or selected_items[0] == '':
+                # Fallback to getting all cart items if no selection
+                query = """
+                    SELECT p.id, p.product_name, p.product_price, p.product_image,
+                           ci.quantity
+                    FROM cart_items ci
+                    JOIN products p ON ci.product_id = p.id
+                    WHERE ci.user_id = %s
+                """
+                cursor.execute(query, (user_id,))
+                items = cursor.fetchall()
+                subtotal = sum(item['product_price'] * item['quantity'] for item in items)
+            else:
+                # Get only selected items
+                placeholders = ','.join(['%s'] * len(selected_items))
+                query = f"""
+                    SELECT p.id, p.product_name, p.product_price, p.product_image,
+                           ci.quantity
+                    FROM cart_items ci
+                    JOIN products p ON ci.product_id = p.id
+                    WHERE ci.user_id = %s AND p.id IN ({placeholders})
+                """
+                cursor.execute(query, (user_id, *selected_items))
+                items = cursor.fetchall()
+                subtotal = sum(item['product_price'] * item['quantity'] for item in items)
         
         return jsonify({
             'items': items,

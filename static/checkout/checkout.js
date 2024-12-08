@@ -6,22 +6,45 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadCartItems() {
     try {
-        const response = await fetch('/api/checkout/items');
+        // Get selected items from localStorage
+        const selectedItems = JSON.parse(localStorage.getItem('checkoutItems') || '[]');
+        
+        if (selectedItems.length === 0) {
+            // Redirect back to cart if no items are selected
+            window.location.href = '/BuyerCarts.html';
+            return;
+        }
+
+        // Create URL with selected item IDs
+        const itemIds = selectedItems.map(item => item.product_id).join(',');
+        const response = await fetch(`/api/checkout/items?items=${itemIds}`);
+        
         const data = await response.json();
         
-        if (data.items) {
+        if (data.items && data.items.length > 0) {
             const orderItems = document.getElementById('order-items');
             orderItems.innerHTML = ''; // Clear existing items
             
+            // Map quantities from selected items
+            const quantityMap = Object.fromEntries(
+                selectedItems.map(item => [item.product_id, item.quantity])
+            );
+            
             data.items.forEach(item => {
+                // Use quantity from selected items if available
+                item.quantity = quantityMap[item.id] || item.quantity;
                 const itemElement = createOrderItemElement(item);
                 orderItems.appendChild(itemElement);
             });
             
             updateTotals(data.subtotal);
+        } else {
+            console.error('No items found in response');
+            window.location.href = '/BuyerCarts.html';
         }
     } catch (error) {
         console.error('Error loading cart items:', error);
+        alert('Error loading cart items. Please try again.');
     }
 }
 
@@ -79,7 +102,10 @@ function applyDiscount() {
 }
 
 async function handleCheckout() {
+    const selectedItems = JSON.parse(localStorage.getItem('checkoutItems') || '[]');
+    
     const formData = {
+        selectedItems, // Include selected items in checkout data
         email: document.getElementById('email').value,
         firstName: document.getElementById('firstName').value,
         lastName: document.getElementById('lastName').value,
@@ -110,14 +136,17 @@ async function handleCheckout() {
         if (response.ok) {
             const result = await response.json();
             if (result.success) {
+                // Clear selected items from localStorage after successful checkout
+                localStorage.removeItem('checkoutItems');
                 window.location.href = '/order-success';
             }
         } else {
-            throw new Error('Checkout failed');
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Checkout failed');
         }
     } catch (error) {
         console.error('Checkout error:', error);
-        alert('There was an error processing your order. Please try again.');
+        alert(error.message || 'There was an error processing your order. Please try again.');
     }
 }
 

@@ -126,7 +126,33 @@ function updateTotalPrice(cartItems) {
     }
 }
  // Check Out Button
-document.getElementById('checkout-btn').addEventListener('click', function () {
+document.getElementById('checkout-btn').addEventListener('click', function(e) {
+    e.preventDefault(); // Prevent default action
+    
+    const selectedItems = [];
+    const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
+    
+    if (checkedBoxes.length === 0) {
+        alert('Please select items to checkout');
+        return;
+    }
+
+    // Gather data for each checked item
+    checkedBoxes.forEach(checkbox => {
+        const cartItem = checkbox.closest('.cart-item');
+        const productId = cartItem.querySelector('.remove-btn').getAttribute('data-item-id');
+        const quantity = parseInt(cartItem.querySelector('.qty-input').value);
+        
+        selectedItems.push({
+            product_id: productId,
+            quantity: quantity
+        });
+    });
+
+    // Store selected items in localStorage (more reliable than sessionStorage)
+    localStorage.setItem('checkoutItems', JSON.stringify(selectedItems));
+
+    // Redirect to checkout page
     window.location.href = "/checkout";
 });
 
@@ -179,13 +205,27 @@ function updateOrderSummary() {
     const checkedItems = document.querySelectorAll('.item-checkbox:checked');
     const selectedCount = checkedItems.length;
     let subtotal = 0;
+    
+    // Store checked product IDs and quantities for checkout
+    const selectedItems = [];
 
     checkedItems.forEach(checkbox => {
         const cartItem = checkbox.closest('.cart-item');
         const price = parseFloat(cartItem.querySelector('.item-price').textContent.replace('₱', ''));
         const quantity = parseInt(cartItem.querySelector('.qty-input').value);
+        const productId = cartItem.querySelector('.remove-btn').getAttribute('data-item-id');
+        
         subtotal += price * quantity;
+        
+        // Add item to selected items array
+        selectedItems.push({
+            product_id: productId,
+            quantity: quantity
+        });
     });
+
+    // Store selected items in session storage for checkout
+    sessionStorage.setItem('selectedItems', JSON.stringify(selectedItems));
 
     // Update the summary
     document.getElementById('selected-items-count').textContent = selectedCount;
