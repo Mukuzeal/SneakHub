@@ -776,6 +776,129 @@ def get_items():
         conn.close()
 
 
+
+@app.route('/api/checkout/items', methods=['GET'])
+def get_checkout_items():
+    if 'user_id' not in session:
+        return jsonify({'error': 'User not logged in'}), 401
+    
+    user_id = session['user_id']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        # Get cart items with product details
+        query = """
+            SELECT p.id, p.product_name, p.product_price, p.product_image, 
+                   ci.quantity
+            FROM cart_items ci
+            JOIN products p ON ci.product_id = p.id
+            WHERE ci.user_id = %s
+        """
+        cursor.execute(query, (user_id,))
+        items = cursor.fetchall()
+        
+        # Calculate subtotal
+        subtotal = sum(item['product_price'] * item['quantity'] for item in items)
+        
+        return jsonify({
+            'items': items,
+            'subtotal': subtotal
+        })
+        
+    except Exception as e:
+        print(f"Error fetching checkout items: {e}")
+        return jsonify({'error': str(e)}), 500
+        
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/api/checkout', methods=['POST'])
+def process_checkout():
+    if 'user_id' not in session:
+        return jsonify({'error': 'User not logged in'}), 401
+    
+    user_id = session['user_id']
+    data = request.json
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        # Start transaction
+        cursor.execute("START TRANSACTION")
+        
+        # Create order
+        order_query = """
+            INSERT INTO orders (
+                user_id, email, first_name, last_name, address, 
+                apartment, city, region, postal_code, phone,
+                payment_method, shipping_fee, order_date
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+        """
+        
+        shipping_fee = 50 if data['paymentMethod'] == 'cod-province' else 0
+        
+        cursor.execute(order_query, (
+            user_id, data['email'], data['firstName'], data['lastName'],
+            data['address'], data['apartment'], data['city'], data['region'],
+            data['postal'], data['phone'], data['paymentMethod'], shipping_fee
+        ))
+        
+        order_id = cursor.lastrowid
+        
+        # Get cart items
+        cursor.execute("""
+            SELECT product_id, quantity FROM cart_items WHERE user_id = %s
+        """, (user_id,))
+        cart_items = cursor.fetchall()
+        
+        # Create order items and update product quantities
+        for item in cart_items:
+            product_id, quantity = item[0], item[1]
+            
+            # Check if enough stock is available
+            cursor.execute("SELECT product_quantity FROM products WHERE id = %s", (product_id,))
+            current_stock = cursor.fetchone()[0]
+            
+            if current_stock < quantity:
+                cursor.execute("ROLLBACK")
+                return jsonify({
+                    'error': f'Not enough stock available for product ID {product_id}. Available: {current_stock}'
+                }), 400
+            
+            # Update product quantity
+            cursor.execute("""
+                UPDATE products 
+                SET product_quantity = product_quantity - %s 
+                WHERE id = %s
+            """, (quantity, product_id))
+            
+            # Create order item
+            cursor.execute("""
+                INSERT INTO order_items (order_id, product_id, quantity)
+                VALUES (%s, %s, %s)
+            """, (order_id, product_id, quantity))
+        
+        # Clear cart
+        cursor.execute("DELETE FROM cart_items WHERE user_id = %s", (user_id,))
+        
+        # Commit transaction
+        cursor.execute("COMMIT")
+        
+        return jsonify({'success': True, 'order_id': order_id})
+        
+    except Exception as e:
+        cursor.execute("ROLLBACK")
+        print(f"Checkout error: {e}")
+        return jsonify({'error': str(e)}), 500
+        
+    finally:
+        cursor.close()
+        conn.close()
+
+
 @app.route('/get_product/<int:product_id>', methods=['GET'])
 def get_product(product_id):
     try:
@@ -1758,7 +1881,6 @@ def archive_product(product_id):
         return jsonify({'success': False, 'message': str(e)}), 500
     
 
-@app.route('/updateList')
 @app.route('/UpdateList')
 @app.route('/item_listArchive')
 def item_list_archive():
@@ -1808,3 +1930,9 @@ def get_archived_products():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+@app.route('/order-success')
+def order_success():
+    if 'user_id' not in session:
+        return redirect(url_for('home'))
+    return render_template('order_success.html')

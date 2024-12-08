@@ -84,6 +84,10 @@ function goToUpdates() {
     window.location.href = '/updateList';
 }
 
+function goToNotifs() {
+    window.location.href = '/updateList';
+}
+
 function goToAccountSettings() {
     window.location.href = 'AccountSettings.html';
 }

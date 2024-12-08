@@ -28,7 +28,7 @@ body {
   position: fixed;
   width: 100%;
   top: 0;
-  z-index: 10;
+  z-index: 1000;
 }
 
 /* Logo container styling */
@@ -292,7 +292,7 @@ hr {
   width: 30px; /* Adjust size as needed */
   height: 30px;
   cursor: pointer;
-  z-index: 10; /* Ensure it stays above other elements */
+  z-index: 1; /* Changed from 10 to 1 to prevent overlap with navbar */
 }
 
 
