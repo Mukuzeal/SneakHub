@@ -1149,27 +1149,21 @@ def get_itemsArchive():
 
 
 
-@app.route('/restore_product', methods=['POST'])
-def restore_product():
-    product_id = request.json.get('product_id')
-    
-    if not product_id:
-        return jsonify({"success": False, "message": "Invalid Product ID"})
-
+@app.route('/restore_product/<int:product_id>', methods=['POST'])
+def restore_product(product_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        query = "UPDATE products SET archive = 'no' WHERE id = %s"
-        cursor.execute(query, (product_id,))
-        conn.commit()
-
+        # Update the archive column to "yes" for the specified product ID
+        cursor.execute("UPDATE products SET archive = 'no' WHERE id = %s", (product_id,))
+        connection.commit()
+        
+        return jsonify({'success': 'Product archived successfully.'}), 200
+    except mysql.connector.Error as err:
+        return jsonify({'error': str(err)}), 500
+    finally:
         cursor.close()
-        conn.close()
-
-        return jsonify({"success": True, "message": "Product restored successfully!"})
-    except Exception as e:
-        return jsonify({"success": False, "message": str(e)})
+        connection.close()
 
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
@@ -1967,9 +1961,6 @@ def get_archived_products():
     except Exception as e:
         print(f"Error in get_archived_products: {e}")
         return jsonify([])
-    
-
-    
 
 
 
